@@ -41,3 +41,10 @@ export const RANGES = [
 export function rangeQuery(range, from, to) {
   return range === 'custom' ? { range, from, to } : { range }
 }
+
+/** Quantities may be decimal (kg, litres). Show up to 3 places without trailing zeros. */
+export function qtyText(n) {
+  const v = Number(n)
+  if (!Number.isFinite(v)) return '0'
+  return String(Math.round(v * 1000) / 1000)
+}

@@ -16,7 +16,7 @@ export function purchasePayment(mode, partAmount, total) {
 export function validatePurchase({ lines, owed, supplier, canOwe }) {
   if (lines.length === 0) return 'Add at least one product'
   for (const l of lines) {
-    if (!Number.isInteger(num(l.quantity)) || num(l.quantity) < 1) return `Enter how many ${l.name} you received`
+    if (!(num(l.quantity) > 0) || (!l.allowDecimal && !Number.isInteger(num(l.quantity)))) return `Enter how many ${l.name} you received`
     if (l.unitCost === '' || num(l.unitCost) < 0) return `Enter what you paid for each ${l.name}`
   }
   if (owed > 0 && !supplier) return 'Choose a supplier when you have not paid in full'
@@ -26,5 +26,5 @@ export function validatePurchase({ lines, owed, supplier, canOwe }) {
 
 export function addPurchaseLine(lines, item) {
   if (lines.some((l) => l.variantId === item.variantId)) return lines
-  return [...lines, { variantId: item.variantId, name: item.label ? `${item.productName} (${item.label})` : item.productName, quantity: 1, unitCost: '', stock: item.quantity }]
+  return [...lines, { variantId: item.variantId, name: item.label ? `${item.productName} (${item.label})` : item.productName, quantity: 1, unitCost: '', stock: item.quantity, allowDecimal: !!item.allowDecimal }]
 }

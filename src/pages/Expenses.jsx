@@ -23,8 +23,8 @@ function AddExpense({ onClose, onDone }) {
     if (Object.keys(errs).length) return
     setBusy(true)
     try {
-      await api.post('/expenses', { category: f.category, amount: Number(f.amount), description: f.description || null, paymentMethod: f.paymentMethod, expenseDate: f.expenseDate || null })
-      toast('Expense added'); onDone(); onClose()
+      const saved = await api.post('/expenses', { category: f.category, amount: Number(f.amount), description: f.description || null, paymentMethod: f.paymentMethod, expenseDate: f.expenseDate || null })
+      toast(saved.status === 'PENDING' ? 'Sent for approval' : 'Expense added'); onDone(); onClose()
     } catch (e) { setFormError(e.message) } finally { setBusy(false) }
   }
   return (
@@ -59,6 +59,10 @@ export default function Expenses() {
   const [busy, setBusy] = useState(false)
   const rows = list.data?.page?.content
 
+  async function decide(e, what) {
+    try { await api.post(`/expenses/${e.id}/${what}`, {}); toast(what === 'approve' ? 'Expense approved' : 'Expense rejected'); list.reload() } catch (err) { toast(err.message, 'error') }
+  }
+
   async function remove() {
     setBusy(true)
     try { await api.del(`/expenses/${removing.id}`); toast('Expense deleted'); setRemoving(null); list.reload() }
@@ -82,6 +86,9 @@ export default function Expenses() {
             <div className="list-item" key={e.id} style={{ cursor: 'default' }}>
               <div className="grow"><div className="title">{e.category}</div><div className="meta">{dateOnly(e.expenseDate)} · {METHOD[e.paymentMethod]}{e.description ? ` · ${e.description}` : ''}</div></div>
               <div className="num title">{money(e.amount)}</div>
+              {e.status === 'PENDING' && <span className="badge warn">Waiting for approval</span>}
+              {e.status === 'REJECTED' && <span className="badge gray">Rejected</span>}
+              {e.status === 'PENDING' && can('EXPENSES_APPROVE') && <><button className="btn sm primary" onClick={() => decide(e, 'approve')}>Approve</button><button className="btn sm" onClick={() => decide(e, 'reject')}>Reject</button></>}
               {can('EXPENSES_EDIT') && <button className="icon-btn" aria-label={`Delete ${e.category} expense`} onClick={() => setRemoving(e)}><Trash2 size={18} /></button>}
             </div>
           ))}

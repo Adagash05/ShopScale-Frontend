@@ -29,9 +29,9 @@ function BranchForm({ initial, onClose, onSaved }) {
 }
 
 export default function Branches() {
-  const { role } = useAuth()
+  const { can } = useAuth()
   const toast = useToast()
-  const owner = role === 'OWNER'
+  const owner = can('LOCATIONS_MANAGE')
   const list = useLoad(() => api.get('/branches'), [])
   const [editing, setEditing] = useState(null) // null | 'new' | branch
   async function toggle(b) {

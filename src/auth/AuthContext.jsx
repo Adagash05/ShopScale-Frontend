@@ -4,12 +4,13 @@ import { api, tokens } from '../lib/api'
 const Ctx = createContext(null)
 export const useAuth = () => useContext(Ctx)
 
-const EMPTY = { user: null, business: null, role: null, roleName: null, permissions: new Set(), loading: false }
+const EMPTY = { user: null, business: null, role: null, roleName: null, permissions: new Set(), features: new Set(), workflows: new Set(), planCode: null, subscriptionStatus: null, loading: false }
 
 function fromResponse(res) {
   return {
     user: res.user, business: res.business ?? null, role: res.role ?? null, roleName: res.roleName ?? null,
-    permissions: new Set(res.permissions ?? []), loading: false,
+    permissions: new Set(res.permissions ?? []), features: new Set(res.features ?? []), workflows: new Set(res.workflows ?? []),
+    planCode: res.planCode ?? null, subscriptionStatus: res.subscriptionStatus ?? null, loading: false,
   }
 }
 
@@ -53,7 +54,8 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => {
     const can = (p) => state.permissions.has(p)
     return { ...state, login, register, acceptInvite, completeOnboarding, switchBusiness, updateBusiness, logout,
-      can, canAny: (...ps) => ps.some(can) }
+      can, canAny: (...ps) => ps.some(can),
+      hasFeature: (f) => state.features.has(f), hasWorkflow: (w) => state.workflows.has(w) }
   }, [state, login, register, acceptInvite, completeOnboarding, switchBusiness, updateBusiness, logout])
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

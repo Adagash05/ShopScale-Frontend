@@ -7,7 +7,7 @@ const toNum = (v) => {
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100
 
 export function computeTotals(lines, discount) {
-  const subtotal = round2(lines.reduce((s, l) => s + toNum(l.price) * l.quantity, 0))
+  const subtotal = round2(lines.reduce((s, l) => s + toNum(l.price) * toNum(l.quantity), 0))
   const d = Math.min(Math.max(toNum(discount), 0), subtotal)
   return { subtotal, discount: round2(d), total: round2(subtotal - d) }
 }
@@ -28,7 +28,8 @@ export function buildPayments(mode, method, partAmount, total) {
 export function validateSale({ lines, total, owed, customer, canUseCredit }) {
   if (lines.length === 0) return 'Add at least one item'
   for (const l of lines) {
-    if (l.quantity < 1) return 'Quantity must be at least 1'
+    if (!(Number(l.quantity) > 0)) return 'Enter a quantity greater than zero'
+    if (!l.allowDecimal && !Number.isInteger(Number(l.quantity))) return `${l.name} is sold in whole numbers`
     if (l.stock != null && l.quantity > l.stock && !l.allowNegative) {
       return `Only ${l.stock} left of ${l.name}`
     }
@@ -52,6 +53,8 @@ export function addLine(lines, item) {
       price: item.price,
       quantity: 1,
       stock: item.quantity,
+      unit: item.unit,
+      allowDecimal: !!item.allowDecimal,
     },
   ]
 }

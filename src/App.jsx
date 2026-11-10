@@ -4,6 +4,7 @@ import { useAuth } from './auth/AuthContext.jsx'
 import Layout from './pages/Layout.jsx'
 import MarketingLayout from './marketing/MarketingLayout.jsx'
 import { Skeleton } from './components.jsx'
+import { moduleRoutes } from './modules/registry.js'
 
 const Login = lazy(() => import('./pages/Login.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
@@ -111,6 +112,7 @@ export default function App() {
           <Route path="more/plan" element={<Plan />} />
           <Route path="more/settings" element={<Settings />} />
           <Route path="more/help" element={<Help />} />
+          {moduleRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
         </Route>
         <Route path="*" element={<MarketingLayout><M.NotFound /></MarketingLayout>} />
       </Routes>

@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext.jsx'
 import { Confirm, ErrorBox, Field, Skeleton, useLoad, useToast } from '../components.jsx'
 import StockAdjust from '../StockAdjust.jsx'
 
+const UNITS = ['piece', 'kg', 'g', 'litre', 'ml', 'pack', 'carton', 'dozen', 'bag', 'bottle', 'crate', 'tray', 'portion', 'plate', 'bundle', 'metre']
 const blankVariant = () => ({ key: Math.random().toString(36).slice(2), id: null, label: '', price: '', cost: '', quantity: '', sku: '', barcode: '', lowStockThreshold: '', stock: null })
 
 export default function ProductForm() {
@@ -20,7 +21,7 @@ export default function ProductForm() {
   const [loaded, setLoaded] = useState(!editing)
   const [loadError, setLoadError] = useState(null)
   const [product, setProduct] = useState(null)
-  const [form, setForm] = useState({ name: '', description: '', categoryId: '' })
+  const [form, setForm] = useState({ name: '', description: '', categoryId: '', unit: 'piece', allowDecimal: false })
   const [variants, setVariants] = useState([blankVariant()])
   const [multi, setMulti] = useState(false)
   const [more, setMore] = useState(false)
@@ -33,7 +34,7 @@ export default function ProductForm() {
 
   function hydrate(p) {
     setProduct(p)
-    setForm({ name: p.name, description: p.description || '', categoryId: p.categoryId || '' })
+    setForm({ name: p.name, description: p.description || '', categoryId: p.categoryId || '', unit: p.variants[0]?.unit || 'piece', allowDecimal: !!p.variants[0]?.allowDecimal })
     const vs = p.variants.map((v) => ({ key: v.id, id: v.id, label: v.label || '', price: String(v.price), cost: String(v.cost), quantity: '', sku: v.sku || '', barcode: v.barcode || '', lowStockThreshold: String(v.lowStockThreshold), stock: v.quantity }))
     setVariants(vs.length ? vs : [blankVariant()])
     setMulti(p.variants.length > 1 || p.variants.some((v) => v.label))
@@ -62,7 +63,7 @@ export default function ProductForm() {
     variants.forEach((v, i) => {
       if (v.price === '' || Number(v.price) < 0) errs[`price${i}`] = 'Enter the selling price'
       if (multi && !v.label.trim()) errs[`label${i}`] = 'Give this option a name, e.g. Size M'
-      if (v.quantity !== '' && (!Number.isInteger(Number(v.quantity)) || Number(v.quantity) < 0)) errs[`qty${i}`] = 'Use a whole number'
+      if (v.quantity !== '' && (!(Number(v.quantity) >= 0) || (!form.allowDecimal && !Number.isInteger(Number(v.quantity))))) errs[`qty${i}`] = form.allowDecimal ? 'Enter a quantity of zero or more' : 'Use a whole number'
     })
     return errs
   }
@@ -79,6 +80,7 @@ export default function ProductForm() {
         price: Number(v.price), cost: v.cost === '' ? 0 : Number(v.cost),
         quantity: v.id ? null : (v.quantity === '' ? 0 : Number(v.quantity)),
         lowStockThreshold: v.lowStockThreshold === '' ? null : Number(v.lowStockThreshold),
+        unit: form.unit, allowDecimal: form.allowDecimal,
       })),
     }
     setBusy(true)
@@ -110,13 +112,21 @@ export default function ProductForm() {
 
       <div className="section pad form-grid">
         <Field label="Product name" htmlFor="pname" error={errors.name}><input id="pname" className="input" value={form.name} autoFocus={!editing} aria-invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+        <div className="form-grid two">
+          <Field label="Sold by" htmlFor="punit" hint="How you count or measure this product">
+            <select id="punit" className="input" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
+              {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+            </select>
+          </Field>
+          <label className="check"><input type="checkbox" checked={form.allowDecimal} onChange={(e) => setForm({ ...form, allowDecimal: e.target.checked })} /><span><strong>Can be sold in parts</strong><br /><span className="muted small">For example 1.5 kg or 0.25 litre.</span></span></label>
+        </div>
         {!multi && variants.slice(0, 1).map((v, i) => (
           <div className="form-grid two" key={v.key}>
             <Field label="Selling price (₦)" htmlFor="pprice" error={errors[`price${i}`]}><input id="pprice" className="input" type="number" inputMode="decimal" min="0" value={v.price} aria-invalid={!!errors[`price${i}`]} onChange={(e) => setV(v.key, { price: e.target.value })} /></Field>
             {v.id ? (
               <Field label="In stock"><div className="row"><strong className="num">{v.stock}</strong>{canStock && <button type="button" className="btn sm" onClick={() => setAdjust({ variantId: v.id, name: form.name, current: v.stock })}>Update stock</button>}</div></Field>
             ) : (
-              <Field label="How many do you have?" htmlFor="pqty" error={errors[`qty${i}`]}><input id="pqty" className="input" type="number" inputMode="numeric" min="0" value={v.quantity} onChange={(e) => setV(v.key, { quantity: e.target.value })} /></Field>
+              <Field label="How many do you have?" htmlFor="pqty" error={errors[`qty${i}`]}><input id="pqty" className="input" type="number" inputMode="decimal" min="0" step={form.allowDecimal ? '0.001' : '1'} value={v.quantity} onChange={(e) => setV(v.key, { quantity: e.target.value })} /></Field>
             )}
           </div>
         ))}
@@ -134,7 +144,7 @@ export default function ProductForm() {
               <div className="form-grid two">
                 <Field label="Selling price (₦)" htmlFor={`p${i}`} error={errors[`price${i}`]}><input id={`p${i}`} className="input" type="number" inputMode="decimal" min="0" value={v.price} onChange={(e) => setV(v.key, { price: e.target.value })} /></Field>
                 {v.id ? <Field label="In stock"><div className="row"><strong className="num">{v.stock}</strong>{canStock && <button type="button" className="btn sm" onClick={() => setAdjust({ variantId: v.id, name: `${form.name} (${v.label})`, current: v.stock })}>Update stock</button>}</div></Field>
-                  : <Field label="How many?" htmlFor={`q${i}`} error={errors[`qty${i}`]}><input id={`q${i}`} className="input" type="number" inputMode="numeric" min="0" value={v.quantity} onChange={(e) => setV(v.key, { quantity: e.target.value })} /></Field>}
+                  : <Field label="How many?" htmlFor={`q${i}`} error={errors[`qty${i}`]}><input id={`q${i}`} className="input" type="number" inputMode="decimal" min="0" step={form.allowDecimal ? '0.001' : '1'} value={v.quantity} onChange={(e) => setV(v.key, { quantity: e.target.value })} /></Field>}
               </div>
               {more && (
                 <div className="form-grid two">
@@ -154,7 +164,7 @@ export default function ProductForm() {
           {!multi && variants.slice(0, 1).map((v) => (
             <div className="form-grid two" key={v.key}>
               <Field label="Cost price (₦)" htmlFor="pcost" hint="What you paid. Used to estimate profit."><input id="pcost" className="input" type="number" inputMode="decimal" min="0" value={v.cost} onChange={(e) => setV(v.key, { cost: e.target.value })} /></Field>
-              <Field label="Warn me when stock is below" htmlFor="plow" hint="Default is 5"><input id="plow" className="input" type="number" inputMode="numeric" min="0" value={v.lowStockThreshold} onChange={(e) => setV(v.key, { lowStockThreshold: e.target.value })} /></Field>
+              <Field label="Warn me when stock is below" htmlFor="plow" hint="Default is 5"><input id="plow" className="input" type="number" inputMode="decimal" min="0" step="any" value={v.lowStockThreshold} onChange={(e) => setV(v.key, { lowStockThreshold: e.target.value })} /></Field>
               <Field label="SKU" htmlFor="psku"><input id="psku" className="input" value={v.sku} onChange={(e) => setV(v.key, { sku: e.target.value })} /></Field>
               <Field label="Barcode" htmlFor="pbar"><input id="pbar" className="input" value={v.barcode} onChange={(e) => setV(v.key, { barcode: e.target.value })} /></Field>
             </div>

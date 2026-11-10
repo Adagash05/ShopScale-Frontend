@@ -3,9 +3,10 @@ import { Receipt, Wallet, Boxes, CreditCard, Settings, LogOut, ChevronRight, Use
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useLoad, useToast } from '../components.jsx'
+import { moduleNav, allowed } from '../modules/registry.js'
 
 export default function More() {
-  const { user, business, roleName, logout, can, canAny, switchBusiness } = useAuth()
+  const { user, business, roleName, logout, can, canAny, switchBusiness, hasFeature, hasWorkflow } = useAuth()
   const toast = useToast()
   const businesses = useLoad(() => api.get('/auth/businesses'), [])
   const items = [
@@ -18,6 +19,9 @@ export default function More() {
     can('SETTINGS_VIEW') && { to: '/more/settings', icon: Settings, label: 'Business settings', hint: 'Name, contact and store address' },
     { to: '/more/help', icon: LifeBuoy, label: 'Help', hint: 'Guides for getting things done' },
   ].filter(Boolean)
+  const extra = moduleNav('more').filter((n) => allowed(n, { can, hasFeature, hasWorkflow }))
+    .map((n) => ({ to: n.to, icon: n.icon, label: n.label, hint: n.hint }))
+  items.splice(items.length - 1, 0, ...extra)
   const others = (businesses.data || []).filter((b) => b.id !== business?.id)
 
   async function swap(id) {

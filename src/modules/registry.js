@@ -31,7 +31,10 @@ export function moduleNav(placement = 'more') {
 
 /** True when the nav item is allowed for this user, plan and business configuration. */
 export function allowed(item, { can, hasFeature, hasWorkflow }) {
-  if (item.permission && !can(item.permission)) return false
+  if (item.permission) {
+    const need = Array.isArray(item.permission) ? item.permission : [item.permission]
+    if (!need.some((p) => can(p))) return false
+  }
   if (item.feature && !hasFeature(item.feature)) return false
   if (item.workflow) {
     const need = Array.isArray(item.workflow) ? item.workflow : [item.workflow]

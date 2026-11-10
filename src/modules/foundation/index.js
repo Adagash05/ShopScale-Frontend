@@ -1,15 +1,15 @@
-import { Truck, ClipboardList, MapPin } from 'lucide-react'
+import { MapPin, ArrowLeftRight, ClipboardList } from 'lucide-react'
 
 export default {
   id: 'foundation',
   routes: [
     { path: 'more/branches', component: () => import('../../pages/Branches.jsx') },
-    { path: 'more/suppliers', component: () => import('../../pages/Suppliers.jsx') },
-    { path: 'more/purchases', component: () => import('../../pages/Purchases.jsx') },
+    { path: 'more/orders', component: () => import('../../pages/Purchases.jsx') },
+    { path: 'more/transfers', component: () => import('../../pages/Transfers.jsx') },
   ],
   nav: [
-    { to: '/more/suppliers', label: 'Suppliers', hint: 'Who you buy from and what you owe', icon: Truck, permission: 'SUPPLIERS_MANAGE', feature: 'PURCHASING', order: 30 },
-    { to: '/more/purchases', label: 'Purchases', hint: 'Orders to suppliers and goods received', icon: ClipboardList, permission: 'PURCHASES_MANAGE', feature: 'PURCHASING', order: 31 },
-    { to: '/more/branches', label: 'Locations', hint: 'Your shops and branches', icon: MapPin, order: 90 },
+    { to: '/more/orders', label: 'Supplier orders', hint: 'Order stock and receive deliveries', icon: ClipboardList, permission: 'PURCHASES_VIEW', feature: 'PURCHASING', order: 31 },
+    { to: '/more/branches', label: 'Locations', hint: 'Your shops and branches', icon: MapPin, permission: 'LOCATIONS_MANAGE', order: 90 },
+    { to: '/more/transfers', label: 'Stock transfers', hint: 'Move stock between branches', icon: ArrowLeftRight, permission: 'STOCK_TRANSFER', feature: 'BRANCH_TRANSFERS', order: 32 },
   ],
 }
