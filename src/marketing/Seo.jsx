@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export const SITE = (import.meta.env.VITE_SITE_URL || 'https://shop.amsati.com').replace(/\/$/, '')
+export const SITE = (import.meta.env.VITE_SITE_URL || 'https://shopscale.fidmap.co').replace(/\/$/, '')
 
 function setMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`)

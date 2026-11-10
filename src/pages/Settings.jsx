@@ -42,7 +42,7 @@ export default function Settings() {
             <span><strong>Let me sell items even when my stock count says zero</strong><br /><span className="muted small">Useful if you sometimes sell before you update stock. Stock can then go below zero.</span></span></label>
         </div>
       </fieldset>
-      <div className="section pad"><div className="muted small">Store address</div><div className="num">shop.amsati.com/{business.slug}</div><p className="muted small" style={{ marginTop: 6 }}>Your online store is not open yet. This address is reserved for you.</p></div>
+      <div className="section pad"><div className="muted small">Store address</div><div className="num">{window.location.origin}/s/{business.slug}</div><p className="muted small" style={{ marginTop: 6 }}>Open and manage your online store from More, Online store (Essential plan and above).</p></div>
       {isOwner && <button className="btn primary block" disabled={busy}>{busy ? 'Saving…' : 'Save settings'}</button>}
     </form>
   )

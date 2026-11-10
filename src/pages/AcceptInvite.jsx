@@ -26,7 +26,7 @@ export default function AcceptInvite() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={submit} noValidate>
-        <div className="brand"><span className="brand-mark">S</span>ShopScale</div>
+        <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
         {preview.loading && <Skeleton height={120} />}
         {preview.error && <><ErrorBox error={preview.error} /><Link className="btn" to="/login">Go to sign in</Link></>}
         {p && (

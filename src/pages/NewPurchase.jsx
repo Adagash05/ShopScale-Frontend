@@ -1,4 +1,4 @@
-import { BranchSelect, useBranch } from "../lib/branch.jsx";
+import { BranchSelect, useBranch } from "../lib/branch.js";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search, Trash2 } from "lucide-react";

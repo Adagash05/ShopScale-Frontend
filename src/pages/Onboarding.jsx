@@ -55,7 +55,7 @@ export default function Onboarding() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="row between">
-          <div className="brand"><span className="brand-mark">S</span>ShopScale</div>
+          <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
           <button className="btn sm" onClick={logout}>Sign out</button>
         </div>
         <div className="steps" aria-label={`Step ${step} of 3`}>{[1, 2, 3].map((n) => <i key={n} className={n <= step ? 'on' : ''} />)}</div>
@@ -104,7 +104,7 @@ export default function Onboarding() {
           <div className="stack">
             <div><h1>Pick your store address</h1><p className="muted">Customers will find you here once online selling opens.</p></div>
             <Field label="Store address" htmlFor="slug"
-              hint={`shop.amsati.com/${form.slug || 'your-name'}`}
+              hint={`${window.location.host}/s/${form.slug || 'your-name'}`}
               error={slugState.available === false ? slugState.reason : ''}>
               <input id="slug" className="input" value={form.slug} autoCapitalize="none" autoCorrect="off"
                 onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: slugify(e.target.value) }) }} />

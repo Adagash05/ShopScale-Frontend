@@ -15,7 +15,7 @@ export default function MarketingLayout({ children }) {
     <div className="mk">
       <header className="mk-head">
         <div className="mk-bar">
-          <Link to="/" className="brand" style={{ padding: 0 }}><span className="brand-mark">S</span>ShopScale</Link>
+          <Link to="/" className="brand" style={{ padding: 0 }}><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</Link>
           <nav className="mk-nav" aria-label="Main">
             {NAV.map(([to, label]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'active' : '')}>{label}</NavLink>)}
           </nav>
@@ -30,7 +30,7 @@ export default function MarketingLayout({ children }) {
       <main style={{ flex: 1 }}>{children ?? <Outlet />}</main>
       <footer className="mk-foot">
         <div className="mk-wrap mk-foot-grid">
-          <div><div className="brand" style={{ padding: 0, color: '#fff' }}><span className="brand-mark">S</span>ShopScale</div>
+          <div><div className="brand" style={{ padding: 0, color: '#fff' }}><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
             <p style={{ marginTop: 10, maxWidth: '36ch' }}>Run your business. Control your stock. Manage your orders. Understand your money.</p>
             <p style={{ marginTop: 10 }}>A product of AMSATI.</p></div>
           <div><h3>Product</h3><ul><li><Link to="/features">Features</Link></li><li><Link to="/pricing">Pricing</Link></li><li><Link to="/faq">FAQ</Link></li></ul></div>

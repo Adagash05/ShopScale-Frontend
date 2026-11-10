@@ -91,7 +91,20 @@ export async function request(path, { method = 'GET', body, query, auth = true }
   return parse(res)
 }
 
+/** Multipart upload (product images). Retries once after a token refresh, like request(). */
+export async function upload(path, formData) {
+  const send = () => {
+    const t = tokens.get()
+    return fetch(`${BASE}${path}`, { method: 'POST', headers: t?.accessToken ? { Authorization: `Bearer ${t.accessToken}` } : {}, body: formData })
+  }
+  let res
+  try { res = await send() } catch { throw new ApiError(0, 'No connection. Check your network and try again.') }
+  if (res.status === 401 && tokens.get()?.refreshToken) { await refreshTokens(); res = await send() }
+  return parse(res)
+}
+
 export const api = {
+  upload,
   get: (path, query) => request(path, { query }),
   post: (path, body) => request(path, { method: 'POST', body: body ?? {} }),
   put: (path, body) => request(path, { method: 'PUT', body }),

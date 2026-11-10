@@ -5,6 +5,7 @@ import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Confirm, ErrorBox, Field, Skeleton, useLoad, useToast } from '../components.jsx'
 import StockAdjust from '../StockAdjust.jsx'
+import ImageField from '../widgets/ImageField.jsx'
 
 const UNITS = ['piece', 'kg', 'g', 'litre', 'ml', 'pack', 'carton', 'dozen', 'bag', 'bottle', 'crate', 'tray', 'portion', 'plate', 'bundle', 'metre']
 const blankVariant = () => ({ key: Math.random().toString(36).slice(2), id: null, label: '', price: '', cost: '', quantity: '', sku: '', barcode: '', lowStockThreshold: '', stock: null })
@@ -74,7 +75,7 @@ export default function ProductForm() {
     setErrors(errs); setFormError('')
     if (Object.keys(errs).length) return
     const body = {
-      name: form.name.trim(), description: form.description || null, categoryId: form.categoryId || null, imageUrl: null,
+      name: form.name.trim(), description: form.description || null, categoryId: form.categoryId || null, imageUrl: product?.imageUrl || null,
       variants: variants.map((v) => ({
         id: v.id, label: multi ? v.label.trim() : null, sku: v.sku || null, barcode: v.barcode || null,
         price: Number(v.price), cost: v.cost === '' ? 0 : Number(v.cost),
@@ -111,6 +112,7 @@ export default function ProductForm() {
       </div>
 
       <div className="section pad form-grid">
+        {editing && product && <Field label="Photo (shown in your online store)"><ImageField productId={id} url={product.imageUrl} onChange={(u) => setProduct({ ...product, imageUrl: u })} /></Field>}
         <Field label="Product name" htmlFor="pname" error={errors.name}><input id="pname" className="input" value={form.name} autoFocus={!editing} aria-invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
         <div className="form-grid two">
           <Field label="Sold by" htmlFor="punit" hint="How you count or measure this product">

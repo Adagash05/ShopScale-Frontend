@@ -8,13 +8,14 @@ import { money } from '../lib/format.js'
 
 export function CustomerForm({ initial, onSaved, onClose, title }) {
   const toast = useToast()
-  const [f, setF] = useState({ name: initial?.name || '', phone: initial?.phone || '', email: initial?.email || '', address: initial?.address || '', notes: initial?.notes || '' })
+  const [f, setF] = useState({ name: initial?.name || '', phone: initial?.phone || '', email: initial?.email || '', address: initial?.address || '', notes: initial?.notes || '', customerType: initial?.customerType || 'RETAIL', priceTierId: initial?.priceTierId || '' })
+  const tiers = useLoad(() => api.get('/pricing/tiers').catch(() => []), [])
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   async function save() {
     if (!f.name.trim()) { setErr('Enter the customer name'); return }
     setBusy(true); setErr('')
-    const body = { name: f.name, phone: f.phone || null, email: f.email || null, address: f.address || null, notes: f.notes || null }
+    const body = { name: f.name, phone: f.phone || null, email: f.email || null, address: f.address || null, notes: f.notes || null, customerType: f.customerType, priceTierId: f.priceTierId || null }
     try {
       const c = initial ? await api.put(`/customers/${initial.id}`, body) : await api.post('/customers', body)
       toast('Customer saved'); onSaved(c); onClose()
@@ -26,6 +27,19 @@ export function CustomerForm({ initial, onSaved, onClose, title }) {
       <Field label="Phone" htmlFor="cphone"><input id="cphone" className="input" type="tel" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
       <Field label="Email" htmlFor="cemail"><input id="cemail" className="input" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
       <Field label="Address" htmlFor="caddr"><input id="caddr" className="input" value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></Field>
+      <Field label="Customer type" htmlFor="ctype">
+        <select id="ctype" className="input" value={f.customerType} onChange={(e) => setF({ ...f, customerType: e.target.value })}>
+          {[['RETAIL', 'Retail'], ['WHOLESALE', 'Wholesale'], ['DISTRIBUTOR', 'Distributor'], ['CORPORATE', 'Corporate'], ['RESTAURANT', 'Restaurant / caterer']].map(([v, t]) => <option key={v} value={v}>{t}</option>)}
+        </select>
+      </Field>
+      {tiers.data && tiers.data.length > 0 && (
+        <Field label="Price tier" htmlFor="ctier" hint="Wholesale prices this customer gets">
+          <select id="ctier" className="input" value={f.priceTierId} onChange={(e) => setF({ ...f, priceTierId: e.target.value })}>
+            <option value="">Standard prices</option>
+            {tiers.data.filter((t) => t.active || t.id === f.priceTierId).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+        </Field>
+      )}
       <Field label="Notes" htmlFor="cnotes"><textarea id="cnotes" className="textarea" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></Field>
       <button className="btn primary block" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save customer'}</button>
     </Modal>

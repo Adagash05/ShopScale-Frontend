@@ -30,7 +30,7 @@ export default function Register() {
   return (
     <div className="auth-wrap">
       <form className="auth-card" onSubmit={submit} noValidate>
-        <div className="brand"><span className="brand-mark">S</span>ShopScale</div>
+        <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
         <div><h1>Start your free trial</h1><p className="muted">14 days free. No card needed.</p></div>
         <Field label="Your name" htmlFor="fullName" error={errors.fullName}>
           <input id="fullName" className="input" autoComplete="name" value={form.fullName} aria-invalid={!!errors.fullName} onChange={set('fullName')} />

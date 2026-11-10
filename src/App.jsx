@@ -8,6 +8,7 @@ import { moduleRoutes } from './modules/registry.js'
 
 const Login = lazy(() => import('./pages/Login.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
+const AccountLinks = { Forgot: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.ForgotPassword }))), Reset: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.ResetPassword }))), Verify: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.VerifyEmail }))) }
 const AcceptInvite = lazy(() => import('./pages/AcceptInvite.jsx'))
 const Pricing = lazy(() => import('./pages/Pricing.jsx'))
 const Onboarding = lazy(() => import('./pages/Onboarding.jsx'))
@@ -27,6 +28,8 @@ const Team = lazy(() => import('./pages/Team.jsx'))
 const Help = lazy(() => import('./pages/Help.jsx'))
 const Suppliers = lazy(() => import('./pages/Suppliers.jsx'))
 const SupplierDetail = lazy(() => import('./pages/SupplierDetail.jsx'))
+const Storefront = lazy(() => import('./pages/store/Storefront.jsx'))
+const OrderStatus = lazy(() => import('./pages/store/Storefront.jsx').then((m) => ({ default: m.OrderStatus })))
 const NewPurchase = lazy(() => import('./pages/NewPurchase.jsx'))
 const M = {
   Home: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.HomePage }))),
@@ -89,8 +92,13 @@ export default function App() {
           <Route path="terms" element={<M.Terms />} />
           <Route path="refunds" element={<M.Refunds />} />
         </Route>
+        <Route path="/s/:slug" element={<Storefront />} />
+        <Route path="/s/:slug/order/:token" element={<OrderStatus />} />
         <Route path="/login" element={<Public><Login /></Public>} />
         <Route path="/register" element={<Public><Register /></Public>} />
+        <Route path="/forgot-password" element={<AccountLinks.Forgot />} />
+        <Route path="/reset-password" element={<AccountLinks.Reset />} />
+        <Route path="/verify-email" element={<AccountLinks.Verify />} />
         <Route path="/accept-invite" element={<AcceptInvite />} />
         <Route path="/onboarding" element={<Guard needBusiness={false}><Onboarding /></Guard>} />
         <Route element={<Guard><Layout /></Guard>}>

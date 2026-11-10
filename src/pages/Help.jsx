@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
+import { InstallLink } from '../pwa/InstallPrompt.jsx'
 
 export const ARTICLES = [
   { id: 'start', title: 'Getting started', body: [
@@ -40,8 +41,8 @@ export const ARTICLES = [
   { id: 'plans', title: 'Your plan and free trial', body: [
     'Every new business gets 14 days free with full access. You are never charged without your permission.',
     'If a trial or subscription ends, you can still sign in and see everything, but you cannot record new activity until you renew. Your data is never deleted.' ] },
-  { id: 'soon', title: 'Coming soon', body: [
-    'Restaurant and catering tools, your online store, online payments with Paystack, and notifications are being built. They are not available yet.' ] },
+  { id: 'soon', title: 'Not available yet', body: [
+    'Restaurant and catering tools are planned for after launch and are not available yet.' ] },
 ]
 
 export default function Help() {
@@ -57,6 +58,7 @@ export default function Help() {
           </details>
         ))}
       </div>
+      <div className="section pad stack-sm"><strong>Use ShopScale like an app</strong><p className="muted small">Install it on your phone or computer so it opens full screen and keeps working on a weak connection.</p><InstallLink /></div>
       <p className="muted small">Still stuck? <Link to="/contact">Contact us</Link>.</p>
     </div>
   )

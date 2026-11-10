@@ -21,11 +21,11 @@ describe('format', () => {
 })
 
 describe('plans', () => {
-  const essential = { code: 'ESSENTIAL', monthlyPrice: 9000, annualPrice: 90000, maxItems: 500, features: ['POS'] }
-  const growth = { code: 'GROWTH', monthlyPrice: 17000, annualPrice: 170000, maxItems: 3000, features: ['POS', 'ADVANCED_FINANCE'] }
+  const essential = { code: 'ESSENTIAL', monthlyPrice: 4999, annualPrice: 49990, maxItems: 100, features: ['POS'] }
+  const growth = { code: 'GROWTH', monthlyPrice: 11999, annualPrice: 119990, maxItems: 500, features: ['POS', 'ADVANCED_FINANCE'] }
   it('shows two months free as the annual saving', () => {
-    expect(annualSavings(essential)).toBe(18000)
-    expect(annualSavings(growth)).toBe(34000)
+    expect(annualSavings(essential)).toBe(9998)
+    expect(annualSavings(growth)).toBe(23998)
   })
   it('treats a null limit as unlimited', () => {
     expect(limitText(null)).toBe('Unlimited*')

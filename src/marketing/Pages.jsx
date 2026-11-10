@@ -33,8 +33,8 @@ const FAQ = [
   ['Will ShopScale charge me automatically?', 'Never without your clear permission.'],
   ['Does it work on a phone?', 'Yes. ShopScale is designed for phones first, including affordable Android phones, and also works on tablets and computers.'],
   ['Can my staff use it?', 'Yes. You can invite people and give each one a role, for example a cashier who can record sales but cannot see your profit. You can remove anyone’s access at any time.'],
-  ['Can I sell online with ShopScale?', 'An online store at shop.amsati.com/your-name is being built and is not available yet. Today you can run sales, stock, customers and expenses.'],
-  ['Is there support for restaurants and catering?', 'Those tools are in development and are not available yet. Shops and retail businesses can start today.'],
+  ['Can I sell online with ShopScale?', 'Yes. Paid plans include an online store with your products, cart and checkout. Customers can pay online with your own Paystack account, or pay when they pick up or receive their order.'],
+  ['Is there support for restaurants and catering?', 'Restaurant and catering tools are planned for after launch and are not available yet. Shops, wholesalers and retail businesses can start today.'],
   ['Who can see my business data?', 'Only the people you add to your business, with the access you give them.'],
 ]
 
@@ -128,9 +128,13 @@ export function FeaturesPage() {
     ['Customers', 'Keep customer details, see what each one has bought, record part payments and see who owes you.'],
     ['Expenses and profit', 'Record costs by type and see estimated profit with a plain explanation.'],
     ['Dashboard and reports', 'Sales by day, best sellers, payment methods, sales by category, stock health and an activity feed.'],
+    ['Online store and orders', 'A store link for your customers, a cart and checkout, and a screen to confirm, prepare and complete each order. Not on the Free plan.'],
+    ['Online payments with Paystack', 'Customers pay online and the money goes straight to your own Paystack account.'],
+    ['Wholesale pricing', 'Price tiers, bulk price breaks and agreed customer prices, applied automatically at the till.'],
+    ['Works on a weak connection', 'Install ShopScale on your phone. Sales you make offline are saved on the device and sent when you are back online.'],
     ['Team and permissions', 'Invite staff, give them a role, create custom roles, and remove access instantly.'],
   ]
-  const soon = [['Online store', 'A branded store at shop.amsati.com/your-name with checkout.'], ['Online payments with Paystack', 'Customers pay online and the money goes to your own account.'], ['Restaurant and kitchen tools', 'Menu, kitchen orders, pickup and delivery.'], ['Catering orders', 'Advance bookings, deposits and balances.']]
+  const soon = [['Restaurant and kitchen tools', 'Menu, kitchen orders, pickup and delivery.'], ['Catering orders', 'Advance bookings, deposits and balances.']]
   return (
     <>
       <section className="mk-section"><div className="mk-wrap"><h1 style={{ fontSize: '2rem' }}>Everything in one simple app</h1>

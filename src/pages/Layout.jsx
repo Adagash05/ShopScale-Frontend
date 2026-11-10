@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import TopBar from './TopBar.jsx'
+import { InstallBanner, UpdateBanner } from '../pwa/InstallPrompt.jsx'
 import { Home, ShoppingCart, Package, Users, Menu } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { moduleNav, allowed } from '../modules/registry.js'
@@ -33,11 +35,11 @@ export default function Layout() {
   return (
     <div className="shell">
       <aside className="side" aria-label="Main">
-        <div className="brand"><span className="brand-mark">S</span>ShopScale</div>
+        <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
         <Links items={items} />
-        <div className="side-foot">{business?.name}<br />shop.amsati.com/{business?.slug}</div>
+        <div className="side-foot">{business?.name}<br />{window.location.host}/s/{business?.slug}</div>
       </aside>
-      <main className="main"><Outlet /></main>
+      <main className="main"><TopBar /><UpdateBanner /><InstallBanner /><Outlet /></main>
       <nav className="bottom-nav" aria-label="Main" style={{ '--n': items.length }}><Links items={items} /></nav>
     </div>
   )

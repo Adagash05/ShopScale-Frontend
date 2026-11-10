@@ -21,6 +21,8 @@ import {
 } from "../lib/cart.js";
 import { dateTime, money, qtyText } from "../lib/format.js";
 import { BranchSelect, useBranch } from "../lib/branch.jsx";
+import { enqueueSale, loadCatalog, saveCatalog } from "../lib/offlineQueue.js";
+import { useOnline } from "../pwa/useOnline.js";
 
 const METHODS = [
   ["CASH", "Cash"],
@@ -130,7 +132,21 @@ function CustomerPicker({ onPick, onClose }) {
 
 function Receipt({ sale, business, onClose }) {
   return (
-    <Modal title={`Sale #${sale.saleNumber} recorded`} onClose={onClose}>
+    <Modal
+      title={
+        sale.offline
+          ? "Sale saved on this device"
+          : `Sale #${sale.saleNumber} recorded`
+      }
+      onClose={onClose}
+    >
+      {sale.offline && (
+        <div className="banner">
+          Not confirmed yet. This sale is saved on this device and has not
+          reached the server. Stock and your books update only when it is
+          confirmed. The amounts shown are estimates.
+        </div>
+      )}
       <div className="receipt receipt-print">
         <h3>{business.name}</h3>
         <p className="muted small">
@@ -199,22 +215,51 @@ function Receipt({ sale, business, onClose }) {
 }
 
 export default function Sell() {
-  const { business, can } = useAuth();
+  const { business, can, user } = useAuth();
   const toast = useToast();
   const sub = useLoad(() => api.get("/subscriptions/current"), []);
   const [q, setQ] = useState("");
   const dq = useDebounced(q);
   const branch = useBranch();
-  const items = useLoad(
-    () =>
-      branch.branchId
-        ? api.get("/products/sellable", { q: dq, branchId: branch.branchId })
-        : Promise.resolve([]),
-    [dq, branch.branchId],
-  );
   const [lines, setLines] = useState([]);
   const [discount, setDiscount] = useState("");
   const [customer, setCustomer] = useState(null);
+  const online = useOnline();
+  // Without a connection the list comes from the catalogue saved on this device the last time the app was online.
+  const fromDevice = async () => {
+    const snap = await loadCatalog(business.id, branch.branchId);
+    const term = dq.trim().toLowerCase();
+    return (snap?.items || [])
+      .filter(
+        (it) =>
+          !term ||
+          `${it.productName} ${it.label || ""} ${it.sku || ""} ${it.barcode || ""}`
+            .toLowerCase()
+            .includes(term),
+      )
+      .slice(0, 60);
+  };
+  const items = useLoad(async () => {
+    if (!online) return fromDevice();
+    if (!branch.branchId) return [];
+    try {
+      return await api.get("/products/sellable", {
+        q: dq,
+        branchId: branch.branchId,
+        customerId: customer?.id,
+      });
+    } catch (e) {
+      if (e.status === 0) return fromDevice();
+      throw e;
+    }
+  }, [dq, branch.branchId, customer?.id, online]);
+  useEffect(() => {
+    if (!online || !branch.branchId) return;
+    api
+      .get("/products/sellable", { branchId: branch.branchId, size: 500 })
+      .then((all) => saveCatalog(business.id, branch.branchId, all))
+      .catch(() => {});
+  }, [online, branch.branchId, business.id]);
   const [pickCustomer, setPickCustomer] = useState(false);
   const [mode, setMode] = useState("full");
   const [method, setMethod] = useState("CASH");
@@ -224,9 +269,54 @@ export default function Sell() {
   const [busy, setBusy] = useState(false);
   const [receipt, setReceipt] = useState(null);
 
+  // Wholesale tiers, agreed prices and bulk breaks are decided by the server; this only shows them.
+  const [served, setServed] = useState({});
+  const key =
+    lines.map((l) => `${l.variantId}:${l.quantity}`).join(",") +
+    "|" +
+    (customer?.id || "");
+  useEffect(() => {
+    const valid = lines.filter((l) => Number(l.quantity) > 0);
+    if (valid.length === 0 || !online) {
+      setServed({});
+      return undefined;
+    }
+    let live = true;
+    const t = setTimeout(() => {
+      api
+        .post("/sales/price-preview", {
+          items: valid.map((l) => ({
+            variantId: l.variantId,
+            quantity: l.quantity,
+          })),
+          customerId: customer?.id ?? null,
+        })
+        .then((r) => {
+          if (live)
+            setServed(
+              Object.fromEntries(r.map((x) => [x.variantId, x.unitPrice])),
+            );
+        })
+        .catch(() => {
+          if (live) setServed({});
+        });
+    }, 250);
+    return () => {
+      live = false;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, online]);
+  const priced = useMemo(
+    () =>
+      lines.map((l) =>
+        served[l.variantId] != null ? { ...l, price: served[l.variantId] } : l,
+      ),
+    [lines, served],
+  );
   const totals = useMemo(
-    () => computeTotals(lines, discount),
-    [lines, discount],
+    () => computeTotals(priced, discount),
+    [priced, discount],
   );
   const { payments, owed } = useMemo(
     () => buildPayments(mode, method, part, totals.total),
@@ -242,6 +332,16 @@ export default function Sell() {
   useEffect(() => {
     setError("");
   }, [lines, mode, customer, discount, part]);
+  // Tells the update banner not to reload the app while a sale is being built.
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("shopscale:busy", { detail: lines.length > 0 }),
+    );
+    return () =>
+      window.dispatchEvent(
+        new CustomEvent("shopscale:busy", { detail: false }),
+      );
+  }, [lines.length]);
 
   const setQty = (id, delta) =>
     setLines((ls) =>
@@ -278,20 +378,67 @@ export default function Sell() {
       setError(problem);
       return;
     }
+    const body = {
+      items: lines.map((l) => ({
+        variantId: l.variantId,
+        quantity: l.quantity,
+      })),
+      discount: totals.discount || 0,
+      customerId: customer?.id ?? null,
+      payments,
+      clientRequestId: requestId,
+      branchId: branch.branchId,
+    };
+    const saveHere = async () => {
+      // Kept only on this device until the server confirms it. The price shown is an estimate.
+      await enqueueSale({
+        businessId: business.id,
+        userId: user?.id,
+        payload: body,
+        estimatedTotal: totals.total,
+        method,
+        lines: priced.map((l) => ({ name: l.name, quantity: l.quantity })),
+      });
+      setReceipt({
+        offline: true,
+        createdAt: new Date().toISOString(),
+        items: priced.map((l) => ({
+          quantity: l.quantity,
+          productName: l.name,
+          lineTotal: l.price * l.quantity,
+        })),
+        total: totals.total,
+        discount: totals.discount,
+        amountPaid: totals.total,
+        amountOwed: 0,
+      });
+      setLines([]);
+      setDiscount("");
+      setMode("full");
+      setPart("");
+      setRequestId(newRequestId());
+    };
+    if (!online) {
+      if (owed > 0 || customer) {
+        setError(
+          "Without a connection you can only record sales paid in full, with no customer account. Connect to record credit or part payments.",
+        );
+        return;
+      }
+      setBusy(true);
+      try {
+        await saveHere();
+      } catch (e) {
+        setError(e.message || "This device could not save the sale");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     setBusy(true);
     setError("");
     try {
-      const sale = await api.post("/sales", {
-        items: lines.map((l) => ({
-          variantId: l.variantId,
-          quantity: l.quantity,
-        })),
-        discount: totals.discount || 0,
-        customerId: customer?.id ?? null,
-        payments,
-        clientRequestId: requestId,
-        branchId: branch.branchId,
-      });
+      const sale = await api.post("/sales", body);
       setReceipt(sale);
       setLines([]);
       setDiscount("");
@@ -301,6 +448,19 @@ export default function Sell() {
       setRequestId(newRequestId());
       items.reload();
     } catch (e) {
+      if (e.status === 0 && owed <= 0 && !customer) {
+        // The request may or may not have reached the server. Saving it with the same request id makes a retry safe.
+        try {
+          await saveHere();
+          toast(
+            "No connection. The sale is saved on this device and will be sent when you are online.",
+          );
+          setBusy(false);
+          return;
+        } catch {
+          /* fall through to the normal error */
+        }
+      }
       setError(e.message);
       if (e.status === 409 || e.status === 400) items.reload();
       toast(e.message, "error");
@@ -405,7 +565,7 @@ export default function Sell() {
               <Empty title="Nothing added yet">Tap a product to add it.</Empty>
             ) : (
               <div className="list">
-                {lines.map((l) => (
+                {priced.map((l) => (
                   <div
                     className="list-item"
                     key={l.variantId}
