@@ -7,7 +7,7 @@ import { dateTime, money } from '../../lib/format.js'
 
 const KIND = { CASH: 'Cash', BANK: 'Bank', MOBILE_MONEY: 'Mobile money' }
 const MOVE = {
-  SALE: 'Sale', CUSTOMER_PAYMENT: 'Customer payment', REFUND: 'Refund', EXPENSE: 'Expense', EXPENSE_REVERSAL: 'Expense removed',
+  SALE: 'Sale', CUSTOMER_PAYMENT: 'Customer payment', INVOICE_PAYMENT: 'Invoice payment', REFUND: 'Refund', EXPENSE: 'Expense', EXPENSE_REVERSAL: 'Expense removed',
   SUPPLIER_PAYMENT: 'Paid supplier', PURCHASE: 'Stock bought', DEPOSIT: 'Money added', WITHDRAWAL: 'Money taken out',
   TRANSFER_IN: 'Moved in', TRANSFER_OUT: 'Moved out', CATERING_DEPOSIT: 'Catering deposit', ONLINE_ORDER: 'Online order',
 }

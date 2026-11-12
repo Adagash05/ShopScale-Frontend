@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 
-export const SITE = (import.meta.env.VITE_SITE_URL || 'https://shopscale.fidmap.co').replace(/\/$/, '')
+import { SITE_URL, MODE } from '../config/env.js'
+
+/** Canonical origin for public pages (falls back to the current origin when no public URL is configured). */
+export const SITE = SITE_URL || (typeof window === 'undefined' ? '' : window.location.origin)
 
 function setMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`)
@@ -20,7 +23,7 @@ export function useSeo({ title, description, path = '/', noindex = false }) {
     setMeta('property', 'og:site_name', 'ShopScale by AMSATI')
     setMeta('property', 'og:url', SITE + path)
     setMeta('name', 'twitter:card', 'summary')
-    setMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow')
+    setMeta('name', 'robots', noindex || MODE !== 'public' ? 'noindex, nofollow' : 'index, follow')
     let link = document.head.querySelector('link[rel="canonical"]')
     if (!link) { link = document.createElement('link'); link.setAttribute('rel', 'canonical'); document.head.appendChild(link) }
     link.setAttribute('href', SITE + path)

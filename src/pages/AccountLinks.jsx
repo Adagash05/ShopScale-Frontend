@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { api } from '../lib/api'
 import { Field } from '../components.jsx'
 

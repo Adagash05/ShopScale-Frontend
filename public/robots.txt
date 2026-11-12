@@ -5,10 +5,15 @@ Disallow: /sell
 Disallow: /products
 Disallow: /customers
 Disallow: /expenses
+Disallow: /suppliers
+Disallow: /purchases
 Disallow: /more
 Disallow: /onboarding
 Disallow: /accept-invite
 Disallow: /login
 Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
 
-Sitemap: https://shop.amsati.com/sitemap.xml
+Sitemap: https://shopscale.com.ng/sitemap.xml

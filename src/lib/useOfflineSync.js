@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useToast } from '../components.jsx'
 import { useOnline } from '../pwa/useOnline.js'
-import { countPending, syncSales } from './offlineQueue.js'
+import { countPending, getLastSync, syncAll } from './offlineQueue.js'
 
 /** Counts of sales waiting on this device, refreshed whenever the queue changes. */
 export function usePendingCount() {
@@ -29,10 +29,10 @@ export function useOfflineSync() {
 
   const run = useCallback(async () => {
     if (!business?.id || !navigator.onLine) return
-    const r = await syncSales(business.id)
-    if (r.sent > 0) toast(r.sent === 1 ? '1 saved sale was confirmed by the server' : `${r.sent} saved sales were confirmed by the server`)
-    if (r.failed > 0) toast(`${r.failed} saved ${r.failed === 1 ? 'sale needs' : 'sales need'} your attention`, 'error')
-    if (r.stopped === 'auth') toast('Sign in again to send your saved sales', 'error')
+    const r = await syncAll(business.id)
+    if (r.sent > 0) toast(r.sent === 1 ? '1 saved record was confirmed by the server' : `${r.sent} saved records were confirmed by the server`)
+    if (r.failed > 0) toast(`${r.failed} saved ${r.failed === 1 ? 'record needs' : 'records need'} your attention`, 'error')
+    if (r.stopped === 'auth') toast('Sign in again to send your saved records', 'error')
   }, [business?.id, toast])
 
   useEffect(() => { if (online) run() }, [online, run])
@@ -41,4 +41,19 @@ export function useOfflineSync() {
     const t = setInterval(run, 60000)
     return () => clearInterval(t)
   }, [pending, online, run])
+}
+
+/** Live sync state for the status badge: { running, done, total, lastSync, run }. */
+export function useSyncStatus() {
+  const { business } = useAuth()
+  const [p, setP] = useState({ running: false, done: 0, total: 0 })
+  const [last, setLast] = useState(null)
+  useEffect(() => {
+    if (business?.id) getLastSync(business.id).then(setLast)
+    const on = (e) => { setP(e.detail); if (!e.detail.running && business?.id) getLastSync(business.id).then(setLast) }
+    window.addEventListener('shopscale:sync', on)
+    return () => window.removeEventListener('shopscale:sync', on)
+  }, [business?.id])
+  const run = useCallback(() => (business?.id ? syncAll(business.id) : null), [business?.id])
+  return { ...p, lastSync: last, run }
 }

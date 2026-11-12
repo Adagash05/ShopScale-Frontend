@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { Menu, X } from 'lucide-react'
 
 const NAV = [

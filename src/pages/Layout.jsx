@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { storeUrl } from '../config/env.js'
 import TopBar from './TopBar.jsx'
 import { InstallBanner, UpdateBanner } from '../pwa/InstallPrompt.jsx'
 import { Home, ShoppingCart, Package, Users, Menu } from 'lucide-react'
@@ -37,7 +38,7 @@ export default function Layout() {
       <aside className="side" aria-label="Main">
         <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
         <Links items={items} />
-        <div className="side-foot">{business?.name}<br />{window.location.host}/s/{business?.slug}</div>
+        <div className="side-foot">{business?.name}<br />{storeUrl(business?.slug || '').replace(/^https?:\/\//, '')}</div>
       </aside>
       <main className="main"><TopBar /><UpdateBanner /><InstallBanner /><Outlet /></main>
       <nav className="bottom-nav" aria-label="Main" style={{ '--n': items.length }}><Links items={items} /></nav>

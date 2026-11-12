@@ -17,6 +17,18 @@
     <meta name="format-detection" content="telephone=no" />
     <meta property="og:site_name" content="ShopScale by AMSATI" />
     <meta property="og:type" content="website" />
+    <script>
+      /* Apply the saved theme before first paint (no flash). The marketing host is never themed. Mirrors src/config/domains.js detectMode. */
+      (function () { try {
+        var app = '%VITE_APP_URL%', site = '%VITE_PUBLIC_SITE_URL%', ov = '%VITE_SITE_MODE%', h = location.hostname.toLowerCase();
+        function host(u) { try { return new URL(u).hostname.toLowerCase(); } catch (e) { return ''; } }
+        var mode = /^(public|app|unified)$/.test(ov) ? ov : (host(app) && h === host(app)) ? 'app' : (host(site) && (h === host(site) || h === 'www.' + host(site))) ? 'public' : 'unified';
+        if (mode === 'public') return;
+        var p = localStorage.getItem('shopscale.theme');
+        var dark = p === 'dark' || (p !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } catch (e) {} })();
+    </script>
     <title>ShopScale · Run your business from your phone</title>
     <meta name="description" content="ShopScale by AMSATI helps you record sales, control stock, track expenses and see your money in one simple app." />
   </head>

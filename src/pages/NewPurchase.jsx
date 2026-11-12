@@ -1,3 +1,4 @@
+import { track } from "../analytics/analytics.js";
 import { BranchSelect, useBranch } from "../lib/branch.jsx";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -96,6 +97,7 @@ export default function NewPurchase() {
         reference: reference || null,
         clientRequestId: requestId,
       });
+      track("stock_receive", { item_count: lines.length });
       setDone(p);
       setLines([]);
       setSupplierId("");

@@ -1,3 +1,4 @@
+import { AnalyticsPreferences } from '../analytics/AnalyticsRouter.jsx'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
@@ -40,7 +41,7 @@ export const ARTICLES = [
     'Need a different mix of access? Under Team, then Roles, create a role and choose exactly what it can do. You can only give access you have yourself.' ] },
   { id: 'plans', title: 'Your plan and free trial', body: [
     'Every new business gets 14 days free with full access. You are never charged without your permission.',
-    'If a trial or subscription ends, you can still sign in and see everything, but you cannot record new activity until you renew. Your data is never deleted.' ] },
+    'If a trial or paid plan ends, your business moves to the Free plan so you can keep selling. Free has lower limits and fewer features, and your data is never deleted.' ] },
   { id: 'soon', title: 'Not available yet', body: [
     'Restaurant and catering tools are planned for after launch and are not available yet.' ] },
 ]
@@ -59,6 +60,7 @@ export default function Help() {
         ))}
       </div>
       <div className="section pad stack-sm"><strong>Use ShopScale like an app</strong><p className="muted small">Install it on your phone or computer so it opens full screen and keeps working on a weak connection.</p><InstallLink /></div>
+      <div className="section pad stack-sm"><strong>Privacy</strong><AnalyticsPreferences /></div>
       <p className="muted small">Still stuck? <Link to="/contact">Contact us</Link>.</p>
     </div>
   )

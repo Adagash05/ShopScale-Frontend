@@ -1,18 +1,18 @@
 import { Download } from 'lucide-react'
-import { tokens } from '../../lib/api'
+import { api } from '../../lib/api'
+import { track } from '../../analytics/analytics.js'
 import { useToast } from '../../components.jsx'
 
-const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/$/, '') + '/api'
 const SETS = [['products', 'Products and stock'], ['customers', 'Customers and what they owe'], ['sales', 'Sales'], ['expenses', 'Expenses']]
 
 export default function Export() {
   const toast = useToast()
   async function download(what) {
     try {
-      const res = await fetch(`${BASE}/export/${what}.csv`, { headers: { Authorization: `Bearer ${tokens.get()?.accessToken}` } })
-      if (!res.ok) throw new Error(res.status === 402 ? 'Data export is not included in your plan' : res.status === 403 ? 'You do not have permission to export' : 'Could not export. Please try again.')
-      const url = URL.createObjectURL(await res.blob())
+      const blob = await api.download(`/export/${what}.csv`).catch((e) => { throw new Error(e.status === 402 ? 'Data export is not included in your plan' : e.status === 403 ? 'You do not have permission to export' : e.status === 0 ? e.message : 'Could not export. Please try again.') })
+      const url = URL.createObjectURL(blob)
       const a = document.createElement('a'); a.href = url; a.download = `shopscale-${what}.csv`; a.click(); URL.revokeObjectURL(url)
+      track('data_export', { export_type: what })
     } catch (e) { toast(e.message, 'error') }
   }
   return (

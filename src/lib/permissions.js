@@ -15,7 +15,7 @@ export function groupPermissions(keys, catalogue) {
 export function describeActivity(a) {
   const map = {
     SALE_CREATED: ['Sale recorded', 'teal', 'sale'], SALE_REFUNDED: ['Sale refunded', 'warn', 'sale'],
-    CUSTOMER_PAYMENT: ['Payment received', 'teal', 'money'], EXPENSE_CREATED: ['Expense recorded', 'warn', 'money'],
+    CUSTOMER_PAYMENT: ['Payment received', 'teal', 'money'], INVOICE_PAYMENT: ['Invoice payment received', 'teal', 'money'], INVOICE_CREATED: ['Invoice created', 'blue', 'money'], INVOICE_SENT: ['Invoice sent', 'blue', 'money'], INVOICE_CANCELLED: ['Invoice cancelled', 'gray', 'money'], EXPENSE_CREATED: ['Expense recorded', 'warn', 'money'],
     EXPENSE_DELETED: ['Expense deleted', 'gray', 'money'], PRODUCT_CREATED: ['Product added', 'blue', 'box'],
     PRODUCT_UPDATED: ['Product updated', 'blue', 'box'], PRODUCT_ARCHIVED: ['Product archived', 'gray', 'box'],
     PRODUCT_RESTORED: ['Product restored', 'blue', 'box'], CUSTOMER_CREATED: ['Customer added', 'blue', 'user'],

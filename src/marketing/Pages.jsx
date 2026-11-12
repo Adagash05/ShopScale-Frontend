@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { api } from '../lib/api'
 import { useLoad, ErrorBox, Skeleton } from '../components.jsx'
 import { useSeo } from './Seo.jsx'
@@ -224,6 +224,8 @@ export function PrivacyPage() {
       <p>This policy explains what information ShopScale, a product of AMSATI, collects and how we use it. We aim to follow the Nigeria Data Protection Act 2023.</p>
       <h2>What we collect</h2>
       <ul><li>Account details: your name, email, phone number and password (stored in a protected, one-way form).</li><li>Business records you enter: products, stock, sales, customers, expenses and staff.</li><li>Technical information needed to run the service, such as sign-in times.</li></ul>
+      <h2>Analytics</h2>
+      <p>If you allow it, we use Google Analytics on ShopScale’s own pages to count visits and see which features are used. We ask before loading it, you can turn it off any time in Help, and we never send customer details, sales amounts, emails or phone numbers. Public online stores run by merchants are not tracked by ShopScale.</p>
       <h2>How we use it</h2>
       <p>We use your information to provide ShopScale, keep it secure, and contact you about your account. We do not sell your data.</p>
       <h2>Who can see it</h2>

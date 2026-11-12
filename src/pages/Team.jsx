@@ -1,3 +1,4 @@
+import { track } from '../analytics/analytics.js'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Copy, Plus } from 'lucide-react'
@@ -50,7 +51,7 @@ function InviteModal({ roles, catalogue, mine, onClose, onDone }) {
     setBusy(true)
     try {
       const r = await api.post('/team/invitations', { fullName: f.fullName, email: f.email, phone: f.phone || null, ...toRef(role) })
-      setResult(r); onDone()
+      setResult(r); onDone(); track('employee_invite')
     } catch (e) { setFormError(e.message) } finally { setBusy(false) }
   }
 

@@ -7,8 +7,18 @@ import App from './App.jsx'
 import { AuthProvider } from './auth/AuthContext.jsx'
 import { ToastProvider } from './components.jsx'
 import { initPwa } from './pwa/pwa.js'
+import { MODE } from './config/env.js'
+import { initTheme } from './theme/theme.js'
+import { initAnalytics } from './analytics/analytics.js'
+import { AnalyticsRouter, ConsentBanner } from './analytics/AnalyticsRouter.jsx'
 
-initPwa()
+// The marketing site is a plain website; only the application (and single-origin installs) is a PWA.
+if (MODE !== 'public') initPwa()
+if (MODE !== 'public') initTheme()
+if (MODE !== 'public') {
+  const m = document.createElement('meta'); m.name = 'robots'; m.content = 'noindex, nofollow'; document.head.appendChild(m)
+}
+initAnalytics()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -16,6 +26,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <ToastProvider>
           <App />
+          <AnalyticsRouter />
+          <ConsentBanner />
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

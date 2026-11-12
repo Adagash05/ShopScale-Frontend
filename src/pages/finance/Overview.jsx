@@ -5,7 +5,7 @@ import { money, rangeQuery } from '../../lib/format.js'
 import { Link } from 'react-router-dom'
 
 const LABEL = {
-  SALE: 'Sales', CUSTOMER_PAYMENT: 'Customers paying what they owe', REFUND: 'Refunds', EXPENSE: 'Expenses', EXPENSE_REVERSAL: 'Expenses removed',
+  SALE: 'Sales', CUSTOMER_PAYMENT: 'Customers paying what they owe', INVOICE_PAYMENT: 'Invoice payments', REFUND: 'Refunds', EXPENSE: 'Expenses', EXPENSE_REVERSAL: 'Expenses removed',
   SUPPLIER_PAYMENT: 'Paid to suppliers', PURCHASE: 'Stock bought', DEPOSIT: 'Money added', WITHDRAWAL: 'Money taken out', CATERING_DEPOSIT: 'Catering deposits', ONLINE_ORDER: 'Online orders',
 }
 

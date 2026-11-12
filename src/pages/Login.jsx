@@ -1,5 +1,6 @@
+import { track } from '../analytics/analytics.js'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field } from '../components.jsx'
 
@@ -20,7 +21,7 @@ export default function Login() {
     setFormError('')
     if (Object.keys(errs).length) return
     setBusy(true)
-    try { await login(email, password) } catch (err) { setFormError(err.message) } finally { setBusy(false) }
+    try { await login(email, password); track('login', { method: 'email' }) } catch (err) { setFormError(err.message) } finally { setBusy(false) }
   }
 
   return (

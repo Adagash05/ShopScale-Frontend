@@ -1,8 +1,9 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { Check, Minus } from 'lucide-react'
 import { api } from '../lib/api'
 import { ErrorBox, Skeleton, useLoad } from '../components.jsx'
+import { track } from '../analytics/analytics.js'
 import { money } from '../lib/format.js'
 import { useSeo } from '../marketing/Seo.jsx'
 import { FEATURE_LABELS, allFeatureKeys, annualSavings, limitText, newFeatures } from '../lib/plans.js'
@@ -68,6 +69,7 @@ export function CompareTable({ plans }) {
 export default function Pricing() {
   const [annual, setAnnual] = useState(false)
   const plans = useLoad(() => api.public.get('/subscriptions/plans'), [])
+  useEffect(() => { track('view_pricing', { source: 'public' }) }, [])
   useSeo({ title: 'Pricing', description: 'Simple ShopScale pricing: a free plan forever, plus Essential, Growth and Business plans, monthly or yearly with two months free.', path: '/pricing' })
   return (
     <section className="mk-section"><div className="mk-wrap"><div className="stack">

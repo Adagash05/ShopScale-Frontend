@@ -17,7 +17,11 @@ export function useBranch() {
       try { saved = localStorage.getItem(KEY) } catch { /* private mode */ }
       const pick = active.find((b) => b.id === saved) || active.find((b) => b.main) || active[0]
       setId(pick ? pick.id : null)
-    }).catch(() => { /* branch features stay hidden if the list cannot load */ })
+      if (pick) { try { localStorage.setItem(KEY, pick.id) } catch { /* ignore */ } }
+    }).catch(() => {
+      // Offline: keep working in the branch used last time. The server re-checks it when the sale is sent.
+      try { const saved = localStorage.getItem(KEY); if (live && saved) setId(saved) } catch { /* ignore */ }
+    })
     return () => { live = false }
   }, [])
   const setBranchId = (id) => {

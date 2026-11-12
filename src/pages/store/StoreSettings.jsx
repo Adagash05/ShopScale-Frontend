@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { ErrorBox, Field, Skeleton, useLoad, useToast } from '../../components.jsx'
 import { useAuth } from '../../auth/AuthContext.jsx'
+import StoreProfile from '../../widgets/StoreProfile.jsx'
 
 export default function StoreSettings() {
   const { can } = useAuth()
@@ -54,6 +55,8 @@ export default function StoreSettings() {
         </fieldset>
         {edit && <button className="btn primary block" disabled={busy === 'save'}>{busy === 'save' ? 'Saving…' : 'Save store settings'}</button>}
       </form>
+
+      <StoreProfile canEdit={edit} />
 
       <section className="section pad stack">
         <h2>Online payments (your Paystack account)</h2>

@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { storeUrl } from '../config/env.js'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field, useToast } from '../components.jsx'
+import ThemePicker from '../theme/ThemePicker.jsx'
+import DeviceSessions from './DeviceSessions.jsx'
 
 export default function Settings() {
   const { business, updateBusiness, can } = useAuth()
@@ -27,6 +30,8 @@ export default function Settings() {
   return (
     <form className="stack" onSubmit={save} noValidate>
       <div className="page-head"><div><h1>Business settings</h1></div></div>
+      <ThemePicker />
+      <DeviceSessions />
       {!isOwner && <div className="banner">You do not have permission to change these settings.</div>}
       <fieldset disabled={!isOwner} style={{ border: 0, padding: 0, margin: 0 }}>
         <div className="section pad form-grid">
@@ -42,7 +47,7 @@ export default function Settings() {
             <span><strong>Let me sell items even when my stock count says zero</strong><br /><span className="muted small">Useful if you sometimes sell before you update stock. Stock can then go below zero.</span></span></label>
         </div>
       </fieldset>
-      <div className="section pad"><div className="muted small">Store address</div><div className="num">{window.location.origin}/s/{business.slug}</div><p className="muted small" style={{ marginTop: 6 }}>Open and manage your online store from More, Online store (Essential plan and above).</p></div>
+      <div className="section pad"><div className="muted small">Store address</div><div className="num">{storeUrl(business.slug)}</div><p className="muted small" style={{ marginTop: 6 }}>Open and manage your online store from More, Online store (Essential plan and above).</p></div>
       {isOwner && <button className="btn primary block" disabled={busy}>{busy ? 'Saving…' : 'Save settings'}</button>}
     </form>
   )

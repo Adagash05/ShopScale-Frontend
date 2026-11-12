@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { ErrorBox, Field, Skeleton, useLoad } from '../components.jsx'

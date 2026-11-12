@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { api } from '../lib/api'
+import { enqueueExpense } from '../lib/offlineQueue.js'
+import { newRequestId } from '../lib/cart.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Confirm, Empty, ErrorBox, Field, ListSkeleton, Modal, RangePicker, useLoad, useToast } from '../components.jsx'
 import { dateOnly, money, rangeQuery } from '../lib/format.js'
@@ -11,6 +13,8 @@ const CATEGORIES = ['Rent', 'Transport', 'Salaries', 'Electricity', 'Stock purch
 
 function AddExpense({ onClose, onDone }) {
   const toast = useToast()
+  const { business, user } = useAuth()
+  const [requestId] = useState(newRequestId)
   const [f, setF] = useState({ category: '', amount: '', description: '', paymentMethod: 'CASH', expenseDate: '' })
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
@@ -22,10 +26,17 @@ function AddExpense({ onClose, onDone }) {
     setErrors(errs); setFormError('')
     if (Object.keys(errs).length) return
     setBusy(true)
+    const payload = { category: f.category, amount: Number(f.amount), description: f.description || null, paymentMethod: f.paymentMethod, expenseDate: f.expenseDate || new Date().toISOString().slice(0, 10), clientRequestId: requestId }
     try {
-      const saved = await api.post('/expenses', { category: f.category, amount: Number(f.amount), description: f.description || null, paymentMethod: f.paymentMethod, expenseDate: f.expenseDate || null })
+      const saved = await api.post('/expenses', payload)
       toast(saved.status === 'PENDING' ? 'Sent for approval' : 'Expense added'); onDone(); onClose()
-    } catch (e) { setFormError(e.message) } finally { setBusy(false) }
+    } catch (e) {
+      if (e.status === 0) {
+        // Same request id: if the first attempt did reach the server, the retry is recognised and not recorded twice.
+        try { await enqueueExpense({ businessId: business.id, userId: user?.id, payload }); toast('No connection. The expense is saved on this device and will be sent when you are online.'); onClose(); return } catch { /* fall through */ }
+      }
+      setFormError(e.message)
+    } finally { setBusy(false) }
   }
   return (
     <Modal title="Add expense" onClose={onClose}>

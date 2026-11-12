@@ -1,3 +1,4 @@
+import { track } from '../analytics/analytics.js'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
@@ -6,6 +7,7 @@ import { useAuth } from '../auth/AuthContext.jsx'
 import { Confirm, ErrorBox, Field, Skeleton, useLoad, useToast } from '../components.jsx'
 import StockAdjust from '../StockAdjust.jsx'
 import ImageField from '../widgets/ImageField.jsx'
+import StorefrontDetails from '../widgets/StorefrontDetails.jsx'
 
 const UNITS = ['piece', 'kg', 'g', 'litre', 'ml', 'pack', 'carton', 'dozen', 'bag', 'bottle', 'crate', 'tray', 'portion', 'plate', 'bundle', 'metre']
 const blankVariant = () => ({ key: Math.random().toString(36).slice(2), id: null, label: '', price: '', cost: '', quantity: '', sku: '', barcode: '', lowStockThreshold: '', stock: null })
@@ -87,7 +89,7 @@ export default function ProductForm() {
     setBusy(true)
     try {
       if (editing) { hydrate(await api.put(`/products/${id}`, body)); toast('Product saved') }
-      else { await api.post('/products', body); toast('Product added'); nav('/products') }
+      else { await api.post('/products', body); track('product_create'); toast('Product added'); nav('/products') }
     } catch (err) { setFormError(err.message) } finally { setBusy(false) }
   }
 
@@ -190,6 +192,7 @@ export default function ProductForm() {
       {confirmArchive && <Confirm title={archived ? 'Restore this product?' : 'Archive this product?'} danger={!archived} busy={busy}
         message={archived ? 'It will appear in your product list and in Sell again.' : 'It will no longer appear in Sell. Your sales history stays exactly as it is, and you can restore it any time.'}
         confirmLabel={archived ? 'Restore' : 'Archive'} onConfirm={archiveOrRestore} onClose={() => setConfirmArchive(false)} />}
+      {editing && product && <StorefrontDetails productId={id} canEdit={canSave} />}
     </form>
   )
 }

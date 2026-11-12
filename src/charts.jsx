@@ -2,7 +2,7 @@
 import { money } from './lib/format.js'
 
 export const COLORS = {
-  blue: '#2563eb', teal: '#0d9488', navy: '#172554', amber: '#f59e0b', slate: '#94a3b8', red: '#dc2626', sky: '#38bdf8',
+  blue: '#2563eb', teal: '#0d9488', navy: '#6366f1', amber: '#f59e0b', slate: '#94a3b8', red: '#dc2626', sky: '#38bdf8',
 }
 const PALETTE = [COLORS.blue, COLORS.teal, COLORS.navy, COLORS.amber, COLORS.sky, COLORS.slate]
 
@@ -30,7 +30,7 @@ export function BarChart({ data, series, height = 200, ariaLabel }) {
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={ariaLabel}>
       {[0, 0.5, 1].map((t) => (
         <g key={t}>
-          <line x1={L} x2={W - R} y1={y(max * t)} y2={y(max * t)} stroke="#e2e8f0" />
+          <line x1={L} x2={W - R} y1={y(max * t)} y2={y(max * t)} style={{ stroke: 'var(--line)' }} />
           <text x={L - 6} y={y(max * t) + 4} textAnchor="end">{short(max * t)}</text>
         </g>
       ))}
@@ -64,7 +64,7 @@ export function Donut({ segments, centerLabel, centerValue, format = money, aria
   return (
     <div className="donut-wrap">
       <svg viewBox="0 0 140 140" width="150" height="150" role="img" aria-label={ariaLabel}>
-        <circle cx="70" cy="70" r={R} fill="none" stroke="#eef2f7" strokeWidth="18" />
+        <circle cx="70" cy="70" r={R} fill="none" style={{ stroke: 'var(--track)' }} strokeWidth="18" />
         {total > 0 && segments.map((s, i) => {
           const len = (Number(s.value) / total) * C
           const el = (
@@ -75,7 +75,7 @@ export function Donut({ segments, centerLabel, centerValue, format = money, aria
           return el
         })}
         <text x="70" y="66" textAnchor="middle" style={{ fontSize: 11 }}>{centerLabel}</text>
-        <text x="70" y="84" textAnchor="middle" style={{ fontSize: 15, fontWeight: 700, fill: '#172033' }}>{centerValue}</text>
+        <text x="70" y="84" textAnchor="middle" style={{ fontSize: 15, fontWeight: 700, fill: 'var(--text)' }}>{centerValue}</text>
       </svg>
       <div className="legend-list">
         {segments.map((s, i) => (

@@ -17,7 +17,7 @@ export function CustomerForm({ initial, onSaved, onClose, title }) {
     setBusy(true); setErr('')
     const body = { name: f.name, phone: f.phone || null, email: f.email || null, address: f.address || null, notes: f.notes || null, customerType: f.customerType, priceTierId: f.priceTierId || null }
     try {
-      const c = initial ? await api.put(`/customers/${initial.id}`, body) : await api.post('/customers', body)
+      const c = initial?.id ? await api.put(`/customers/${initial.id}`, body) : await api.post('/customers', body)
       toast('Customer saved'); onSaved(c); onClose()
     } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }

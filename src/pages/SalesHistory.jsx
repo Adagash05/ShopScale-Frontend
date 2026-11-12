@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import { ChevronRight, Printer } from 'lucide-react'
 import { api } from '../lib/api'
@@ -108,6 +109,7 @@ function SaleDetail({ id, onClose, onChanged }) {
             {s.voidReason && <p className="muted small">Voided: {s.voidReason}</p>}
           </div>
           <div className="row"><button className="btn grow" onClick={() => window.print()}><Printer size={18} /> Print receipt</button>
+            {can('CUSTOMER_INVOICES_MANAGE') && s.status === 'COMPLETED' && <Link className="btn grow" to={`/more/invoices/new?sale=${s.id}`}>Create invoice</Link>}
             {can('SALES_REFUND') && s.status === 'COMPLETED' && <button className="btn grow" onClick={() => setReturning(true)}>Return items</button>}</div>
           <div className="row">
             {can('SALES_REFUND') && s.status === 'COMPLETED' && <button className="btn danger grow" onClick={() => setConfirm(true)}>Refund everything</button>}

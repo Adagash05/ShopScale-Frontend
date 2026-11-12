@@ -1,3 +1,4 @@
+import { track } from "../analytics/analytics.js";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Trash2, UserPlus, Printer } from "lucide-react";
@@ -21,7 +22,13 @@ import {
 } from "../lib/cart.js";
 import { dateTime, money, qtyText } from "../lib/format.js";
 import { BranchSelect, useBranch } from "../lib/branch.jsx";
-import { enqueueSale, loadCatalog, saveCatalog } from "../lib/offlineQueue.js";
+import {
+  enqueueSale,
+  loadCatalog,
+  loadCustomers,
+  saveCatalog,
+  saveCustomers,
+} from "../lib/offlineQueue.js";
 import { useOnline } from "../pwa/useOnline.js";
 
 const METHODS = [
@@ -32,9 +39,33 @@ const METHODS = [
 
 function CustomerPicker({ onPick, onClose }) {
   const toast = useToast();
+  const { business } = useAuth();
+  const online = useOnline();
   const [q, setQ] = useState("");
   const dq = useDebounced(q);
-  const list = useLoad(() => api.get("/customers", { q: dq, size: 20 }), [dq]);
+  // Offline, customers come from the copy saved on this device; a new customer needs a connection.
+  const list = useLoad(async () => {
+    const fromDevice = async () => {
+      const snap = await loadCustomers(business.id);
+      const term = dq.trim().toLowerCase();
+      return {
+        content: (snap?.items || [])
+          .filter(
+            (c) =>
+              !term ||
+              `${c.name} ${c.phone || ""}`.toLowerCase().includes(term),
+          )
+          .slice(0, 20),
+      };
+    };
+    if (!online) return fromDevice();
+    try {
+      return await api.get("/customers", { q: dq, size: 20 });
+    } catch (e) {
+      if (e.status === 0) return fromDevice();
+      throw e;
+    }
+  }, [dq, online]);
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "" });
   const [err, setErr] = useState("");
@@ -91,9 +122,19 @@ function CustomerPicker({ onPick, onClose }) {
               <Empty title="No customers found" />
             )}
           </div>
-          <button className="btn block" onClick={() => setAdding(true)}>
+          <button
+            className="btn block"
+            onClick={() => setAdding(true)}
+            disabled={!online}
+          >
             <UserPlus size={18} /> New customer
           </button>
+          {!online && (
+            <p className="muted small">
+              Offline: you can choose a saved customer for a sale paid in full.
+              Adding a customer needs a connection.
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -259,6 +300,20 @@ export default function Sell() {
       .get("/products/sellable", { branchId: branch.branchId, size: 500 })
       .then((all) => saveCatalog(business.id, branch.branchId, all))
       .catch(() => {});
+    api
+      .get("/customers", { size: 500 })
+      .then((r) =>
+        saveCustomers(
+          business.id,
+          (r.content || []).map((c) => ({
+            id: c.id,
+            name: c.name,
+            phone: c.phone,
+            balance: c.balance,
+          })),
+        ),
+      )
+      .catch(() => {});
   }, [online, branch.branchId, business.id]);
   const [pickCustomer, setPickCustomer] = useState(false);
   const [mode, setMode] = useState("full");
@@ -391,10 +446,11 @@ export default function Sell() {
     };
     const saveHere = async () => {
       // Kept only on this device until the server confirms it. The price shown is an estimate.
+      // expectedTotal makes the server refuse (409) instead of silently charging a price the cashier never saw.
       await enqueueSale({
         businessId: business.id,
         userId: user?.id,
-        payload: body,
+        payload: { ...body, expectedTotal: totals.total },
         estimatedTotal: totals.total,
         method,
         lines: priced.map((l) => ({ name: l.name, quantity: l.quantity })),
@@ -419,9 +475,9 @@ export default function Sell() {
       setRequestId(newRequestId());
     };
     if (!online) {
-      if (owed > 0 || customer) {
+      if (owed > 0) {
         setError(
-          "Without a connection you can only record sales paid in full, with no customer account. Connect to record credit or part payments.",
+          "Without a connection you can only record sales paid in full. Connect to record credit or part payments.",
         );
         return;
       }
@@ -440,6 +496,7 @@ export default function Sell() {
     try {
       const sale = await api.post("/sales", body);
       setReceipt(sale);
+      track("sale_complete", { item_count: lines.length, channel: "pos" }); // after the server confirmed it; no amounts
       setLines([]);
       setDiscount("");
       setCustomer(null);
@@ -448,7 +505,7 @@ export default function Sell() {
       setRequestId(newRequestId());
       items.reload();
     } catch (e) {
-      if (e.status === 0 && owed <= 0 && !customer) {
+      if (e.status === 0 && owed <= 0) {
         // The request may or may not have reached the server. Saving it with the same request id makes a retry safe.
         try {
           await saveHere();

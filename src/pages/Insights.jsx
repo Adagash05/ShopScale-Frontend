@@ -5,8 +5,8 @@ import { ErrorBox, Skeleton, useLoad } from '../components.jsx'
 import { rangeQuery } from '../lib/format.js'
 
 const SEVERITY = {
-  ATTENTION: { icon: CircleAlert, cls: '', color: 'var(--danger)', bg: '#fef2f2', label: 'Needs attention' },
-  WARNING: { icon: AlertTriangle, cls: 'warn', color: '#b45309', bg: '#fffbeb', label: 'Worth a look' },
+  ATTENTION: { icon: CircleAlert, cls: '', color: 'var(--danger)', bg: 'var(--danger-soft)', label: 'Needs attention' },
+  WARNING: { icon: AlertTriangle, cls: 'warn', color: 'var(--warn-fg)', bg: 'var(--warn-soft)', label: 'Worth a look' },
   INFO: { icon: Info, cls: 'gray', color: 'var(--blue-deep)', bg: 'var(--blue-light)', label: 'Good to know' },
 }
 

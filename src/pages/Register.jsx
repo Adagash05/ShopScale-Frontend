@@ -1,5 +1,6 @@
+import { track } from '../analytics/analytics.js'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field } from '../components.jsx'
 
@@ -21,7 +22,7 @@ export default function Register() {
     setFormError('')
     if (Object.keys(errs).length) return
     setBusy(true)
-    try { await register({ ...form, phone: form.phone || null }) } catch (err) {
+    try { await register({ ...form, phone: form.phone || null }); track('sign_up', { method: 'email' }) } catch (err) {
       setErrors(err.fieldErrors || {})
       setFormError(err.message)
     } finally { setBusy(false) }

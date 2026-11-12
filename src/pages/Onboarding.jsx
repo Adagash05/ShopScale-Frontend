@@ -1,3 +1,5 @@
+import { track } from '../analytics/analytics.js'
+import { storeUrl } from '../config/env.js'
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
@@ -48,6 +50,7 @@ export default function Onboarding() {
         name: form.name.trim(), businessType: type, subtype: form.subtype, slug: form.slug,
         phone: form.phone || null, currency: 'NGN', timezone: 'Africa/Lagos',
       })
+      track('onboarding_completed', { business_type: type })
     } catch (e) { setError(e.message) } finally { setBusy(false) }
   }
 
@@ -104,7 +107,7 @@ export default function Onboarding() {
           <div className="stack">
             <div><h1>Pick your store address</h1><p className="muted">Customers will find you here once online selling opens.</p></div>
             <Field label="Store address" htmlFor="slug"
-              hint={`${window.location.host}/s/${form.slug || 'your-name'}`}
+              hint={storeUrl(form.slug || 'your-name').replace(/^https?:\/\//, '')}
               error={slugState.available === false ? slugState.reason : ''}>
               <input id="slug" className="input" value={form.slug} autoCapitalize="none" autoCorrect="off"
                 onChange={(e) => { setSlugTouched(true); setForm({ ...form, slug: slugify(e.target.value) }) }} />

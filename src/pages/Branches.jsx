@@ -1,3 +1,4 @@
+import { track } from '../analytics/analytics.js'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { api } from '../lib/api'
@@ -15,6 +16,7 @@ function BranchForm({ initial, onClose, onSaved }) {
     const body = { name: f.name, address: f.address || null, phone: f.phone || null }
     try {
       initial ? await api.put(`/branches/${initial.id}`, body) : await api.post('/branches', body)
+      if (!initial) track('branch_create')
       toast('Location saved'); onSaved(); onClose()
     } catch (e) { setErr(e.message) } finally { setBusy(false) }
   }
