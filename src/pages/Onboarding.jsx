@@ -5,6 +5,7 @@ import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field, useDebounced } from '../components.jsx'
 import { Store, UtensilsCrossed, Cake } from 'lucide-react'
+import VerifyNotice from './VerifyNotice.jsx'
 
 export const TYPES = [
   { id: 'RETAIL', label: 'Shop or retail business', hint: 'Fashion, cosmetics, electronics, groceries, general goods', icon: Store, ready: true },
@@ -61,6 +62,7 @@ export default function Onboarding() {
           <div className="brand"><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
           <button className="btn sm" onClick={logout}>Sign out</button>
         </div>
+        {step === 1 && <VerifyNotice email={user?.email} />}
         <div className="steps" aria-label={`Step ${step} of 3`}>{[1, 2, 3].map((n) => <i key={n} className={n <= step ? 'on' : ''} />)}</div>
 
         {step === 1 && (

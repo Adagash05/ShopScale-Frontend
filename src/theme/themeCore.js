@@ -3,8 +3,10 @@ export const KEY = 'shopscale.theme'
 export const THEMES = ['light', 'dark', 'system']
 export const THEME_COLOR = { light: '#2563EB', dark: '#0b1220' }
 
-/** A stored value becomes a valid preference; anything unknown means "system". */
-export function normalize(value) { return THEMES.includes(value) ? value : 'system' }
+export const DEFAULT = 'light'
+
+/** A stored value becomes a valid preference; nothing stored, or anything unknown, means the light default. "system" only applies when a person picked it. */
+export function normalize(value) { return THEMES.includes(value) ? value : DEFAULT }
 
 /** The theme actually shown: 'light' or 'dark'. */
 export function resolve(pref, systemPrefersDark) {

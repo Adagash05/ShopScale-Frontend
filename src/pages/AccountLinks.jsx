@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { api } from '../lib/api'
@@ -72,8 +72,10 @@ export function VerifyEmail() {
   const token = sp.get('token') || ''
   const [state, setState] = useState(token ? 'working' : 'bad')
   const [msg, setMsg] = useState('')
+  const started = useRef(false)   // a link is single-use: never submit it twice (StrictMode, re-renders)
   useEffect(() => {
-    if (!token) return
+    if (!token || started.current) return
+    started.current = true
     api.post('/auth/verify-email', { token }).then(() => setState('ok')).catch((e) => { setMsg(e.message); setState('bad') })
   }, [token])
   if (state === 'working') return <Shell title="Confirming your email…" />

@@ -2,19 +2,19 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Bell } from 'lucide-react'
 import { api } from '../lib/api'
-import { useToast } from '../components.jsx'
+import { useResendVerification } from './VerifyNotice.jsx'
 import { useOnline } from '../pwa/useOnline.js'
 import { usePendingCount, useOfflineSync, useSyncStatus } from '../lib/useOfflineSync.js'
 
 /** Bell with the unread count, plus a one-line banner while the owner's email is still unconfirmed. */
 export default function TopBar() {
-  const toast = useToast()
   const online = useOnline()
   const queue = usePendingCount()
   useOfflineSync()
   const sync = useSyncStatus()
   const [unread, setUnread] = useState(0)
   const [ver, setVer] = useState(null)
+  const { resend, busy, wait } = useResendVerification()
   useEffect(() => {
     let live = true
     const poll = () => api.get('/notifications', { size: 1 }).then((r) => { if (live) setUnread(r.unread) }).catch(() => {})
@@ -23,13 +23,10 @@ export default function TopBar() {
     api.get('/auth/verification-status').then((v) => { if (live) setVer(v) }).catch(() => {})
     return () => { live = false; clearInterval(t) }
   }, [])
-  async function resend() {
-    try { await api.post('/auth/resend-verification'); toast('Confirmation email sent') } catch (e) { toast(e.message, 'error') }
-  }
   return (
     <div className="topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12, padding: '8px 16px' }}>
       {ver && !ver.verified && (
-        <span className="muted small" style={{ marginRight: 'auto' }}>Please confirm your email address. {ver.emailConfigured && <button className="btn sm" onClick={resend}>Send the email again</button>}</span>
+        <span className="muted small" style={{ marginRight: 'auto' }}>Please confirm your email address. {ver.emailConfigured && <button className="btn sm" onClick={resend} disabled={busy || wait > 0}>{busy ? 'Sending…' : wait > 0 ? `Send again in ${wait}s` : 'Send the email again'}</button>}</span>
       )}
       <span className={`badge ${online ? 'ok' : 'warn'}`} role="status">{online ? 'Online' : 'Offline'}</span>
       {(queue.pending > 0 || queue.failed > 0) && <Link to="/more/pending-sales" className="badge warn">{sync.running ? `Sending ${sync.done}/${sync.total}…` : `${queue.pending + queue.failed} unsent ${queue.pending + queue.failed === 1 ? 'record' : 'records'}`}</Link>}

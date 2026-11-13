@@ -1,5 +1,5 @@
 import { track } from '../analytics/analytics.js'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field } from '../components.jsx'
@@ -10,22 +10,27 @@ export default function Register() {
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [busy, setBusy] = useState(false)
+  const sending = useRef(false)   // blocks a second submit before React has re-rendered the disabled button
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
   async function submit(e) {
     e.preventDefault()
+    if (sending.current) return
     const errs = {}
     if (!form.fullName.trim()) errs.fullName = 'Enter your name'
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) errs.email = 'Enter a valid email address'
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errs.email = 'Enter a valid email address'
     if (form.password.length < 8) errs.password = 'Use at least 8 characters'
+    else if (form.password.length > 72) errs.password = 'Use no more than 72 characters'
+    else if (/^\s+$/.test(form.password)) errs.password = 'Choose a password that is not only spaces'
     setErrors(errs)
     setFormError('')
     if (Object.keys(errs).length) return
+    sending.current = true
     setBusy(true)
-    try { await register({ ...form, phone: form.phone || null }); track('sign_up', { method: 'email' }) } catch (err) {
+    try { await register({ ...form, fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim() || null }); track('sign_up', { method: 'email' }) } catch (err) {
       setErrors(err.fieldErrors || {})
       setFormError(err.message)
-    } finally { setBusy(false) }
+    } finally { sending.current = false; setBusy(false) }
   }
 
   return (
@@ -42,7 +47,7 @@ export default function Register() {
         <Field label="Phone (optional)" htmlFor="phone">
           <input id="phone" className="input" type="tel" autoComplete="tel" inputMode="tel" value={form.phone} onChange={set('phone')} />
         </Field>
-        <Field label="Password" htmlFor="password" error={errors.password} hint="At least 8 characters">
+        <Field label="Password" htmlFor="password" error={errors.password} hint="8 to 72 characters">
           <input id="password" className="input" type="password" autoComplete="new-password" value={form.password} aria-invalid={!!errors.password} onChange={set('password')} />
         </Field>
         {formError && !Object.keys(errors).length && <p className="form-error" role="alert">{formError}</p>}

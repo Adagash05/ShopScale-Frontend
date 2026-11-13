@@ -1,13 +1,13 @@
 import { useSyncExternalStore } from 'react'
-import { KEY, THEME_COLOR, normalize, resolve } from './themeCore.js'
+import { DEFAULT, KEY, THEME_COLOR, normalize, resolve } from './themeCore.js'
 
-// Light / Dark / System. The choice is kept on this device (localStorage) and applied as <html data-theme="...">.
+// Light (the default) / Dark / System (only when a person chooses it). The choice is kept on this device (localStorage) and applied as <html data-theme="...">.
 // index.html applies it before first paint so there is no flash of the wrong theme.
 const listeners = new Set()
 const mq = () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null)
 
 export function getPreference() {
-  try { return normalize(localStorage.getItem(KEY)) } catch { return 'system' }
+  try { return normalize(localStorage.getItem(KEY)) } catch { return DEFAULT }
 }
 
 function paint(pref) {
@@ -38,6 +38,6 @@ export function initTheme() {
 
 const subscribe = (l) => { listeners.add(l); return () => listeners.delete(l) }
 export function useTheme() {
-  const pref = useSyncExternalStore(subscribe, getPreference, () => 'system')
+  const pref = useSyncExternalStore(subscribe, getPreference, () => DEFAULT)
   return { preference: pref, set: setPreference }
 }

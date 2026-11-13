@@ -48,7 +48,7 @@ describe('Onboarding', () => {
   })
 
   it('suggests a store address from the name and enables finish only when it is available', async () => {
-    fetch.mockResolvedValue(json(200, { slug: 'fashion-house', available: true }))
+    fetch.mockImplementation(async () => json(200, { slug: 'fashion-house', available: true }))   // a fresh Response per call: the sign-up notice also asks for verification status
     render(<MemoryRouter><Onboarding /></MemoryRouter>)
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }))
     await userEvent.type(screen.getByLabelText('Business name'), 'Fashion House')
@@ -62,7 +62,7 @@ describe('Onboarding', () => {
   })
 
   it('blocks finishing when the address is taken', async () => {
-    fetch.mockResolvedValue(json(200, { slug: 'taken', available: false, reason: 'That store address is already taken' }))
+    fetch.mockImplementation(async () => json(200, { slug: 'taken', available: false, reason: 'That store address is already taken' }))   // a fresh Response per call: the sign-up notice also asks for verification status
     render(<MemoryRouter><Onboarding /></MemoryRouter>)
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }))
     await userEvent.type(screen.getByLabelText('Business name'), 'Taken')

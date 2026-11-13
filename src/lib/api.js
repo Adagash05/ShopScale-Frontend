@@ -53,7 +53,9 @@ async function parse(res) {
   let data = null
   try { data = text ? JSON.parse(text) : null } catch { /* non-JSON body */ }
   if (!res.ok) {
-    const fallback = res.status >= 500
+    const fallback = res.status === 502 || res.status === 503 || res.status === 504
+      ? 'The server is busy or slow to respond. Please try again in a moment.'
+      : res.status >= 500
       ? 'Something went wrong on our side. Please try again.'
       : 'Something went wrong. Please try again.'
     throw new ApiError(res.status, data?.message || fallback, data?.fieldErrors)
@@ -62,6 +64,17 @@ async function parse(res) {
 }
 
 const NO_CONNECTION = 'No connection. Check your network and try again.'
+const TIMED_OUT = 'This is taking longer than expected. Check your connection and try again.'
+export const REQUEST_TIMEOUT_MS = 30000
+
+/** fetch that gives up after REQUEST_TIMEOUT_MS instead of leaving a button spinning forever. */
+function tfetch(url, o) {
+  const c = new AbortController()
+  const timer = setTimeout(() => c.abort(), REQUEST_TIMEOUT_MS)
+  return fetch(url, { ...o, signal: c.signal })
+    .catch((e) => { throw new ApiError(0, e && e.name === 'AbortError' ? TIMED_OUT : NO_CONNECTION) })
+    .finally(() => clearTimeout(timer))
+}
 
 /** Calls that read or write the refresh cookie (everything except the open public endpoints) send credentials. */
 const isPublic = (path) => path.startsWith('/public/') || path === '/subscriptions/plans'
@@ -82,8 +95,7 @@ let refreshing = null
 export function refreshSession() {
   if (!refreshing) {
     const legacy = legacyRefresh()
-    refreshing = fetch(`${BASE}/auth/refresh`, init('/auth/refresh', 'POST', { 'Content-Type': 'application/json' }, legacy ? JSON.stringify({ refreshToken: legacy }) : '{}'))
-      .catch(() => { throw new ApiError(0, NO_CONNECTION) })
+    refreshing = tfetch(`${BASE}/auth/refresh`, init('/auth/refresh', 'POST', { 'Content-Type': 'application/json' }, legacy ? JSON.stringify({ refreshToken: legacy }) : '{}'))
       .then(parse)
       .then((data) => { store.del(LEGACY); tokens.set(data); return data })
       .catch((e) => {
@@ -103,15 +115,14 @@ export async function request(path, { method = 'GET', body, query, auth = true }
     const headers = {}
     if (body !== undefined) headers['Content-Type'] = 'application/json'
     if (auth && accessToken) headers.Authorization = `Bearer ${accessToken}`
-    return fetch(`${BASE}${path}${qs(query)}`, init(path, method, headers, body !== undefined ? JSON.stringify(body) : undefined))
+    return tfetch(`${BASE}${path}${qs(query)}`, init(path, method, headers, body !== undefined ? JSON.stringify(body) : undefined))
   }
   // A reloaded page has no access token yet: renew first instead of sending a call that is bound to fail.
   if (auth && !accessToken && tokens.hinted()) await refreshSession()
-  let res
-  try { res = await send() } catch { throw new ApiError(0, NO_CONNECTION) }
+  let res = await send()
   if (res.status === 401 && auth && tokens.hinted()) {
     await refreshSession()
-    try { res = await send() } catch { throw new ApiError(0, NO_CONNECTION) }
+    res = await send()
   }
   return parse(res)
 }
