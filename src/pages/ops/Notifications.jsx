@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { Empty, ErrorBox, ListSkeleton, useLoad, useToast } from '../../components.jsx'
 import { dateTime } from '../../lib/format.js'
+import { notificationLink } from '../../lib/notificationLink.js'
 
 export default function Notifications() {
   const toast = useToast()
@@ -30,8 +31,9 @@ export default function Notifications() {
               <div className="meta">{dateTime(n.createdAt)}</div>
             </div>
           )
-          return n.link
-            ? <Link key={n.id} to={n.link} className="list-item" onClick={() => open(n)}>{body}</Link>
+          const to = notificationLink(n.link)
+          return to
+            ? <Link key={n.id} to={to} className="list-item" onClick={() => open(n)}>{body}</Link>
             : <button key={n.id} className="list-item" onClick={() => open(n)}>{body}</button>
         })}
       </div>

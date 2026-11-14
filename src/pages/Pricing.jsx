@@ -75,7 +75,7 @@ export default function Pricing() {
     <section className="mk-section"><div className="mk-wrap"><div className="stack">
       <div style={{ textAlign: 'center' }}>
         <h1 style={{ fontSize: '2rem' }}>Simple pricing for your business</h1>
-        <p className="muted">Start free and stay free, or try every feature for 14 days. No card needed. Every plan includes sales recording and stock management.</p>
+        <p className="muted">Start free and stay free, or try every feature for 14 days. No card needed. Every plan includes sales recording and stock management. Paid plans renew automatically each month or year until you cancel; cancel any time and keep access until the period you paid for ends.</p>
       </div>
       <div className="seg" style={{ maxWidth: 340, margin: '0 auto', width: '100%' }} role="group" aria-label="Billing period">
         <button className={`chip ${!annual ? 'on' : ''}`} aria-pressed={!annual} onClick={() => setAnnual(false)}>Monthly</button>

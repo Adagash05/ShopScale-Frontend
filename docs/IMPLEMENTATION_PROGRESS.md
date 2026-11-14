@@ -31,7 +31,7 @@ Not done: offline receipts printing, offline payments on credit/part payments, o
 No integration, build or backend test execution was possible.
 
 ## G. Billing repair and automatic renewal (session 2, 2026-11-11): IMPLEMENTED, NOT EXECUTED END-TO-END
-Full root-cause, change and test report: `docs/BILLING.md`. Summary: migration V19; `RenewalService` (SKIP LOCKED + unique attempt rows), authorization capture with consent, cancel/resume/auto-renew endpoints, startup config validator, `settle` hardening (abandoned status, customer/metadata checks, transaction id), webhook over raw bytes, `Plan.jsx` reference recovery + consent + renewal panel.
+Full root-cause, change and test report: `docs/BILLING.md`. Summary: migration V19; `RenewalService` (SKIP LOCKED + unique attempt rows), authorization capture (automatic renewal is mandatory since 2026-11-14, see BILLING.md section E), cancel/resume/auto-renew endpoints, startup config validator, `settle` hardening (abandoned status, customer/metadata checks, transaction id), webhook over raw bytes, `Plan.jsx` reference recovery + consent + renewal panel.
 Run: migrations V1-V19 on PostgreSQL 16, V19 over existing data, constraint tests, concurrent SKIP LOCKED claim (3 + 1, no overlap), 14 date/config assertions in a JDK harness, syntax checks. Not run: Maven build and JUnit, Hibernate startup validation, any Paystack sandbox call, vitest (`plan.test.jsx`), merchant storefront regression.
 Next billing task: on a networked machine run `mvn test`, fix compile/mapping errors, then the Paystack test-mode walkthrough listed under "First actions" in `docs/BILLING.md`.
 

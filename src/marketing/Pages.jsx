@@ -260,7 +260,8 @@ export function RefundPage() {
   return (
     <Legal seo={{ title: 'Refund Policy', description: 'How refunds and cancellations work for ShopScale subscriptions.', path: '/refunds' }} title="Refund Policy">
       <h2>Free trial</h2><p>You can try ShopScale free for 14 days with no payment details. Nothing is charged during the trial.</p>
-      <h2>Cancelling</h2><p>You can cancel at any time. Your paid access continues until the end of the period you have paid for, and your data is kept.</p>
+      <h2>Automatic renewal</h2><p>Paid ShopScale plans renew automatically. The card you pay with is saved securely by Paystack and charged the plan price at the end of each month or year, until you cancel. We do not ask you again at each renewal.</p>
+      <h2>Cancelling</h2><p>You can cancel at any time from Plan and billing in the app, and no further charge is made. Your paid access continues until the end of the period you have paid for, and your data is kept.</p>
       <h2>Refund requests</h2><p>If you were charged by mistake or have a problem with a payment, contact us and we will look into it and reply to you. Refunds are considered case by case.</p>
       <h2>Payments you receive from your customers</h2><p>Money your customers pay you is between you and them. ShopScale subscription fees are separate from your sales.</p>
     </Legal>

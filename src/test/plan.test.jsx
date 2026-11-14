@@ -89,7 +89,8 @@ describe('Plan: automatic renewal', () => {
     expect(await screen.findByText('Automatic renewal')).toBeInTheDocument()
     expect(await screen.findByText(/•••• 4081/)).toBeInTheDocument()
     expect(screen.getByText(/Next renewal/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /turn off automatic renewal/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /cancel subscription/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /turn off automatic renewal/i })).not.toBeInTheDocument()
   })
 
   it('shows a failed renewal with the retry date', async () => {
@@ -100,21 +101,48 @@ describe('Plan: automatic renewal', () => {
   it('says a cancelled plan will not be charged again and keeps access until the period ends', async () => {
     setup({ verify: vi.fn(), current: { ...CURRENT, status: 'CANCELLED' }, billing: { ...BILLING, autoRenew: false } })
     expect(await screen.findByText(/will not be charged again/i)).toBeInTheDocument()
+    expect(screen.getByText('Access until')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /resume subscription/i })).toBeInTheDocument()
   })
 
-  it('sends consent only when the customer ticks the box', async () => {
+  it('never asks about recurring payments: no checkbox, no one-time option, automatic renewal is stated', async () => {
     setup({ verify: vi.fn(), billing: { ...BILLING, autoRenew: false, paymentMethod: null } })
     const choose = await screen.findAllByRole('button', { name: /choose plan|renew/i })
     await userEvent.click(choose[0])
-    const box = await screen.findByRole('checkbox')
-    expect(box).not.toBeChecked()
-    expect(screen.getByText(/one-time payment for the period/i)).toBeInTheDocument()
-    await userEvent.click(box)
+    expect(await screen.findByText(/renews automatically/i)).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+    expect(screen.queryByText(/one-time/i)).not.toBeInTheDocument()
     delete window.location
     window.location = { assign: vi.fn() }
     await userEvent.click(screen.getByRole('button', { name: /pay with paystack/i }))
-    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/subscriptions/checkout', expect.objectContaining({ autoRenew: true, consent: true })))
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/subscriptions/checkout', { planCode: 'GROWTH', cycle: 'MONTHLY' }))
     expect(track).toHaveBeenCalledWith('begin_checkout', expect.anything())
+  })
+
+  it('cancelling asks for confirmation, then stops renewal without touching access', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    setup({ verify: vi.fn() })
+    await userEvent.click(await screen.findByRole('button', { name: /cancel subscription/i }))
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/subscriptions/cancel'))
+  })
+
+  it('does not cancel when the customer backs out', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    setup({ verify: vi.fn() })
+    await userEvent.click(await screen.findByRole('button', { name: /cancel subscription/i }))
+    expect(api.post).not.toHaveBeenCalledWith('/subscriptions/cancel')
+  })
+
+  it('warns when no card is saved so the plan cannot renew yet', async () => {
+    setup({ verify: vi.fn(), billing: { ...BILLING, autoRenew: false, paymentMethod: null } })
+    expect(await screen.findByText(/cannot renew automatically/i)).toBeInTheDocument()
+  })
+
+  it('blocks payment when the server cannot store the card for renewal', async () => {
+    setup({ verify: vi.fn(), billing: { ...BILLING, autoRenew: false, autoRenewAvailable: false, paymentMethod: null } })
+    const choose = await screen.findAllByRole('button', { name: /choose plan|renew/i })
+    await userEvent.click(choose[0])
+    expect(await screen.findByRole('button', { name: /pay with paystack/i })).toBeDisabled()
   })
 
   it('lists payment history with automatic renewals labelled', async () => {

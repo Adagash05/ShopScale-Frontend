@@ -37,7 +37,6 @@ export default function Plan() {
   const pays = useLoad(() => api.get('/subscriptions/payments'), [])
   const status = useLoad(() => api.get('/subscriptions/billing-status'), [])
   const billing = useLoad(() => (can('SUBSCRIPTION_VIEW') ? api.get('/subscriptions/billing') : Promise.resolve(null)), [])
-  const [auto, setAuto] = useState(false)          // consent checkbox at checkout
   const [unconfirmed, setUnconfirmed] = useState(null)   // a reference we could not confirm yet
   const tries = useRef(0)
   const refreshAll = useCallback(() => { cur.reload(); pays.reload(); billing.reload() }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -91,11 +90,11 @@ export default function Plan() {
   }
   async function choose(p) {
     track('select_plan', { item_id: p.code, item_name: p.name, billing_cycle: annual ? 'annual' : 'monthly' })
-    try { setQuote(await api.get('/subscriptions/quote', { plan: p.code, cycle: annual ? 'ANNUAL' : 'MONTHLY' })); setAuto(!!billing.data?.autoRenew) } catch (e) { toast(e.message, 'error') }
+    try { setQuote(await api.get('/subscriptions/quote', { plan: p.code, cycle: annual ? 'ANNUAL' : 'MONTHLY' }))} catch (e) { toast(e.message, 'error') }
   }
   async function pay() {
     setBusy('pay')
-    try { const c = await api.post('/subscriptions/checkout', { planCode: quote.planCode, cycle: quote.cycle, autoRenew: auto, consent: auto })
+    try { const c = await api.post('/subscriptions/checkout', { planCode: quote.planCode, cycle: quote.cycle })
       writePending(c.reference)
       try {
         const order = (plans.data || []).map((x) => x.code)
@@ -106,18 +105,18 @@ export default function Plan() {
       window.location.assign(c.authorizationUrl) } catch (e) { toast(e.message, 'error'); setBusy('') }
   }
   async function cancelPlan() {
-    if (!window.confirm('Cancel your plan? Automatic renewal stops and you will not be charged again. You keep full access until the current period ends, then you move to the Free plan. Nothing is deleted.')) return
-    try { await api.post('/subscriptions/cancel'); toast('Plan cancelled. No further charges. Access continues until the period ends.'); refreshAll() } catch (e) { toast(e.message, 'error') }
+    if (!window.confirm(`Cancel your subscription? Automatic renewal stops and you will not be charged again. You keep full access until ${s?.periodEnd ? dateOnly(s.periodEnd) : 'the current period ends'}, then you move to the Free plan. Nothing is deleted.`)) return
+    try { await api.post('/subscriptions/cancel'); toast('Subscription cancelled. No further charges. Access continues until the period ends.'); refreshAll() } catch (e) { toast(e.message, 'error') }
   }
-  async function setAutoRenew(enabled) {
-    if (enabled && !window.confirm(`Turn on automatic renewal? Your saved payment method will be charged ${billing.data?.nextRenewalAmount != null ? money(billing.data.nextRenewalAmount) : 'the plan price'} on ${dateOnly(s.periodEnd)} and every ${s.billingCycle === 'ANNUAL' ? 'year' : 'month'} after that, until you turn it off or cancel.`)) return
-    try { await api.post('/subscriptions/auto-renew', { enabled, consent: enabled }); toast(enabled ? 'Automatic renewal is on' : 'Automatic renewal is off. You will not be charged again unless you pay.'); refreshAll() } catch (e) { toast(e.message, 'error') }
+  // Resuming a cancelled plan that is still inside its paid period. Cancelling is the only way a customer stops renewal.
+  async function resumePlan() {
+    try { await api.post('/subscriptions/auto-renew', { enabled: true }); toast('Subscription resumed. It will renew automatically.'); refreshAll() } catch (e) { toast(e.message, 'error') }
   }
-  // "Update payment method": paying for the current plan with the box ticked saves the card used for this payment in place of the old one.
+  // "Update payment method": paying for the current plan saves the card used for that payment in place of the old one.
   function updateMethod() {
     const p = (plans.data || []).find((x) => x.code === s.planCode)
     if (!p) return
-    api.get('/subscriptions/quote', { plan: p.code, cycle: s.billingCycle || 'MONTHLY' }).then((q) => { setQuote(q); setAuto(true) }).catch((e) => toast(e.message, 'error'))
+    api.get('/subscriptions/quote', { plan: p.code, cycle: s.billingCycle || 'MONTHLY' }).then((q) => { setQuote(q) }).catch((e) => toast(e.message, 'error'))
   }
   const [label, tone] = STATUS[s?.status] || ['', 'gray']
   const b = billing.data
@@ -146,7 +145,7 @@ export default function Plan() {
       {status.data && !status.data.configured && <div className="banner">Online payment for plans is not switched on for this server yet. Contact AMSATI to activate your plan.</div>}
       {b && s && s.planCode !== 'FREE' && s.status !== 'TRIALING' && (
         <section className="section" aria-label="Automatic renewal">
-          <div className="kv"><span className="k">Automatic renewal</span><span className={`badge ${b.autoRenew ? 'ok' : 'gray'}`}>{b.autoRenew ? 'On' : 'Off'}</span></div>
+          <div className="kv"><span className="k">Automatic renewal</span><span className={`badge ${b.autoRenew ? 'ok' : s.status === 'CANCELLED' ? 'gray' : 'warn'}`}>{b.autoRenew ? 'On' : s.status === 'CANCELLED' ? 'Cancelled' : 'Not active'}</span></div>
           {b.autoRenew && <div className="kv"><span className="k">Next renewal</span><span className="v">{dateOnly(b.nextRenewalAt)}{b.nextRenewalAmount != null ? ` · ${money(b.nextRenewalAmount)} (${b.cycle === 'ANNUAL' ? 'yearly' : 'monthly'})` : ''}</span></div>}
           {b.paymentMethod && <div className="kv"><span className="k">Payment method</span><span className="v">{[b.paymentMethod.brand, b.paymentMethod.bank].filter(Boolean).join(' ') || 'Card'} •••• {b.paymentMethod.last4}{b.paymentMethod.expMonth ? ` (exp ${b.paymentMethod.expMonth}/${b.paymentMethod.expYear})` : ''}</span></div>}
           {b.lastPayment && <div className="kv"><span className="k">Last successful payment</span><span className="v">{dateOnly(b.lastPayment.paidAt)} · {money(b.lastPayment.amount)}</span></div>}
@@ -156,18 +155,19 @@ export default function Plan() {
             </div></div>
           )}
           {b.lastRenewal?.status === 'PENDING' && <div className="pad"><div className="banner">An automatic renewal is being processed or is waiting for your bank to confirm it.</div></div>}
-          {s.status === 'CANCELLED' && <div className="pad"><div className="banner">Your plan is cancelled. You will not be charged again, and you keep access until {dateOnly(s.periodEnd)}.</div></div>}
+          {s.status === 'CANCELLED' && <div className="kv"><span className="k">Access until</span><span className="v">{dateOnly(s.periodEnd)}</span></div>}
+          {s.status === 'CANCELLED' && <div className="pad"><div className="banner">Your subscription is cancelled. You will not be charged again, and you keep full access until {dateOnly(s.periodEnd)}.</div></div>}
+          {!b.autoRenew && s.status !== 'CANCELLED' && can('SUBSCRIPTION_MANAGE') && <div className="pad"><div className="banner warn">{b.paymentMethod ? 'Automatic renewal is not active right now.' : 'No payment method is saved, so this plan cannot renew automatically.'} Your plan ends on {dateOnly(s.periodEnd)} unless you pay below, which saves your card and turns automatic renewal on.</div></div>}
           {can('SUBSCRIPTION_MANAGE') && (
             <div className="pad row">
-              {b.autoRenew && <button className="btn" onClick={() => setAutoRenew(false)}>Turn off automatic renewal</button>}
-              {!b.autoRenew && b.autoRenewAvailable && b.paymentMethod && s.writable && <button className="btn" onClick={() => setAutoRenew(true)}>{s.status === 'CANCELLED' ? 'Resume plan with automatic renewal' : 'Turn on automatic renewal'}</button>}
-              {b.autoRenewAvailable && <button className="btn" onClick={updateMethod}>{b.paymentMethod ? 'Update payment method' : 'Set up automatic renewal'}</button>}
-              {['ACTIVE', 'PAST_DUE', 'GRACE_PERIOD'].includes(s.status) && <button className="btn" onClick={cancelPlan}>Cancel plan</button>}
+              {s.status === 'CANCELLED' && b.paymentMethod && s.writable && <button className="btn" onClick={resumePlan}>Resume subscription</button>}
+              {b.autoRenewAvailable && s.status !== 'CANCELLED' && <button className="btn" onClick={updateMethod}>{b.paymentMethod ? 'Update payment method' : 'Add payment method'}</button>}
+              {['ACTIVE', 'PAST_DUE', 'GRACE_PERIOD'].includes(s.status) && <button className="btn danger" onClick={cancelPlan}>Cancel subscription</button>}
             </div>
           )}
         </section>
       )}
-      {!b && s?.status === 'ACTIVE' && s.planCode !== 'FREE' && can('SUBSCRIPTION_MANAGE') && <button className="btn" onClick={cancelPlan}>Cancel plan</button>}
+      {!b && s?.status === 'ACTIVE' && s.planCode !== 'FREE' && can('SUBSCRIPTION_MANAGE') && <button className="btn danger" onClick={cancelPlan}>Cancel subscription</button>}
       {quote && (
         <section className="section pad stack">
           <h2>{quote.kind === 'RENEWAL' ? 'Renew' : 'Pay for'} {quote.planName} ({quote.cycle === 'ANNUAL' ? 'yearly' : 'monthly'})</h2>
@@ -176,16 +176,11 @@ export default function Plan() {
           <div className="kv"><span className="k"><b>Pay now</b></span><span className="v num"><b>{money(quote.amount)}</b></span></div>
           {quote.kind === 'RENEWAL' && <p className="muted small">This adds one more {quote.cycle === 'ANNUAL' ? 'year' : 'month'} after your current period ends.</p>}
           <p className="muted small">Paid securely with Paystack. Your plan becomes active only after Paystack confirms the payment.</p>
-          {b?.autoRenewAvailable ? (
-            <label className="row" style={{ alignItems: 'flex-start', gap: 8 }}>
-              <input type="checkbox" checked={auto} onChange={(e) => setAuto(e.target.checked)} style={{ marginTop: 4 }} />
-              <span className="small">
-                <b>Renew automatically.</b> I agree that ShopScale (AMSATI) may charge the card used for this payment {money(quote.listPrice)} every {quote.cycle === 'ANNUAL' ? 'year' : 'month'} for the {quote.planName} plan, starting when this period ends, until I turn it off or cancel on this page. The card is saved securely by Paystack; ShopScale never sees the card number. If a renewal fails we will tell you and try again a couple of times, and you can pay manually instead.
-              </span>
-            </label>
-          ) : <p className="muted small">This payment covers one {quote.cycle === 'ANNUAL' ? 'year' : 'month'} only. Automatic renewal is not switched on for this server, so renew yourself before the date it ends.</p>}
-          {!auto && b?.autoRenewAvailable && <p className="muted small">Not ticked: this is a one-time payment for the period. We will not charge your card again.</p>}
-          <div className="row"><button className="btn primary" disabled={busy === 'pay' || !status.data?.configured} onClick={pay}>{busy === 'pay' ? 'Opening Paystack…' : 'Pay with Paystack'}</button><button className="btn" onClick={() => setQuote(null)}>Back</button></div>
+          <div className="banner" role="note">
+            <b>Renews automatically.</b> The card you pay with is saved securely by Paystack, and ShopScale (AMSATI) charges it {money(quote.listPrice)} every {quote.cycle === 'ANNUAL' ? 'year' : 'month'} for the {quote.planName} plan, starting when this period ends. You are not asked again. Cancel any time on this page to stop future charges; you keep access until the period you paid for ends.
+          </div>
+          {b && !b.autoRenewAvailable && <p className="form-error" role="alert">Subscription billing is not fully set up on this server yet, so payment cannot start. Contact AMSATI.</p>}
+          <div className="row"><button className="btn primary" disabled={busy === 'pay' || !status.data?.configured || (!!b && !b.autoRenewAvailable)} onClick={pay}>{busy === 'pay' ? 'Opening Paystack…' : 'Pay with Paystack'}</button><button className="btn" onClick={() => setQuote(null)}>Back</button></div>
         </section>
       )}
       <div className="seg" style={{ maxWidth: 320 }} role="group" aria-label="Billing period">
