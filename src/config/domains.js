@@ -11,7 +11,7 @@
 /** First path segments owned by the business application. Every module route lives under "more/". */
 export const APP_PREFIXES = [
   'login', 'register', 'forgot-password', 'reset-password', 'verify-email', 'accept-invite', 'onboarding',
-  'dashboard', 'sell', 'products', 'customers', 'expenses', 'suppliers', 'purchases', 'more',
+  'dashboard', 'sell', 'products', 'customers', 'expenses', 'suppliers', 'purchases', 'more', 'admin',
 ]
 
 /** Marketing pages served on the public domain ('/' is the homepage). */
@@ -19,6 +19,13 @@ export const PUBLIC_PREFIXES = ['features', 'retail', 'restaurant', 'catering', 
 
 /** Public customer storefront: /s/:slug and /s/:slug/order/:token. Stays on the public domain. */
 export const STORE_PREFIX = 's'
+
+/** Partner programme: "/partners" is a public page, "/partners/*" belongs to the application. */
+export const PARTNERS_PREFIX = 'partners'
+
+function firstSegmentCount(to) {
+  return String(splitPath(to).pathname).split('/').filter(Boolean).length
+}
 
 export function hostOf(url) {
   try { return new URL(url).hostname.toLowerCase() } catch { return '' }
@@ -40,6 +47,9 @@ export function sideOf(pathname) {
   if (seg === '') return 'home'
   if (APP_PREFIXES.includes(seg)) return 'app'
   if (seg === STORE_PREFIX) return 'store'
+  // ShopScale Partners: the marketing landing page is "/partners" itself (public site);
+  // applying, signing in and the partner portal live under "/partners/..." (application site).
+  if (seg === PARTNERS_PREFIX) return firstSegmentCount(pathname) > 1 ? 'app' : 'public'
   if (PUBLIC_PREFIXES.includes(seg)) return 'public'
   return 'unknown'
 }

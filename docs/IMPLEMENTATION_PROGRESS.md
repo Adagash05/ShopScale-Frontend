@@ -77,3 +77,6 @@ Next: `mvn test`, apply V20 on a copy of real data, place a real option order an
 
 ## K. Registration, sign-up notice and light default (2026-11-12)
 Light is the default theme (nothing stored => light; "System" only when chosen). API calls time out after 30 s with a readable message; 502/503/504 are explained. Sign-up blocks double submits; a "Check your email" notice with a 60 s resend cooldown shows after sign-up and in the top bar; the verification link is submitted once. New tests: `src/test/registration.test.jsx` (vitest, not run here) and the first-paint tests in `scripts/theme-verify.mjs` (run: 7/7 pass).
+
+## ShopScale Partners (affiliate programme), Nov 13 2026
+Implemented end to end: applications and approval, referral links with click tracking and last-referral attribution, a commission ledger (earned only from verified payments, held, reserved, paid, reversed), refund/chargeback reversal, bank details (encrypted), withdrawals with an admin workflow and manual-transfer records, admin settings, reports, CSV export and partner resources, a public landing page with a real-price calculator, and notification emails. Migration `V23__partners.sql`. Full description, rules, endpoints, setup checklist, limits and verification status: `docs/PARTNERS.md`.

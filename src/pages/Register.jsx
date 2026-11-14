@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field } from '../components.jsx'
+import { registrationFields } from '../partners/referral.js'
 
 export default function Register() {
   const { register } = useAuth()
@@ -27,7 +28,7 @@ export default function Register() {
     if (Object.keys(errs).length) return
     sending.current = true
     setBusy(true)
-    try { await register({ ...form, fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim() || null }); track('sign_up', { method: 'email' }) } catch (err) {
+    try { await register({ ...form, fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim() || null, ...registrationFields() }); track('sign_up', { method: 'email' }) } catch (err) {
       setErrors(err.fieldErrors || {})
       setFormError(err.message)
     } finally { sending.current = false; setBusy(false) }

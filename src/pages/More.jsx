@@ -17,6 +17,7 @@ export default function More() {
     can('TEAM_VIEW') && { to: '/more/team', icon: UsersRound, label: 'Team', hint: 'Staff, roles and permissions' },
     can('SUBSCRIPTION_VIEW') && { to: '/more/plan', icon: CreditCard, label: 'Plan and billing', hint: 'Your free trial and plans' },
     can('SETTINGS_VIEW') && { to: '/more/settings', icon: Settings, label: 'Business settings', hint: 'Name, contact and store address' },
+    { to: '/partners/dashboard', icon: UsersRound, label: 'Partner programme', hint: 'Earn by recommending ShopScale' },
     { to: '/more/help', icon: LifeBuoy, label: 'Help', hint: 'Guides for getting things done' },
   ].filter(Boolean)
   const extra = moduleNav('more').filter((n) => allowed(n, { can, hasFeature, hasWorkflow }))

@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { MODE, crossTarget } from './config/env.js'
+import { capture, reportClick } from './partners/referral.js'
+import { api } from './lib/api'
 import { safeNext } from './config/domains.js'
 import { useAuth } from './auth/AuthContext.jsx'
 import Layout from './pages/Layout.jsx'
@@ -31,6 +33,14 @@ const Team = lazy(() => import('./pages/Team.jsx'))
 const Help = lazy(() => import('./pages/Help.jsx'))
 const Suppliers = lazy(() => import('./pages/Suppliers.jsx'))
 const SupplierDetail = lazy(() => import('./pages/SupplierDetail.jsx'))
+const PartnerLanding = lazy(() => import('./partners/PartnerLanding.jsx'))
+const PartnerApply = lazy(() => import('./partners/PartnerApply.jsx'))
+const PartnerShell = lazy(() => import('./partners/PartnerShell.jsx'))
+const AdminShell = lazy(() => import('./partners/AdminShell.jsx'))
+const pp = (name) => lazy(() => import('./partners/Portal.jsx').then((m) => ({ default: m[name] })))
+const PT = { Dashboard: pp('Dashboard'), Referrals: pp('Referrals'), Earnings: pp('Earnings'), Withdrawals: pp('Withdrawals'), PaymentDetails: pp('PaymentDetails'), Resources: pp('Resources'), Profile: pp('Profile') }
+const pa = (name) => lazy(() => import('./partners/Admin.jsx').then((m) => ({ default: m[name] })))
+const PA = { Overview: pa('Overview'), Affiliates: pa('Affiliates'), AffiliateDetail: pa('AffiliateDetail'), Referrals: pa('AdminReferrals'), Ledger: pa('Ledger'), Withdrawals: pa('AdminWithdrawals'), Settings: pa('Settings'), Resources: pa('AdminResources'), Audit: pa('AuditAndExports') }
 const StoreApp = lazy(() => import('./store/index.jsx'))
 const NewPurchase = lazy(() => import('./pages/NewPurchase.jsx'))
 const M = {
@@ -116,6 +126,7 @@ const marketingRoutes = (
     <Route path="privacy" element={<M.Privacy />} />
     <Route path="terms" element={<M.Terms />} />
     <Route path="refunds" element={<M.Refunds />} />
+    <Route path="partners" element={<PartnerLanding />} />
   </Route>
 )
 
@@ -133,6 +144,29 @@ const appRoutes = (
     <Route path="/reset-password" element={<AccountLinks.Reset />} />
     <Route path="/verify-email" element={<AccountLinks.Verify />} />
     <Route path="/accept-invite" element={<AcceptInvite />} />
+    <Route path="/partners/login" element={<Navigate to="/login?next=/partners/dashboard" replace />} />
+    <Route path="/partners/apply" element={<PartnerApply />} />
+    <Route element={<PartnerShell />}>
+      <Route path="/partners/dashboard" element={<PT.Dashboard />} />
+      <Route path="/partners/referrals" element={<PT.Referrals />} />
+      <Route path="/partners/earnings" element={<PT.Earnings />} />
+      <Route path="/partners/withdrawals" element={<PT.Withdrawals />} />
+      <Route path="/partners/payment-details" element={<PT.PaymentDetails />} />
+      <Route path="/partners/resources" element={<PT.Resources />} />
+      <Route path="/partners/profile" element={<PT.Profile />} />
+    </Route>
+    <Route element={<AdminShell />}>
+      <Route path="/admin/partners" element={<PA.Overview />} />
+      <Route path="/admin/partners/applications" element={<PA.Affiliates key="pending" pendingOnly />} />
+      <Route path="/admin/partners/partners" element={<PA.Affiliates key="all" />} />
+      <Route path="/admin/partners/partners/:id" element={<PA.AffiliateDetail />} />
+      <Route path="/admin/partners/referrals" element={<PA.Referrals />} />
+      <Route path="/admin/partners/ledger" element={<PA.Ledger />} />
+      <Route path="/admin/partners/withdrawals" element={<PA.Withdrawals />} />
+      <Route path="/admin/partners/settings" element={<PA.Settings />} />
+      <Route path="/admin/partners/resources" element={<PA.Resources />} />
+      <Route path="/admin/partners/audit" element={<PA.Audit />} />
+    </Route>
     <Route path="/onboarding" element={<Guard needBusiness={false}><Onboarding /></Guard>} />
     <Route element={<Guard><Layout /></Guard>}>
       <Route path="dashboard" element={<Home />} />
@@ -167,9 +201,20 @@ const homeRoute = <Route path="/" element={MODE === 'app' ? <AppEntry /> : <Mark
  *  - unified (localhost, preview deploys, single-origin installs): everything, as before
  * Marketing pages never redirect a signed-in visitor to the dashboard.
  */
+/** Remembers a partner's ?ref=CODE link (last one wins) and tells the API about the click. Only on hosts that serve registration. */
+function ReferralCapture() {
+  const { search } = useLocation()
+  useEffect(() => {
+    if (MODE === 'public' || !search) return
+    if (capture(search)) reportClick((path, body) => api.public.post(path, body))
+  }, [search])
+  return null
+}
+
 export default function App() {
   return (
     <Suspense fallback={<Splash />}>
+      <ReferralCapture />
       <Routes>
         {homeRoute}
         {MODE !== 'app' && marketingRoutes}

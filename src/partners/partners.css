@@ -1,0 +1,47 @@
+/* ShopScale Partners: portal, admin and landing page. Uses the app's design tokens, so light/dark follow the theme. */
+.pt-shell { min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
+.pt-top { background: var(--white); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+.pt-top-in { max-width: 1120px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pt-top .brand { padding: 0; }
+.pt-tag { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue-deep); background: var(--blue-light); padding: 3px 8px; border-radius: 999px; }
+.pt-nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; max-width: 1120px; margin: 0 auto; padding: 0 12px 8px; width: 100%; }
+.pt-nav::-webkit-scrollbar { display: none; }
+.pt-nav a { padding: 8px 12px; border-radius: 8px; color: var(--muted); font-weight: 600; font-size: 0.9375rem; white-space: nowrap; text-decoration: none; }
+.pt-nav a:hover { background: var(--bg); color: var(--text, inherit); }
+.pt-nav a.active { background: var(--blue-light); color: var(--on-blue-light, var(--blue-deep)); }
+.pt-main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; align-content: start; }
+.pt-grow { flex: 1; }
+.pt-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); }
+.pt-card h2 { font-size: 1.0625rem; margin-bottom: 8px; }
+.pt-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.pt-link-box { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pt-link-box code { flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 0.875rem; overflow-wrap: anywhere; }
+.pt-table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+.pt-table th, .pt-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.pt-table th { color: var(--muted); font-size: 0.8125rem; font-weight: 600; white-space: nowrap; }
+.pt-table td.r, .pt-table th.r { text-align: right; }
+.pt-table tbody tr:last-child td { border-bottom: 0; }
+.pt-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+.pt-filters .field { min-width: 150px; flex: 1; }
+.pt-kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 0.9375rem; }
+.pt-kv dt { color: var(--muted); }
+.pt-kv dd { margin: 0; overflow-wrap: anywhere; }
+.pt-steps { display: grid; gap: 16px; counter-reset: s; }
+@media (min-width: 800px) { .pt-steps { grid-template-columns: repeat(3, 1fr); } }
+.pt-step { counter-increment: s; }
+.pt-step::before { content: counter(s); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 700; margin-bottom: 10px; }
+.pt-calc { display: grid; gap: 20px; }
+@media (min-width: 860px) { .pt-calc { grid-template-columns: 1fr 1fr; } }
+.pt-result { background: linear-gradient(160deg, var(--navy, #0f2a5f), var(--blue-deep, #1d4ed8)); color: #fff; border-radius: 14px; padding: 22px; display: grid; gap: 12px; align-content: center; }
+.pt-result .big { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pt-result small { opacity: 0.8; }
+.pt-note { font-size: 0.8125rem; color: var(--muted); }
+.pt-faq details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.pt-faq summary { cursor: pointer; font-weight: 600; }
+.pt-faq p { color: var(--muted); margin-top: 8px; }
+.pt-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pt-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.pt-social-row { display: grid; gap: 8px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pt-social-row { grid-template-columns: 160px 1fr auto; } }
+.pt-two { display: grid; gap: 12px; }
+@media (min-width: 640px) { .pt-two { grid-template-columns: 1fr 1fr; } }
