@@ -61,7 +61,7 @@ export default function Help() {
       </div>
       <div className="section pad stack-sm"><strong>Use ShopScale like an app</strong><p className="muted small">Install it on your phone or computer so it opens full screen and keeps working on a weak connection.</p><InstallLink /></div>
       <div className="section pad stack-sm"><strong>Privacy</strong><AnalyticsPreferences /></div>
-      <p className="muted small">Still stuck? <Link to="/contact">Contact us</Link>.</p>
+      <p className="muted small">Still stuck? <Link to="/more/support">Ask the ShopScale team</Link>.</p>
     </div>
   )
 }

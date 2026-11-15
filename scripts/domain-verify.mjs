@@ -28,7 +28,12 @@ test('every module route and registered page lives in a known section', () => {
     if (!fs.existsSync(f)) continue
     for (const m of fs.readFileSync(f, 'utf8').matchAll(/path:\s*'([^']+)'/g)) assert.equal(sideOf('/' + m[1]), 'app', m[1])
   }
-  const app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  let app = fs.readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8')
+  // Routes nested under /super-admin are relative to it; the parent route itself is checked below.
+  const sa = app.indexOf('<Route path="/super-admin"'), saEnd = app.indexOf('<Route path="/onboarding"')
+  assert.ok(sa > 0 && saEnd > sa)
+  assert.equal(sideOf('/super-admin/dashboard'), 'app')
+  app = app.slice(0, sa) + app.slice(saEnd)
   for (const m of app.matchAll(/<Route path="\/?([a-z-]+)[/"]/g)) {
     const side = sideOf('/' + m[1]); assert.notEqual(side, 'unknown', m[1])
   }

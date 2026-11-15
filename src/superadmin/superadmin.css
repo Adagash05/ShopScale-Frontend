@@ -1,0 +1,35 @@
+/* Super Admin console. Separate from the merchant app: its own frame, sidebar and sign-in. */
+.sa-shell { min-height: 100vh; display: flex; background: var(--bg); }
+.sa-side { width: 232px; flex: none; background: var(--navy, #0f2a43); color: #fff; display: flex; flex-direction: column; padding: 16px 12px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sa-brand { font-weight: 800; letter-spacing: 0.2px; font-size: 1.125rem; margin-bottom: 16px; }
+.sa-brand span { font-weight: 500; opacity: 0.7; font-size: 0.8125rem; margin-left: 4px; }
+.sa-side nav { display: grid; gap: 2px; flex: 1; align-content: start; }
+.sa-side nav a { color: rgba(255,255,255,0.82); padding: 9px 10px; border-radius: 8px; text-decoration: none; font-size: 0.9375rem; }
+.sa-side nav a:hover { background: rgba(255,255,255,0.08); }
+.sa-side nav a.active { background: rgba(255,255,255,0.16); color: #fff; font-weight: 600; }
+.sa-logout { margin-top: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 9px; border-radius: 8px; cursor: pointer; }
+.sa-logout:hover { background: rgba(255,255,255,0.1); }
+.sa-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sa-top { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--white); }
+.sa-menu { display: none; }
+.sa-main { width: 100%; max-width: 1240px; margin: 0 auto; padding: 20px 16px 56px; }
+.sa-splash { max-width: 640px; margin: 0 auto; padding: 24px 16px; display: grid; gap: 12px; }
+.sa-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.sa-filters .input { min-width: 220px; flex: 1 1 220px; }
+.sa-filters .select { flex: 0 1 190px; }
+.sa-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.sa-tabs a { padding: 6px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 0.875rem; }
+.sa-tabs a.active { background: var(--white); color: var(--ink, #111); font-weight: 600; box-shadow: var(--shadow-sm); }
+.sa-note { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--white); }
+.sa-note.internal { background: #fff8e6; border-color: #f0dca0; }
+.sa-pre { background: #0f1720; color: #d7e2ee; padding: 12px; border-radius: 8px; overflow: auto; font-size: 0.8125rem; max-height: 320px; }
+.sa-orphans { max-height: 240px; overflow: auto; display: grid; gap: 4px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.linkish { background: none; border: 0; padding: 0; color: var(--link, #0a5bd3); cursor: pointer; text-align: left; font: inherit; }
+.sa-login { min-height: 100vh; display: grid; place-items: center; padding: 16px; background: var(--bg); }
+.sa-login-card { width: 100%; max-width: 400px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); }
+.sa-login-card .sa-brand { color: var(--navy, #0f2a43); margin-bottom: 4px; }
+@media (max-width: 860px) {
+  .sa-side { position: fixed; z-index: 30; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.18s; box-shadow: 0 0 24px rgba(0,0,0,0.3); }
+  .sa-side.open { transform: none; }
+  .sa-menu { display: inline-flex; }
+}

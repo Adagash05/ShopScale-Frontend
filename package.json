@@ -12,7 +12,8 @@
     "test:domains": "node --test scripts/domain-verify.mjs",
     "test:theme": "node --test scripts/theme-verify.mjs",
     "test:partners": "node --test scripts/partners-verify.mjs",
-    "test:links": "node --test scripts/notification-links-verify.mjs"
+    "test:links": "node --test scripts/notification-links-verify.mjs",
+    "test:superadmin": "node scripts/superadmin-harness/build.mjs && node scripts/superadmin-harness/out.cjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",

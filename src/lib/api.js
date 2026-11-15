@@ -1,4 +1,5 @@
 import { API_BASE as BASE } from '../config/env.js'
+import { adminSession, isSuperAdminPath } from '../superadmin/adminSession.js'
 
 /*
  * Session model (see docs/SESSION_MANAGEMENT.md)
@@ -110,7 +111,22 @@ export function refreshSession() {
   return refreshing
 }
 
+/** Calls made from the Super Admin console: Super Admin token only, no cookies, no silent renewal. A 401 ends the console session. */
+async function adminRequest(path, { method, body, query }) {
+  const s = adminSession.get()
+  const headers = {}
+  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  if (s) headers.Authorization = `Bearer ${s.token}`
+  const res = await tfetch(`${BASE}${path}${qs(query)}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined })
+  if (res.status === 401 && path !== '/super-admin/auth/login') {
+    adminSession.clear()
+    window.dispatchEvent(new Event('shopscale:admin-signedout'))
+  }
+  return parse(res)
+}
+
 export async function request(path, { method = 'GET', body, query, auth = true } = {}) {
+  if (typeof window !== 'undefined' && isSuperAdminPath(window.location.pathname) && !path.startsWith('/public/')) return adminRequest(path, { method, body, query })
   const send = () => {
     const headers = {}
     if (body !== undefined) headers['Content-Type'] = 'application/json'
@@ -139,6 +155,13 @@ export async function upload(path, formData) {
 
 /** Authenticated file download (CSV, PDF). Returns the Blob. */
 export async function download(path, query) {
+  if (typeof window !== 'undefined' && isSuperAdminPath(window.location.pathname)) {
+    const sa = adminSession.get()
+    let r
+    try { r = await fetch(`${BASE}${path}${qs(query)}`, { headers: sa ? { Authorization: `Bearer ${sa.token}` } : {} }) } catch { throw new ApiError(0, NO_CONNECTION) }
+    if (!r.ok) await parse(r)
+    return r.blob()
+  }
   const send = () => fetch(`${BASE}${path}${qs(query)}`, init(path, 'GET', accessToken ? { Authorization: `Bearer ${accessToken}` } : {}))
   if (!accessToken && tokens.hinted()) await refreshSession()
   let res

@@ -1,8 +1,15 @@
 import { Fragment, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { Confirm, ErrorBox, Field, ListSkeleton, Modal, Skeleton, useLoad, useToast } from '../components.jsx'
 import { DataTable, Kpi, StatusBadge, fmtDate, fmtTime, label, money, pct } from './ui.jsx'
+
+/** The same screens serve /admin/partners (older route) and the Super Admin console; links keep the visitor inside whichever one they are in. */
+function Link({ to, ...rest }) {
+  const { pathname } = useLocation()
+  const t = typeof to === 'string' && pathname.startsWith('/super-admin') ? to.replace(/^\/admin\/partners/, '/super-admin/partners') : to
+  return <RouterLink to={t} {...rest} />
+}
 
 const Loading = () => <div className="stack"><Skeleton height={80} /><ListSkeleton rows={4} /></div>
 const Head = ({ title, sub, children }) => <div className="page-head"><div><h1>{title}</h1>{sub && <p className="sub">{sub}</p>}</div>{children}</div>

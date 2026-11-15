@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { storeUrl } from '../config/env.js'
 import TopBar from './TopBar.jsx'
 import { InstallBanner, UpdateBanner } from '../pwa/InstallPrompt.jsx'
+import AnnouncementBanner from '../widgets/AnnouncementBanner.jsx'
 import { Home, ShoppingCart, Package, Users, Menu } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { moduleNav, allowed } from '../modules/registry.js'
@@ -40,7 +41,7 @@ export default function Layout() {
         <Links items={items} />
         <div className="side-foot">{business?.name}<br />{storeUrl(business?.slug || '').replace(/^https?:\/\//, '')}</div>
       </aside>
-      <main className="main"><TopBar /><UpdateBanner /><InstallBanner /><Outlet /></main>
+      <main className="main"><TopBar /><UpdateBanner /><InstallBanner /><AnnouncementBanner /><Outlet /></main>
       <nav className="bottom-nav" aria-label="Main" style={{ '--n': items.length }}><Links items={items} /></nav>
     </div>
   )

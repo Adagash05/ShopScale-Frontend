@@ -11,7 +11,7 @@
 /** First path segments owned by the business application. Every module route lives under "more/". */
 export const APP_PREFIXES = [
   'login', 'register', 'forgot-password', 'reset-password', 'verify-email', 'accept-invite', 'onboarding',
-  'dashboard', 'sell', 'products', 'customers', 'expenses', 'suppliers', 'purchases', 'more', 'admin',
+  'dashboard', 'sell', 'products', 'customers', 'expenses', 'suppliers', 'purchases', 'more', 'admin', 'super-admin',
 ]
 
 /** Marketing pages served on the public domain ('/' is the homepage). */
