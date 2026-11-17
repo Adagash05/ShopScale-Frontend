@@ -42,9 +42,10 @@ describe('Onboarding', () => {
     render(<MemoryRouter><Onboarding /></MemoryRouter>)
     expect(screen.getByText(/Hi Ada/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /shop or retail/i })).toBeEnabled()
-    expect(screen.getByRole('button', { name: /restaurant or food/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /small chops/i })).toBeDisabled()
-    expect(screen.getAllByText('Coming soon')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: /restaurant or food/i })).toBeEnabled()
+    expect(screen.getByRole('button', { name: /bakery/i })).toBeEnabled()
+    expect(screen.getByRole('button', { name: /catering or small chops/i })).toBeEnabled()
+    expect(screen.queryByText('Coming soon')).toBeNull()
   })
 
   it('suggests a store address from the name and enables finish only when it is available', async () => {

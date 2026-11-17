@@ -133,7 +133,7 @@ export function Withdrawals() {
   const why = open ? 'You already have a withdrawal in progress.' : !bank ? 'Add your bank details first.' : short > 0 ? `You need ${money(short)} more available (minimum ${money(p.minWithdrawal)}).` : ''
   return (
     <div className="stack">
-      <Head title="Withdrawals" sub="Paid by bank transfer in naira after our team approves the request." />
+      <Head title="Withdrawals" sub="Paid by bank transfer in naira after the ShopScale Team approves the request." />
       <div className="pt-card stack">
         <div className="row between wrap"><div><div className="muted small">Available to withdraw</div><div style={{ fontSize: '1.75rem', fontWeight: 800 }} className="num">{money(s.available)}</div></div>
           <button className="btn primary" disabled={!can || busy} onClick={() => setConfirm({ type: 'request' })}>Request withdrawal</button></div>
@@ -211,7 +211,7 @@ export function Resources() {
   const groups = [['GUIDE', 'Guides'], ['FAQ', 'Answers to common questions'], ['LINK', 'Links'], ['ASSET', 'Materials']]
   return (
     <div className="stack">
-      <Head title="Resources" sub="Provided by the ShopScale team." />
+      <Head title="Resources" sub="Provided by the ShopScale Team." />
       {r.data.length === 0 && <p className="muted">No resources have been published yet.</p>}
       {groups.map(([kind, title]) => {
         const items = r.data.filter((x) => x.kind === kind)

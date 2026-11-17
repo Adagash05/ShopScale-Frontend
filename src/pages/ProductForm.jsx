@@ -1,6 +1,6 @@
 import { track } from '../analytics/analytics.js'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
@@ -9,6 +9,12 @@ import StockAdjust from '../StockAdjust.jsx'
 import ImageField from '../widgets/ImageField.jsx'
 import StorefrontDetails from '../widgets/StorefrontDetails.jsx'
 
+const KINDS = {
+  GOODS: 'Item you buy and resell',
+  MENU: 'Menu item (made when it is ordered)',
+  FINISHED: 'Finished product (made ahead, like bread or cakes)',
+  INGREDIENT: 'Ingredient (used in recipes, not sold)',
+}
 const UNITS = ['piece', 'kg', 'g', 'litre', 'ml', 'pack', 'carton', 'dozen', 'bag', 'bottle', 'crate', 'tray', 'portion', 'plate', 'bundle', 'metre']
 const blankVariant = () => ({ key: Math.random().toString(36).slice(2), id: null, label: '', price: '', cost: '', quantity: '', sku: '', barcode: '', lowStockThreshold: '', stock: null })
 
@@ -17,14 +23,16 @@ export default function ProductForm() {
   const editing = !!id
   const nav = useNavigate()
   const toast = useToast()
-  const { can } = useAuth()
+  const { can, hasWorkflow } = useAuth()
+  const [sp] = useSearchParams()
+  const makesFood = hasWorkflow('RESTAURANT') || hasWorkflow('PRODUCTION') || hasWorkflow('CATERING')
   const canSave = editing ? can('PRODUCTS_EDIT') : can('PRODUCTS_CREATE')
   const canStock = can('STOCK_ADJUST') || can('STOCK_RESTOCK')
   const cats = useLoad(() => api.get('/categories'), [])
   const [loaded, setLoaded] = useState(!editing)
   const [loadError, setLoadError] = useState(null)
   const [product, setProduct] = useState(null)
-  const [form, setForm] = useState({ name: '', description: '', categoryId: '', unit: 'piece', allowDecimal: false })
+  const [form, setForm] = useState({ name: '', description: '', categoryId: '', unit: 'piece', allowDecimal: false, kind: KINDS[sp.get('kind')] ? sp.get('kind') : 'GOODS' })
   const [variants, setVariants] = useState([blankVariant()])
   const [multi, setMulti] = useState(false)
   const [more, setMore] = useState(false)
@@ -37,7 +45,7 @@ export default function ProductForm() {
 
   function hydrate(p) {
     setProduct(p)
-    setForm({ name: p.name, description: p.description || '', categoryId: p.categoryId || '', unit: p.variants[0]?.unit || 'piece', allowDecimal: !!p.variants[0]?.allowDecimal })
+    setForm({ name: p.name, description: p.description || '', categoryId: p.categoryId || '', unit: p.variants[0]?.unit || 'piece', allowDecimal: !!p.variants[0]?.allowDecimal, kind: p.kind || 'GOODS' })
     const vs = p.variants.map((v) => ({ key: v.id, id: v.id, label: v.label || '', price: String(v.price), cost: String(v.cost), quantity: '', sku: v.sku || '', barcode: v.barcode || '', lowStockThreshold: String(v.lowStockThreshold), stock: v.quantity }))
     setVariants(vs.length ? vs : [blankVariant()])
     setMulti(p.variants.length > 1 || p.variants.some((v) => v.label))
@@ -77,6 +85,7 @@ export default function ProductForm() {
     setErrors(errs); setFormError('')
     if (Object.keys(errs).length) return
     const body = {
+      kind: makesFood ? form.kind : undefined,
       name: form.name.trim(), description: form.description || null, categoryId: form.categoryId || null, imageUrl: product?.imageUrl || null,
       variants: variants.map((v) => ({
         id: v.id, label: multi ? v.label.trim() : null, sku: v.sku || null, barcode: v.barcode || null,
@@ -116,6 +125,13 @@ export default function ProductForm() {
       <div className="section pad form-grid">
         {editing && product && <Field label="Photo (shown in your online store)"><ImageField productId={id} url={product.imageUrl} onChange={(u) => setProduct({ ...product, imageUrl: u })} /></Field>}
         <Field label="Product name" htmlFor="pname" error={errors.name}><input id="pname" className="input" value={form.name} autoFocus={!editing} aria-invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+        {makesFood && (
+          <Field label="What is this?" htmlFor="pkind" hint="Menu items and finished products can have a recipe. Ingredients are used up by recipes.">
+            <select id="pkind" className="input" value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>
+              {Object.entries(KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select>
+          </Field>
+        )}
         <div className="form-grid two">
           <Field label="Sold by" htmlFor="punit" hint="How you count or measure this product">
             <select id="punit" className="input" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>

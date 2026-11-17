@@ -4,14 +4,20 @@ import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field, useDebounced } from '../components.jsx'
-import { Store, UtensilsCrossed, Cake } from 'lucide-react'
+import { Store, UtensilsCrossed, Cake, CalendarClock } from 'lucide-react'
 import VerifyNotice from './VerifyNotice.jsx'
 
 export const TYPES = [
   { id: 'RETAIL', label: 'Shop or retail business', hint: 'Fashion, cosmetics, electronics, groceries, general goods', icon: Store, ready: true },
-  { id: 'RESTAURANT', label: 'Restaurant or food business', hint: 'Menu, kitchen orders, pickup and delivery', icon: UtensilsCrossed, ready: false },
-  { id: 'SMALL_CHOPS', label: 'Small chops or catering', hint: 'Party platters, scheduled orders and deposits', icon: Cake, ready: false },
+  { id: 'RESTAURANT', label: 'Restaurant or food business', hint: 'Menu, kitchen orders, pickup and delivery', icon: UtensilsCrossed, ready: true },
+  { id: 'BAKERY', label: 'Bakery', hint: 'Bread, cakes, custom cake orders with deposits, simple production', icon: Cake, ready: true },
+  { id: 'CATERING', label: 'Catering or small chops', hint: 'Events, quotations, deposits, preparation and profit', icon: CalendarClock, ready: true },
 ]
+const SUBTYPES_BY_TYPE = {
+  RESTAURANT: ['Restaurant', 'Cafe', 'Takeaway or fast food', 'Bar and lounge', 'Other food business'],
+  BAKERY: ['Bakery', 'Cake shop', 'Pastries and snacks', 'Bread and confectionery'],
+  CATERING: ['Event catering', 'Small chops', 'Party platters', 'Corporate catering'],
+}
 const SUBTYPES = ['Fashion and clothing', 'Cosmetics and beauty', 'Electronics and phones', 'Grocery and provisions', 'Household goods', 'General store']
 
 export function slugify(s) {
@@ -27,6 +33,8 @@ export default function Onboarding() {
   const [slugState, setSlugState] = useState({ checking: false, available: null, reason: '' })
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const subtypes = SUBTYPES_BY_TYPE[type] || SUBTYPES
+  const subtype = subtypes.includes(form.subtype) ? form.subtype : subtypes[0]
   const slug = useDebounced(form.slug, 350)
 
   useEffect(() => {
@@ -48,7 +56,7 @@ export default function Onboarding() {
     setBusy(true); setError('')
     try {
       await completeOnboarding({
-        name: form.name.trim(), businessType: type, subtype: form.subtype, slug: form.slug,
+        name: form.name.trim(), businessType: type, subtype, slug: form.slug,
         phone: form.phone || null, currency: 'NGN', timezone: 'Africa/Lagos',
       })
       track('onboarding_completed', { business_type: type })
@@ -74,7 +82,7 @@ export default function Onboarding() {
                   aria-pressed={type === id} onClick={() => ready && setType(id)}>
                   <Icon size={24} aria-hidden="true" />
                   <span className="grow">
-                    <strong>{label}</strong>{!ready && <> <span className="badge gray">Coming soon</span></>}
+                    <strong>{label}</strong>
                     <br /><span className="muted small">{hint}</span>
                   </span>
                 </button>
@@ -90,9 +98,9 @@ export default function Onboarding() {
             <Field label="Business name" htmlFor="bname">
               <input id="bname" className="input" value={form.name} autoFocus onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </Field>
-            <Field label="What kind of shop?" htmlFor="subtype">
-              <select id="subtype" className="select" value={form.subtype} onChange={(e) => setForm({ ...form, subtype: e.target.value })}>
-                {SUBTYPES.map((s) => <option key={s}>{s}</option>)}
+            <Field label={SUBTYPES_BY_TYPE[type] ? 'What kind of business?' : 'What kind of shop?'} htmlFor="subtype">
+              <select id="subtype" className="select" value={subtype} onChange={(e) => setForm({ ...form, subtype: e.target.value })}>
+                {subtypes.map((s) => <option key={s}>{s}</option>)}
               </select>
             </Field>
             <Field label="Business phone (optional)" htmlFor="bphone">

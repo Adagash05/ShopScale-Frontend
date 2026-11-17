@@ -433,3 +433,26 @@ button.hbar-row { cursor: pointer; }
 .theme-option { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--white); cursor: pointer; }
 .theme-option.on { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
 .theme-option:focus-within { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* restaurant, kitchen and catering screens */
+.tile-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.tile { text-align: left; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; cursor: pointer; display: grid; gap: 4px; min-height: 74px; color: inherit; }
+.tile:hover:not(:disabled) { border-color: var(--blue); }
+.tile:disabled { opacity: 0.55; cursor: not-allowed; }
+.tile .t-title { font-weight: 600; }
+.tile .t-meta { color: var(--muted); font-size: 0.8125rem; }
+.tile.busy { border-color: var(--warn-line); background: var(--warn-soft); }
+.tile.ready { border-color: var(--ok-fg); }
+.kds { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .kds { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
+.ticket { background: var(--white); border: 2px solid var(--line); border-radius: var(--radius); padding: 12px; display: grid; gap: 8px; align-content: start; }
+.ticket.late { border-color: var(--danger); }
+.ticket.warn { border-color: var(--warn-line); }
+.ticket .t-line { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--line); }
+.ticket .t-note { color: var(--warn-fg); font-size: 0.875rem; font-weight: 550; }
+.qty-ctl { display: inline-flex; align-items: center; gap: 6px; }
+.qty-ctl button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--white); cursor: pointer; font-size: 1.125rem; }
+.sticky-foot { position: sticky; bottom: 0; background: var(--white); border-top: 1px solid var(--line); padding: 10px 0 2px; display: grid; gap: 8px; }
+.pill-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.mini-bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.mini-bar > span { display: block; height: 100%; background: var(--blue); }

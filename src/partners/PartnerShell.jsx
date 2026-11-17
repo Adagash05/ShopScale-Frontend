@@ -41,7 +41,7 @@ export function Topbar({ tag, admin, children }) {
 
 function StatusCard({ partner }) {
   const msg = {
-    PENDING: 'Thank you for applying. Our team is reviewing your application and will email you once it is decided. You do not need to do anything else.',
+    PENDING: 'Thank you for applying. The ShopScale Team is reviewing your application and will email you once it is decided. You do not need to do anything else.',
     REJECTED: 'We were not able to approve this application.',
     SUSPENDED: 'Your partner account is suspended. Referral links are switched off and no new commission is recorded while it is suspended. Earned commission is kept.',
   }[partner.status]

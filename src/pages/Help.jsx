@@ -42,8 +42,15 @@ export const ARTICLES = [
   { id: 'plans', title: 'Your plan and free trial', body: [
     'Every new business gets 14 days free with full access. You are never charged without your permission.',
     'If a trial or paid plan ends, your business moves to the Free plan so you can keep selling. Free has lower limits and fewer features, and your data is never deleted.' ] },
-  { id: 'soon', title: 'Not available yet', body: [
-    'Restaurant and catering tools are planned for after launch and are not available yet.' ] },
+  { id: 'kitchen', title: 'Restaurant, kitchen and bakery', body: [
+    'Orders: open Orders, pick a table or takeaway, add items and send to the kitchen. The kitchen screen shows what to cook and how long it has waited.',
+    'Menu: add dishes under Menu with sizes and paid extras. Link ingredients to a dish with a recipe and they come off stock when the order is paid. Use the sold-out switch when you run out.',
+    'Bakery: record what you baked under Production. Ingredients go down and finished stock goes up. Take custom cake orders with a deposit under Customer orders.',
+    'Waste: record spoiled or wasted food under Wastage with a reason. Cancelling a dish that was already cooked asks for a reason.' ] },
+  { id: 'catering', title: 'Catering and events', body: [
+    'Capture an enquiry under Events, set a package and guests, and the price is worked out for you. Send the quotation, then confirm the booking once the deposit is received.',
+    'Record deposits and part payments on the Payments tab. You can never record more than what is owed. Start preparation to get a checklist and ingredient list; take ingredients out of stock once, then record extras, returns and waste.',
+    'The Costs and profit tab shows planned and actual cost against what the event earned.' ] },
 ]
 
 export default function Help() {
@@ -61,7 +68,7 @@ export default function Help() {
       </div>
       <div className="section pad stack-sm"><strong>Use ShopScale like an app</strong><p className="muted small">Install it on your phone or computer so it opens full screen and keeps working on a weak connection.</p><InstallLink /></div>
       <div className="section pad stack-sm"><strong>Privacy</strong><AnalyticsPreferences /></div>
-      <p className="muted small">Still stuck? <Link to="/more/support">Ask the ShopScale team</Link>.</p>
+      <p className="muted small">Still stuck? <Link to="/more/support">Ask the ShopScale Team</Link>.</p>
     </div>
   )
 }

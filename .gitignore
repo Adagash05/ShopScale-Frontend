@@ -3,3 +3,4 @@ dist
 .env
 *.log
 scripts/superadmin-harness/out.cjs
+scripts/kc-harness/out.cjs

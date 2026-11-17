@@ -1,7 +1,7 @@
 {
   "name": "ShopScale",
   "short_name": "ShopScale",
-  "description": "Record sales, control stock, track expenses and see your money. By AMSATI.",
+  "description": "Record sales, control stock, track expenses and see your money.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",

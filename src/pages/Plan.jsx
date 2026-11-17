@@ -142,7 +142,7 @@ export default function Plan() {
           <span><button className="btn sm" onClick={() => { tries.current = 0; verify(unconfirmed) }}>Check payment status</button></span>
         </div>
       )}
-      {status.data && !status.data.configured && <div className="banner">Online payment for plans is not switched on for this server yet. Contact AMSATI to activate your plan.</div>}
+      {status.data && !status.data.configured && <div className="banner">Online payment for plans is not switched on for this server yet. Contact ShopScale Support to activate your plan.</div>}
       {b && s && s.planCode !== 'FREE' && s.status !== 'TRIALING' && (
         <section className="section" aria-label="Automatic renewal">
           <div className="kv"><span className="k">Automatic renewal</span><span className={`badge ${b.autoRenew ? 'ok' : s.status === 'CANCELLED' ? 'gray' : 'warn'}`}>{b.autoRenew ? 'On' : s.status === 'CANCELLED' ? 'Cancelled' : 'Not active'}</span></div>
@@ -177,9 +177,9 @@ export default function Plan() {
           {quote.kind === 'RENEWAL' && <p className="muted small">This adds one more {quote.cycle === 'ANNUAL' ? 'year' : 'month'} after your current period ends.</p>}
           <p className="muted small">Paid securely with Paystack. Your plan becomes active only after Paystack confirms the payment.</p>
           <div className="banner" role="note">
-            <b>Renews automatically.</b> The card you pay with is saved securely by Paystack, and ShopScale (AMSATI) charges it {money(quote.listPrice)} every {quote.cycle === 'ANNUAL' ? 'year' : 'month'} for the {quote.planName} plan, starting when this period ends. You are not asked again. Cancel any time on this page to stop future charges; you keep access until the period you paid for ends.
+            <b>Renews automatically.</b> The card you pay with is saved securely by Paystack, and ShopScale charges it {money(quote.listPrice)} every {quote.cycle === 'ANNUAL' ? 'year' : 'month'} for the {quote.planName} plan, starting when this period ends. You are not asked again. Cancel any time on this page to stop future charges; you keep access until the period you paid for ends.
           </div>
-          {b && !b.autoRenewAvailable && <p className="form-error" role="alert">Subscription billing is not fully set up on this server yet, so payment cannot start. Contact AMSATI.</p>}
+          {b && !b.autoRenewAvailable && <p className="form-error" role="alert">Subscription billing is not fully set up on this server yet, so payment cannot start. Contact ShopScale Support.</p>}
           <div className="row"><button className="btn primary" disabled={busy === 'pay' || !status.data?.configured || (!!b && !b.autoRenewAvailable)} onClick={pay}>{busy === 'pay' ? 'Opening Paystack…' : 'Pay with Paystack'}</button><button className="btn" onClick={() => setQuote(null)}>Back</button></div>
         </section>
       )}

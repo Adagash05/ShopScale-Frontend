@@ -20,7 +20,7 @@ export function useSeo({ title, description, path = '/', noindex = false }) {
     setMeta('property', 'og:title', full)
     setMeta('property', 'og:description', description)
     setMeta('property', 'og:type', 'website')
-    setMeta('property', 'og:site_name', 'ShopScale by AMSATI')
+    setMeta('property', 'og:site_name', 'ShopScale')
     setMeta('property', 'og:url', SITE + path)
     setMeta('name', 'twitter:card', 'summary')
     setMeta('name', 'robots', noindex || MODE !== 'public' ? 'noindex, nofollow' : 'index, follow')

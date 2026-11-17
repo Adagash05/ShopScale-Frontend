@@ -16,7 +16,7 @@ export default function Support() {
   const [form, setForm] = useState(null)
   return (
     <div className="stack">
-      <div className="page-head"><div className="row"><Link to="/more" className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></Link><div><h1>Support</h1><p className="sub">Ask the ShopScale team for help</p></div></div>
+      <div className="page-head"><div className="row"><Link to="/more" className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></Link><div><h1>Support</h1><p className="sub">Ask the ShopScale Team for help</p></div></div>
         <button className="btn primary" onClick={() => setForm({ subject: '', description: '', category: 'OTHER', priority: 'NORMAL' })}>New request</button></div>
       {form && <NewTicket form={form} setForm={setForm} onDone={() => { toast('Request sent'); setForm(null); list.reload() }} />}
       {open ? <Thread id={open} onBack={() => { setOpen(null); list.reload() }} />

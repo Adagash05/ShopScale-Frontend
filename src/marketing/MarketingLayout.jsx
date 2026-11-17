@@ -33,12 +33,12 @@ export default function MarketingLayout({ children }) {
         <div className="mk-wrap mk-foot-grid">
           <div><div className="brand" style={{ padding: 0, color: '#fff' }}><img className="brand-logo" src="/brand/logo-96.png" alt="" width="29" height="32" />ShopScale</div>
             <p style={{ marginTop: 10, maxWidth: '36ch' }}>Run your business. Control your stock. Manage your orders. Understand your money.</p>
-            <p style={{ marginTop: 10 }}>A product of AMSATI.</p></div>
+          </div>
           <div><h3>Product</h3><ul><li><Link to="/features">Features</Link></li><li><Link to="/pricing">Pricing</Link></li><li><Link to="/faq">FAQ</Link></li><li><Link to="/partners">Partner programme</Link></li></ul></div>
           <div><h3>For</h3><ul><li><Link to="/retail">Shops and retail</Link></li><li><Link to="/restaurant">Restaurants</Link></li><li><Link to="/catering">Catering</Link></li></ul></div>
           <div><h3>Company</h3><ul><li><Link to="/about">About</Link></li><li><Link to="/contact">Contact</Link></li><li><Link to="/privacy">Privacy</Link></li><li><Link to="/terms">Terms</Link></li><li><Link to="/refunds">Refunds</Link></li></ul></div>
         </div>
-        <div className="mk-wrap" style={{ marginTop: 28 }}>© {new Date().getFullYear()} AMSATI. ShopScale is a product of AMSATI.</div>
+        <div className="mk-wrap" style={{ marginTop: 28 }}>© {new Date().getFullYear()} ShopScale. All rights reserved.</div>
       </footer>
     </div>
   )

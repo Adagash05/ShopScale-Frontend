@@ -59,23 +59,23 @@ describe('AcceptInvite', () => {
 })
 
 describe('public website', () => {
-  it('home page sells the product without inventing proof, and marks unfinished tools as coming soon', async () => {
+  it('home page sells the product without inventing proof or promising unfinished tools', async () => {
     fetch.mockResolvedValue(json(200, plans))
     at('/', <HomePage />)
     expect(screen.getByRole('heading', { level: 1, name: /Your entire business\. One simple platform\./ })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /Start your 14-day free trial/i }).length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Coming soon').length).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByText('Coming soon')).toBeNull()
     expect(screen.getAllByText(/sample (figures|items)/i).length).toBeGreaterThan(0)
     expect(screen.queryByText(/testimonial/i)).toBeNull()
     await waitFor(() => expect(screen.getByText('Growth')).toBeInTheDocument())
   })
 
-  it('restaurant and catering pages say plainly that the tools are not available yet', () => {
+  it('restaurant and catering pages describe the tools that exist', () => {
     at('/restaurant', <RestaurantPage />)
-    expect(screen.getAllByText('Coming soon').length).toBeGreaterThan(0)
-    expect(screen.getByText(/not available yet/i)).toBeInTheDocument()
+    expect(screen.queryByText('Coming soon')).toBeNull()
+    expect(screen.getAllByText(/kitchen screen/i).length).toBeGreaterThan(0)
     at('/catering', <CateringPage />)
-    expect(screen.getAllByText(/not available yet/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Packages and quotations/i).length).toBeGreaterThan(0)
   })
 
   it('sets the page title for SEO', () => {

@@ -13,6 +13,7 @@
     "test:theme": "node --test scripts/theme-verify.mjs",
     "test:partners": "node --test scripts/partners-verify.mjs",
     "test:links": "node --test scripts/notification-links-verify.mjs",
+    "test:kitchen": "node scripts/kc-harness/build.mjs && node scripts/kc-harness/out.cjs",
     "test:superadmin": "node scripts/superadmin-harness/build.mjs && node scripts/superadmin-harness/out.cjs"
   },
   "dependencies": {

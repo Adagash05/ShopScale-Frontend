@@ -69,7 +69,7 @@ Public: `/partners` (landing, live programme terms, real plan prices, calculator
 2. Set `PLATFORM_ADMIN_EMAILS` to the administrators' emails; each must register and verify their email.
 3. Set `APP_ENCRYPTION_KEY` (already required for merchant Paystack keys).
 4. Optional `PARTNERS_REFERRAL_BASE_URL` (default `FRONTEND_URL`) for the host in referral links; it must be the host that serves `/register`.
-5. In the **AMSATI** Paystack dashboard, enable webhook events `refund.processed` and `charge.dispute.resolve` on the existing webhook URL.
+5. In the **ShopScale** Paystack dashboard, enable webhook events `refund.processed` and `charge.dispute.resolve` on the existing webhook URL.
 6. Make sure email sending is configured (Resend / SMTP) so partners get notifications.
 7. Review the legal pages (terms) so they mention the programme before launch.
 

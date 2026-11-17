@@ -1,6 +1,6 @@
 # ShopScale billing: repairs, automatic renewal, test report and deployment
 
-Scope: AMSATI subscription billing (Paystack platform account). Merchant storefront payments (each merchant's own Paystack key) were inspected and **not changed**.
+Scope: ShopScale subscription billing (Paystack platform account). Merchant storefront payments (each merchant's own Paystack key) were inspected and **not changed**.
 Prices and plan limits come from `V15__final_pricing_limits_features.sql` and were **not changed** (verified after applying V1-V19: FREE 0/0, ESSENTIAL 4,999/49,990, GROWTH 11,999/119,990, BUSINESS 24,999/249,990).
 
 ## A. Root-cause report (found by reading the code, not by guessing)
@@ -61,7 +61,7 @@ Environment (EC2). Never commit values; keep the encryption key identical across
 APP_ENV=production
 DB_URL=jdbc:postgresql://<supabase-host>:5432/postgres   DB_USERNAME=...   DB_PASSWORD=...
 JWT_SECRET=<32+ chars>
-PAYSTACK_SECRET_KEY=sk_live_...          # AMSATI platform account
+PAYSTACK_SECRET_KEY=sk_live_...          # ShopScale platform account
 APP_ENCRYPTION_KEY=<openssl rand -base64 32>
 FRONTEND_URL=https://app.shopscale.com.ng
 PUBLIC_API_URL=https://api.shopscale.com.ng
@@ -69,8 +69,8 @@ CORS_ALLOWED_ORIGINS=https://app.shopscale.com.ng,https://shopscale.com.ng,https
 COOKIE_SECURE=true
 # optional: BILLING_RETRY_DELAYS_HOURS=24,48   BILLING_AUTO_CHARGE_ENABLED=true
 ```
-Paystack dashboard (AMSATI account): Settings > API Keys & Webhooks > set the **webhook URL** to `https://api.shopscale.com.ng/api/webhooks/paystack/subscriptions` (one URL for the platform account; the merchant URLs `/api/webhooks/paystack/store/{slug}` stay on merchants' own accounts). Use test keys and the test webhook URL first.
-External dependencies that remain and cannot be done from code: Paystack's own enablement of recurring charges on the AMSATI account (confirm with Paystack), live-mode approval, DNS/TLS for the API host, and whether the customers' banks require 2FA on recurring charges (handled as "pay manually" notice, not as a bank redirect).
+Paystack dashboard (ShopScale account): Settings > API Keys & Webhooks > set the **webhook URL** to `https://api.shopscale.com.ng/api/webhooks/paystack/subscriptions` (one URL for the platform account; the merchant URLs `/api/webhooks/paystack/store/{slug}` stay on merchants' own accounts). Use test keys and the test webhook URL first.
+External dependencies that remain and cannot be done from code: Paystack's own enablement of recurring charges on the ShopScale account (confirm with Paystack), live-mode approval, DNS/TLS for the API host, and whether the customers' banks require 2FA on recurring charges (handled as "pay manually" notice, not as a bank redirect).
 Not implemented: a standalone card-verification charge (Paystack suggests a small first charge, refunded or credited); "Update payment method" is done by paying for the current plan (which saves the new card). Customer notices are in-app notifications only (no email/SMS sender exists in the billing path).
 **First actions on a networked machine**: `mvn test`; start with `APP_ENV=development` against test keys; checkout monthly and annual and confirm the card is saved and renewal shows On; force a renewal by setting `current_period_end` to the past on a test subscription; simulate failure with a Paystack test card that declines; send a signed webhook twice and concurrently with the return page; run the merchant storefront checkout.
 

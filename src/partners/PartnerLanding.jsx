@@ -37,7 +37,7 @@ export default function PartnerLanding() {
         <div className="mk-wrap">
           <h2>How it works</h2>
           <div className="pt-steps" style={{ marginTop: 20 }}>
-            <div className="pt-step"><h3>Apply and get approved</h3><p className="muted">Tell us about your audience and how you will share ShopScale. Our team reviews every application. Approved partners get a personal link and code.</p></div>
+            <div className="pt-step"><h3>Apply and get approved</h3><p className="muted">Tell us about your audience and how you will share ShopScale. The ShopScale Team reviews every application. Approved partners get a personal link and code.</p></div>
             <div className="pt-step"><h3>Share your link</h3><p className="muted">When someone signs up through your link and later subscribes, they are attributed to you{p ? <> if they register within {p.attributionDays} days of clicking. If they open more than one partner's link, the most recent one counts</> : null}.</p></div>
             <div className="pt-step"><h3>Get paid</h3><p className="muted">Commission is earned only on real, successful subscription payments. {p ? <>It is held for {p.holdingDays} days, then becomes available. Once you have {money(p.minWithdrawal)} available, request a bank transfer.</> : null}</p></div>
           </div>
@@ -96,7 +96,7 @@ export default function PartnerLanding() {
               <ul className="stack-sm" style={{ paddingLeft: 18 }}>
                 <li>{p ? <>Held {p.holdingDays} days after each payment, then available.</> : 'Held briefly after each payment, then available.'}</li>
                 <li>{p ? <>Withdraw once you have {money(p.minWithdrawal)} available.</> : 'A minimum balance applies.'}</li>
-                <li>Paid by bank transfer in naira after our team approves the request. We record the transfer reference on your account.</li>
+                <li>Paid by bank transfer in naira after the ShopScale Team approves the request. We record the transfer reference on your account.</li>
               </ul></div>
             <div className="pt-card"><h2>Fair play</h2>
               <ul className="stack-sm" style={{ paddingLeft: 18 }}>
@@ -115,7 +115,7 @@ export default function PartnerLanding() {
             <details><summary>Does it cost anything to join?</summary><p>No. Applying and being a partner is free.</p></details>
             <details><summary>How do I know a customer came from me?</summary><p>Your dashboard shows clicks, sign-ups, paying customers and every commission, with each customer's name shortened to protect their privacy.</p></details>
             <details><summary>What if a customer cancels or asks for a refund?</summary><p>You keep commission on payments that stay paid. If a payment is refunded, the commission on it is reversed.</p></details>
-            <details><summary>Can the terms change?</summary><p>Our team can change the programme settings. A change never alters commission you have already earned, and customers you have already referred keep the terms that applied when they signed up.</p></details>
+            <details><summary>Can the terms change?</summary><p>The ShopScale Team can change the programme settings. A change never alters commission you have already earned, and customers you have already referred keep the terms that applied when they signed up.</p></details>
             <details><summary>Can I promise businesses they will make money with ShopScale?</summary><p>No. Please describe what the product really does and leave out income promises.</p></details>
           </div>
           <div className="row wrap" style={{ marginTop: 24 }}>

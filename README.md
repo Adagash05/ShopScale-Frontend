@@ -1,6 +1,6 @@
 # ShopScale Frontend
 
-React 18 · JavaScript · Vite 5 · React Router. An AMSATI product. Mobile-first, built for Android phones on patchy networks.
+React 18 · JavaScript · Vite 5 · React Router. A ShopScale product. Mobile-first, built for Android phones on patchy networks.
 
 ## Run
 ```bash
