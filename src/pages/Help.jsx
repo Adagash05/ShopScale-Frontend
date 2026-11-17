@@ -1,6 +1,7 @@
 import { AnalyticsPreferences } from '../analytics/AnalyticsRouter.jsx'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SmartLink } from '../lib/SmartLink.jsx'
 import { ArrowLeft } from 'lucide-react'
 import { InstallLink } from '../pwa/InstallPrompt.jsx'
 
@@ -68,7 +69,7 @@ export default function Help() {
       </div>
       <div className="section pad stack-sm"><strong>Use ShopScale like an app</strong><p className="muted small">Install it on your phone or computer so it opens full screen and keeps working on a weak connection.</p><InstallLink /></div>
       <div className="section pad stack-sm"><strong>Privacy</strong><AnalyticsPreferences /></div>
-      <p className="muted small">Still stuck? <Link to="/more/support">Ask the ShopScale Team</Link>.</p>
+      <p className="muted small">Need step-by-step guides? <SmartLink to="/help">Open the Help Centre</SmartLink>. Still stuck? <Link to="/more/support">Ask the ShopScale Team</Link>.</p>
     </div>
   )
 }

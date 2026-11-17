@@ -40,7 +40,7 @@ export default function Login() {
         {formError && <p className="form-error" role="alert">{formError}</p>}
         <button className="btn primary block" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
         <p className="small"><Link to="/forgot-password">Forgot your password?</Link></p>
-        <p className="muted small">New to ShopScale? <Link to="/register">Start your 14-day free trial</Link> · <Link to="/pricing">See pricing</Link></p>
+        <p className="muted small">New to ShopScale? <Link to="/register">Start your 14-day free trial</Link> · <Link to="/pricing">See pricing</Link> · <Link to="/help">Need help? Visit the Help Centre</Link></p>
       </form>
     </div>
   )

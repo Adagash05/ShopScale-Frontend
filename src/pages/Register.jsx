@@ -54,6 +54,7 @@ export default function Register() {
         {formError && !Object.keys(errors).length && <p className="form-error" role="alert">{formError}</p>}
         <button className="btn primary block" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button>
         <p className="muted small">Already have an account? <Link to="/login">Sign in</Link></p>
+        <p className="muted small">Want to see how it works first? <Link to="/how-it-works">How ShopScale works</Link> · <Link to="/help">Help Centre</Link></p>
       </form>
     </div>
   )

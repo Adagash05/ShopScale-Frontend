@@ -1,0 +1,37 @@
+import React from 'react'
+const Icon = () => React.createElement('i')
+export const AlertTriangle = Icon
+export const ArrowDown = Icon
+export const ArrowLeft = Icon
+export const ArrowRight = Icon
+export const BookOpen = Icon
+export const Boxes = Icon
+export const Calendar = Icon
+export const CalendarClock = Icon
+export const Check = Icon
+export const ChevronDown = Icon
+export const ChevronRight = Icon
+export const Clock = Icon
+export const LayoutDashboard = Icon
+export const Lightbulb = Icon
+export const MapPin = Icon
+export const Menu = Icon
+export const MessageCircle = Icon
+export const Package = Icon
+export const Phone = Icon
+export const Rocket = Icon
+export const Search = Icon
+export const Settings = Icon
+export const ShieldCheck = Icon
+export const ShoppingBasket = Icon
+export const ShoppingCart = Icon
+export const Store = Icon
+export const ThumbsDown = Icon
+export const ThumbsUp = Icon
+export const Truck = Icon
+export const Users = Icon
+export const UsersRound = Icon
+export const UtensilsCrossed = Icon
+export const Wallet = Icon
+export const Wrench = Icon
+export const X = Icon

@@ -15,6 +15,14 @@ const Login = lazy(() => import('./pages/Login.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
 const AccountLinks = { Forgot: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.ForgotPassword }))), Reset: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.ResetPassword }))), Verify: lazy(() => import('./pages/AccountLinks.jsx').then((m) => ({ default: m.VerifyEmail }))) }
 const AcceptInvite = lazy(() => import('./pages/AcceptInvite.jsx'))
+const HowItWorks = lazy(() => import('./help/HowItWorks.jsx'))
+const HC = {
+  Layout: lazy(() => import('./help/HelpCentre.jsx').then((m) => ({ default: m.HelpLayout }))),
+  Home: lazy(() => import('./help/HelpCentre.jsx').then((m) => ({ default: m.HelpHome }))),
+  Search: lazy(() => import('./help/HelpCentre.jsx').then((m) => ({ default: m.HelpSearch }))),
+  Category: lazy(() => import('./help/HelpCentre.jsx').then((m) => ({ default: m.HelpCategory }))),
+  Article: lazy(() => import('./help/HelpCentre.jsx').then((m) => ({ default: m.HelpArticle }))),
+}
 const Pricing = lazy(() => import('./pages/Pricing.jsx'))
 const Onboarding = lazy(() => import('./pages/Onboarding.jsx'))
 const Home = lazy(() => import('./pages/Home.jsx'))
@@ -64,7 +72,6 @@ const M = {
   Privacy: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.PrivacyPage }))),
   Terms: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.TermsPage }))),
   Refunds: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.RefundPage }))),
-  NotFound: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.NotFoundPage }))),
 }
 
 function Splash() {
@@ -132,6 +139,13 @@ const marketingRoutes = (
     <Route path="about" element={<M.About />} />
     <Route path="contact" element={<M.Contact />} />
     <Route path="faq" element={<M.Faq />} />
+    <Route path="how-it-works" element={<HowItWorks />} />
+    <Route path="help" element={<HC.Layout />}>
+      <Route index element={<HC.Home />} />
+      <Route path="search" element={<HC.Search />} />
+      <Route path=":cat" element={<HC.Category />} />
+      <Route path=":cat/:article" element={<HC.Article />} />
+    </Route>
     <Route path="privacy" element={<M.Privacy />} />
     <Route path="terms" element={<M.Terms />} />
     <Route path="refunds" element={<M.Refunds />} />

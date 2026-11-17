@@ -34,6 +34,11 @@ test('every module route and registered page lives in a known section', () => {
   assert.ok(sa > 0 && saEnd > sa)
   assert.equal(sideOf('/super-admin/dashboard'), 'app')
   app = app.slice(0, sa) + app.slice(saEnd)
+  // Routes nested under /help are relative to it; the parent route is checked with the rest.
+  const hs = app.indexOf('<Route path="help"'), he = hs < 0 ? -1 : app.indexOf('</Route>', hs)
+  assert.ok(hs > 0 && he > hs)
+  assert.equal(sideOf('/help/storefront/activate-store'), 'public')
+  app = app.slice(0, hs) + '<Route path="help" element={null} />' + app.slice(he + '</Route>'.length)
   for (const m of app.matchAll(/<Route path="\/?([a-z-]+)[/"]/g)) {
     const side = sideOf('/' + m[1]); assert.notEqual(side, 'unknown', m[1])
   }
