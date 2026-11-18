@@ -85,7 +85,7 @@ export default {
       p('Do these in order. Each step builds on the one before.'),
       steps('**Add your products.** Open Products and tap **Add product**. You only need a name, a price and how many you have. See [Creating products](/help/products/create-product).', '**Check your stock.** Open **More, Stock** to see counts and what is running low.', '**Record a sale.** Tap **Sell**, tap a product, check the total and confirm. See [Making a sale](/help/sales/make-a-sale).', '**Record an expense.** Open Expenses and add rent, transport or other costs so your profit is correct.', '**Add your team.** Invite staff from **More, Team** and give each a role.', '**Open your online store** (Essential plan or above). See [Activating your online store](/help/storefront/activate-store).'),
       tip('Add a few products first and sell one. Seeing stock go down by itself is the quickest way to understand the app.'),
-      p('Need a hand? [Contact ShopScale Support](/help) using the call and WhatsApp buttons at the bottom of any page.'),
+      p('Need a hand? [Contact ShopScale Support](/help) using the email and WhatsApp buttons at the bottom of any page.'),
     ], { related: ['products/create-product', 'sales/make-a-sale', 'storefront/activate-store'], keywords: 'start beginner onboarding' }),
   ],
 }

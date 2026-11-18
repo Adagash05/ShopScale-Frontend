@@ -4,10 +4,10 @@ import { useLoad, ErrorBox, Skeleton } from '../components.jsx'
 import { useSeo } from './Seo.jsx'
 import { DashboardPreview, SellPreview } from './Previews.jsx'
 import { PlanCards } from '../pages/Pricing.jsx'
-import { SUPPORT_PHONE, SUPPORT_TEL, SUPPORT_WHATSAPP } from '../help/support.js'
+import { SUPPORT_EMAIL, SUPPORT_MAILTO, SUPPORT_WHATSAPP, SUPPORT_WHATSAPP_NUMBER } from '../help/support.js'
+import './contact.css'
 import { ShoppingCart, Boxes, Users, Wallet, LayoutDashboard, UsersRound, Store, UtensilsCrossed, CalendarClock, ShieldCheck, Check } from 'lucide-react'
 
-const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL || ''
 
 
 function Cta({ primary = 'Start your 14-day free trial', secondary = ['Explore ShopScale', '/features'] }) {
@@ -190,17 +190,23 @@ export function AboutPage() {
 }
 
 export function ContactPage() {
-  useSeo({ title: 'Contact', description: 'Get in touch with the ShopScale Team.', path: '/contact' })
+  useSeo({ title: 'Contact', description: 'Contact ShopScale Support by email for account enquiries, technical assistance and billing questions, or message us on WhatsApp.', path: '/contact' })
   return (
-    <section className="mk-section"><div className="mk-wrap prose">
+    <section className="mk-section"><div className="mk-wrap ct">
       <h1 style={{ fontSize: '2rem' }}>Contact us</h1>
-      <p>Questions about ShopScale, pricing, or what is coming next? We would like to hear from you.</p>
-      <div className="row wrap">
-        <a className="btn primary" href={SUPPORT_TEL}>Call {SUPPORT_PHONE}</a>
-        <a className="btn" href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer">Chat with ShopScale Support on WhatsApp</a>
-        {SUPPORT_EMAIL && <a className="btn" href={`mailto:${SUPPORT_EMAIL}`}>Email {SUPPORT_EMAIL}</a>}
-      </div>
-      <p>Looking for step-by-step guides? Visit the <Link to="/help">Help Centre</Link> or see <Link to="/how-it-works">how ShopScale works</Link>.</p>
+      <p className="ct-intro">Need assistance with ShopScale? Our support team is available by email for account enquiries, technical assistance, billing questions and other concerns. You can also reach us through WhatsApp.</p>
+      <section className="ct-email" aria-labelledby="ct-email-h">
+        <h2 id="ct-email-h">Email Support</h2>
+        <p>The best way to reach ShopScale for technical assistance, account enquiries, billing questions and general support.</p>
+        <a className="ct-address" href={SUPPORT_MAILTO}>{SUPPORT_EMAIL}</a>
+        <a className="btn primary" href={SUPPORT_MAILTO}>Send an email</a>
+      </section>
+      <section className="ct-wa" aria-labelledby="ct-wa-h">
+        <h2 id="ct-wa-h">WhatsApp Support</h2>
+        <p>Message ShopScale on WhatsApp: {SUPPORT_WHATSAPP_NUMBER}</p>
+        <a className="btn" href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+      </section>
+      <p className="ct-help">Looking for step-by-step guides? Visit the <Link to="/help">Help Centre</Link> or see <Link to="/how-it-works">how ShopScale works</Link>.</p>
     </div></section>
   )
 }

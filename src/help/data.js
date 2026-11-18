@@ -1,4 +1,5 @@
 import gettingStarted from './content/gettingStarted.js'
+import { SHOTS } from './shots.js'
 import products from './content/products.js'
 import storefront from './content/storefront.js'
 import orders from './content/orders.js'
@@ -30,7 +31,27 @@ function blockText(b) {
 
 export function slugify(t) { return String(t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }
 
-export const ARTICLES = CATEGORIES.flatMap((c) => c.articles.map((a) => {
+/**
+ * Puts each screenshot from shots.js into its article, right after the first numbered steps (or the first paragraph), so the picture
+ * follows the instructions it illustrates. A screenshot the article already carries is not added twice.
+ */
+export function withShots(articlePath, blocks) {
+  const wanted = SHOTS.flatMap((s) => s.placements.filter(([p]) => p === articlePath).map(([, caption, after]) => ({ block: shotBlock(s.id, caption || s.caption), after: after || 'steps' })))
+    .filter((w) => !blocks.some((b) => b.t === 'shot' && b.id === w.block.id))
+  if (!wanted.length) return blocks
+  const firstSteps = blocks.findIndex((b) => b.t === 'steps')
+  const firstPara = blocks.findIndex((b) => b.t === 'p')
+  const anchor = (after) => (after === 'end' ? blocks.length - 1 : after === 'start' ? firstPara : firstSteps >= 0 ? firstSteps : firstPara)
+  const at = new Map()
+  for (const w of wanted) { const k = Math.max(anchor(w.after), -1); at.set(k, [...(at.get(k) || []), w.block]) }
+  const out = [...(at.get(-1) || [])]
+  blocks.forEach((b, i) => { out.push(b); out.push(...(at.get(i) || [])) })
+  return out
+}
+const shotBlock = (id, caption) => ({ t: 'shot', id, caption })
+
+export const ARTICLES = CATEGORIES.flatMap((c) => c.articles.map((raw) => {
+  const a = { ...raw, blocks: withShots(`${c.id}/${raw.id}`, raw.blocks) }
   const text = a.blocks.map(blockText).join(' ')
   return {
     ...a, cat: c.id, catTitle: c.title, path: `/help/${c.id}/${a.id}`, text,

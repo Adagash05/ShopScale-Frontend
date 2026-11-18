@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen } from 'lucide-react'
 import { useSeo } from '../marketing/Seo.jsx'
 import Illustration from './Illustrations.jsx'
 import { SupportCard } from './HelpCentre.jsx'
+import DemoVideo from './DemoVideo.jsx'
 import './help.css'
 
 const Section = ({ id, title, sub, alt, children }) => (
@@ -41,7 +42,7 @@ export const HIW_FAQ = [
   ['Can I use ShopScale in a shop and online at the same time?', 'Yes. The same products and stock feed both your point of sale and your online store, so one number is shared.'],
   ['Can my staff use it too?', 'Yes. You can add team members and choose what each person is allowed to see and do. Your plan sets how many users you can have.'],
   ['Can I try it first?', 'Yes. Every new business starts with a 14-day free trial.'],
-  ['Who do I call if I get stuck?', 'Call or WhatsApp ShopScale Support on 09122609070. The Help Centre also has step-by-step guides for each task.'],
+  ['Who do I contact if I get stuck?', 'Email support@shopscale.com.ng, or message ShopScale on WhatsApp. The Help Centre also has step-by-step guides for each task.'],
 ]
 
 export default function HowItWorks() {
@@ -58,6 +59,7 @@ export default function HowItWorks() {
           </div>
         </div>
       </section>
+      <div className="mk-wrap" style={{ paddingTop: 24 }}><DemoVideo /></div>
 
       <Section id="overview" title="How businesses use ShopScale" sub="ShopScale is one place to run your business day to day.">
         <Cards items={[

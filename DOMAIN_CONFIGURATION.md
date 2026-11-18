@@ -27,7 +27,7 @@ Build command `npm ci && npm run build`, output `dist`, Node 20+. Environment va
 VITE_API_BASE_URL=https://api.shopscale.com.ng
 VITE_PUBLIC_SITE_URL=https://shopscale.com.ng
 VITE_APP_URL=https://app.shopscale.com.ng
-# optional: VITE_SUPPORT_EMAIL, VITE_WHATSAPP_NUMBER, VITE_GA_MEASUREMENT_ID
+# optional: VITE_GA_MEASUREMENT_ID
 ```
 A production build **fails** if `VITE_API_BASE_URL`, `VITE_PUBLIC_SITE_URL` or `VITE_APP_URL` is missing (`scripts/check-env.mjs`, unless `VITE_SITE_MODE=unified`). No secret may be placed in a `VITE_*` variable. `public/_headers` sets `X-Robots-Tag: noindex` on the app host and previews; `robots.txt` and `sitemap.xml` list only marketing pages.
 

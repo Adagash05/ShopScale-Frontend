@@ -4,7 +4,8 @@ import { STATE } from './router-stub.jsx'
 import { HelpLayout, HelpHome, HelpSearch, HelpCategory, HelpArticle } from '../../src/help/HelpCentre.jsx'
 import HowItWorks from '../../src/help/HowItWorks.jsx'
 import { ARTICLES, CATEGORIES, search, neighbours, related } from '../../src/help/data.js'
-import { SUPPORT_TEL, SUPPORT_WHATSAPP } from '../../src/help/support.js'
+import { SHOTS } from '../../src/help/shots.js'
+import { SUPPORT_MAILTO, SUPPORT_WHATSAPP } from '../../src/help/support.js'
 let fail = 0, n = 0
 const t = (name, fn) => { n++; try { fn(); console.log('PASS ' + name) } catch (e) { fail++; console.log('FAIL ' + name + ': ' + e.message) } }
 const html = (el) => renderToString(el).replace(/<!-- -->/g, '')
@@ -13,20 +14,21 @@ const lacks = (h, ...s) => { for (const x of s) if (h.includes(x)) throw new Err
 const at = (path, params = {}, q = '') => { STATE.path = path; STATE.params = params; STATE.search = q }
 
 t('content: 13 categories, every category has articles', () => { if (CATEGORIES.length !== 13) throw new Error(String(CATEGORIES.length)); for (const c of CATEGORIES) if (!ARTICLES.some((a) => a.cat === c.id)) throw new Error('empty ' + c.id) })
+t('no tel: links or call-us wording anywhere in help content', () => { for (const a of ARTICLES) if (/tel:|call us|call:|call 0|by phone/i.test(a.text)) throw new Error(a.path) })
 t('content: no coming-soon or placeholder text', () => { for (const a of ARTICLES) if (/coming soon|lorem|todo|tbd/i.test(a.text)) throw new Error(a.path) })
 t('content: every article has a heading or steps and a non-trivial body', () => { for (const a of ARTICLES) if (a.text.split(/\s+/).length < 25) throw new Error('thin ' + a.path) })
-t('support links are the real phone and WhatsApp', () => { if (SUPPORT_TEL !== 'tel:09122609070' || SUPPORT_WHATSAPP !== 'https://wa.me/2349122609070') throw new Error('wrong') })
+t('support links are the real email and WhatsApp', () => { if (SUPPORT_MAILTO !== 'mailto:support@shopscale.com.ng' || SUPPORT_WHATSAPP !== 'https://wa.me/2349122609070') throw new Error('wrong') })
 
-at('/help'); t('home: search, categories, popular, support', () => { const h = html(<HelpHome />); has(h, 'Help Centre', 'Getting Started', 'Online Storefront', 'Online Order Management', 'Troubleshooting', SUPPORT_TEL, SUPPORT_WHATSAPP, 'Still need help? We&#x27;re here to assist.') })
+at('/help'); t('home: search, categories, popular, support', () => { const h = html(<HelpHome />); has(h, 'Help Centre', 'Getting Started', 'Online Storefront', 'Online Order Management', 'Troubleshooting', SUPPORT_MAILTO, SUPPORT_WHATSAPP, 'Still need help? We&#x27;re here to assist.') })
 t('home: shows every category link', () => { const h = html(<HelpHome />); for (const c of CATEGORIES) has(h, 'href="/help/' + c.id + '"') })
 at('/help/search', {}, 'q=paystack'); t('search: returns linked results', () => { const h = html(<HelpSearch />); if (!/href="\/help\/[a-z-]+\/[a-z-]+"/.test(h)) throw new Error('no result links') })
-at('/help/search', {}, 'q=zzzxqvv'); t('search: sensible empty state, with support', () => { const h = html(<HelpSearch />); has(h, SUPPORT_TEL); lacks(h, 'undefined') })
+at('/help/search', {}, 'q=zzzxqvv'); t('search: sensible empty state, with support', () => { const h = html(<HelpSearch />); has(h, SUPPORT_MAILTO); lacks(h, 'undefined') })
 t('search(): finds the storefront article for "open my store"', () => { if (!search('open my store').some((r) => (r.article || r).path === '/help/storefront/activate-store')) throw new Error('not found') })
 t('search(): empty query returns nothing, no throw', () => { search(''); search('   ') })
 for (const c of CATEGORIES) { at('/help/' + c.id, { cat: c.id }); t('category ' + c.id + ' lists its articles', () => { const h = html(<HelpCategory />); for (const a of ARTICLES.filter((x) => x.cat === c.id)) has(h, a.path) }) }
 at('/help/nope', { cat: 'nope' }); t('unknown category → not found page', () => has(html(<HelpCategory />), 'Help Centre'))
 t('every article renders with title, breadcrumbs, support, no "undefined"', () => {
-  for (const a of ARTICLES) { at(a.path, { cat: a.cat, article: a.id }); const h = html(<HelpArticle />); has(h, a.title, 'Breadcrumb', SUPPORT_TEL, SUPPORT_WHATSAPP); lacks(h, 'undefined', '[object') }
+  for (const a of ARTICLES) { at(a.path, { cat: a.cat, article: a.id }); const h = html(<HelpArticle />); has(h, a.title, 'Breadcrumb', SUPPORT_MAILTO, SUPPORT_WHATSAPP); lacks(h, 'undefined', '[object') }
 })
 t('every article: TOC anchors match heading ids', () => {
   for (const a of ARTICLES) { at(a.path, { cat: a.cat, article: a.id }); const h = html(<HelpArticle />); for (const x of a.headings) has(h, 'id="' + x.id + '"'); if (a.headings.length >= 2) for (const x of a.headings) has(h, 'href="#' + x.id + '"') }
@@ -37,7 +39,29 @@ t('prev/next: first has no prev, middle has both, links resolve', () => {
 t('related links resolve', () => { for (const a of ARTICLES) for (const r of related(a)) if (!ARTICLES.includes(r)) throw new Error(a.path) })
 at('/help/orders/process-orders', { cat: 'orders', article: 'process-orders' }); t('order article is available and does not imply creation = paid', () => { const h = html(<HelpArticle />); has(h, 'Pending payment') })
 at('/help/storefront/activate-store', { cat: 'storefront', article: 'activate-store' }); t('screenshots hidden unless a file exists (no broken img requirement)', () => { html(<HelpArticle />) })
-at('/how-it-works'); t('how it works: all 17 parts', () => { const h = html(<HowItWorks />); has(h, 'How ShopScale works', 'Start your 14-day free trial', 'Explore the Help Centre', 'How businesses use ShopScale', 'operating workflow', 'Getting started', 'Products and inventory', 'point of sale', 'online storefront', 'How customers discover and order', 'process online orders', 'Payments and fulfilment', 'Employees and branches', 'Restaurants, kitchens and catering', 'Monitoring your money', 'Supported business types', 'Frequently asked questions', 'Get started', 'href="/help"', 'href="/register"', SUPPORT_TEL) })
+
+t('shots: ids unique, captions present, every placement names a real article', () => {
+  const paths = new Set(ARTICLES.map((a) => a.path.replace('/help/', '')))
+  if (new Set(SHOTS.map((s) => s.id)).size !== SHOTS.length) throw new Error('duplicate shot id')
+  for (const s of SHOTS) { if (!s.caption || s.caption.length < 15) throw new Error('caption ' + s.id); if (!s.steps.length) throw new Error('no steps ' + s.id); for (const [p] of s.placements) if (!paths.has(p)) throw new Error(s.id + ' -> ' + p) }
+})
+t('shots: every shot appears in its article, in order, once per article', () => {
+  for (const s of SHOTS) for (const [p, cap] of s.placements) {
+    const a = ARTICLES.find((x) => x.path === '/help/' + p); const n = a.blocks.filter((b) => b.t === 'shot' && b.id === s.id).length
+    if (n !== 1) throw new Error(s.id + ' appears ' + n + ' times in ' + p)
+    at(a.path, { cat: a.cat, article: a.id }); has(html(<HelpArticle />), '/help/shots/' + s.id + '.png')
+  }
+})
+t('shots: a picture comes after the steps it illustrates, never before', () => {
+  for (const a of ARTICLES) { const fs = a.blocks.findIndex((b) => b.t === 'steps'); const fshot = a.blocks.findIndex((b) => b.t === 'shot'); const placed = SHOTS.some((s) => s.placements.some(([p, , af]) => '/help/' + p === a.path && (af || 'steps') === 'steps'))
+    if (placed && fs >= 0 && fshot >= 0 && fshot < fs && !a.blocks.slice(0, fs).some((b) => b.t === 'shot' && !SHOTS.some((s) => s.id === b.id))) throw new Error('shot before steps in ' + a.path) }
+})
+t('storefront overview carries the six-step visual walkthrough in order', () => {
+  const a = ARTICLES.find((x) => x.path === '/help/storefront/overview'); const caps = a.blocks.filter((b) => b.t === 'shot').map((b) => b.caption)
+  for (let i = 1; i <= 6; i++) if (!caps.some((c) => c.startsWith('Step ' + i + '.'))) throw new Error('missing Step ' + i)
+  const order = caps.filter((c) => /^Step \d\./.test(c)).map((c) => +c[5]); if (order.join('') !== '123456') throw new Error('order ' + order.join(''))
+})
+at('/how-it-works'); t('how it works: all 17 parts', () => { const h = html(<HowItWorks />); has(h, 'How ShopScale works', 'Start your 14-day free trial', 'Explore the Help Centre', 'How businesses use ShopScale', 'operating workflow', 'Getting started', 'Products and inventory', 'point of sale', 'online storefront', 'How customers discover and order', 'process online orders', 'Payments and fulfilment', 'Employees and branches', 'Restaurants, kitchens and catering', 'Monitoring your money', 'Supported business types', 'Frequently asked questions', 'Get started', 'href="/help"', 'href="/register"', SUPPORT_MAILTO) })
 t('how it works: every internal /help link resolves to an article or category', () => {
   at('/how-it-works'); const h = html(<HowItWorks />); const ok = new Set([...ARTICLES.map((a) => a.path), ...CATEGORIES.map((c) => '/help/' + c.id), '/help'])
   for (const m of h.matchAll(/href="(\/help[^"#]*)"/g)) if (!ok.has(m[1])) throw new Error('broken ' + m[1])

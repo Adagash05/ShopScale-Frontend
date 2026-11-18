@@ -17,7 +17,7 @@ export function Rich({ text }) {
     else if (t.startsWith('`')) out.push(<code key={i++}>{t.slice(1, -1)}</code>)
     else {
       const [, label, href] = t.match(/\[([^\]]+)\]\(([^)]+)\)/)
-      out.push(/^https?:/.test(href) ? <a key={i++} href={href} rel="noopener noreferrer">{label}</a> : <Link key={i++} to={href}>{label}</Link>)
+      out.push(/^(https?:|mailto:)/.test(href) ? <a key={i++} href={href} rel="noopener noreferrer">{label}</a> : <Link key={i++} to={href}>{label}</Link>)
     }
     last = m.index + t.length
   }
@@ -30,7 +30,9 @@ function Shot({ id, caption }) {
   const [ok, setOk] = useState(false)
   return (
     <figure className="hc-shot" hidden={!ok}>
-      <img src={`/help/shots/${id}.png`} alt={caption} loading="lazy" onLoad={() => setOk(true)} onError={() => setOk(false)} />
+      <a href={`/help/shots/${id}.png`} target="_blank" rel="noopener noreferrer" title="Open the full-size picture">
+        <img src={`/help/shots/${id}.png`} alt={caption} loading="lazy" onLoad={() => setOk(true)} onError={() => setOk(false)} />
+      </a>
       <figcaption>{caption}</figcaption>
     </figure>
   )

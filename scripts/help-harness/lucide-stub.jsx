@@ -35,3 +35,5 @@ export const UtensilsCrossed = Icon
 export const Wallet = Icon
 export const Wrench = Icon
 export const X = Icon
+export const Mail = Icon
+export const Minus = Icon

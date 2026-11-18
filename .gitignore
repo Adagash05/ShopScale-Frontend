@@ -4,3 +4,5 @@ dist
 *.log
 scripts/superadmin-harness/out.cjs
 scripts/kc-harness/out.cjs
+scripts/help-harness/out.cjs
+scripts/help-harness/contact-out.cjs

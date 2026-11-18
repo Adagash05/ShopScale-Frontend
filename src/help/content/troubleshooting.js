@@ -6,7 +6,7 @@ export default {
   articles: [
     article('cannot-log-in', 'I cannot log in', 'Check your email, your password and your connection.', [
       steps('Check you typed your **email** correctly (the app says "Enter a valid email address" if not).', 'Check your **password**. It is case sensitive.', 'If you forgot it, tap **Forgot your password?** (see [Forgot password](/help/troubleshooting/forgot-password)).', 'Check your internet connection. A weak network shows "No connection" and does not sign you out.', 'If you have not yet registered, choose **Start your 14-day free trial**.'),
-      p('Still stuck? Call or WhatsApp ShopScale Support using the buttons below.'),
+      p('Still stuck? Email ShopScale Support at support@shopscale.com.ng, or message us on WhatsApp, using the buttons below.'),
     ], { related: ['troubleshooting/forgot-password'] }),
 
     article('forgot-password', 'Forgot password', 'Get a link by email and choose a new password.', [
@@ -60,9 +60,9 @@ export default {
       p('Do not adjust both locations to hide a difference. First find out what moved, then correct only what is wrong.'),
     ], { related: ['branches/transfer-stock'] }),
 
-    article('contact-support', 'Contacting ShopScale Support', 'Call or message us on WhatsApp.', [
-      p('ShopScale Customer Support is by phone and WhatsApp. Use the buttons at the bottom of every Help page.'),
-      list('Call 09122609070.', 'WhatsApp 09122609070 (opens a chat with ShopScale Support).', 'Signed in? **More, Support** lets you send a request to the ShopScale Team and follow the replies.'),
+    article('contact-support', 'Contacting ShopScale Support', 'Email us, or message us on WhatsApp.', [
+      p('ShopScale Customer Support is by email, and you can also use WhatsApp. Use the buttons at the bottom of every Help page.'),
+      list('**Email Support**: write to [support@shopscale.com.ng](mailto:support@shopscale.com.ng) with your business name, what you were trying to do and what you saw.', '**WhatsApp**: message 09122609070 (opens a chat with ShopScale Support).', 'Signed in? **More, Support** lets you send a request to the ShopScale Team and follow the replies.'),
       tip('Tell us your business name, what you were doing and the exact message you saw. It helps us fix it faster.'),
     ], { related: ['getting-started/first-steps'] }),
   ],

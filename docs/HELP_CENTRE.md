@@ -6,7 +6,7 @@ Public pages (no sign-in): `/how-it-works`, `/help`, `/help/search?q=`, `/help/<
 - `src/help/content/*.js`: the 134 articles in 13 categories (A to M). Plain data, written with helpers from `content/b.js`: `p`, `h` (feeds the table of contents), `steps`, `list`, `tip`, `warn`, `shot`, `illus`. Inline: `**bold**`, `` `code` ``, `[label](/path)`.
 - `src/help/data.js`: categories, search (every word must match; title and keywords score highest), reading time (200 words/minute), previous/next, related.
 - `src/help/HelpCentre.jsx`, `HowItWorks.jsx`, `blocks.jsx`, `Illustrations.jsx`, `help.css`.
-- `src/help/support.js`: the only support channels: call and WhatsApp 09122609070. No email, hours or response time is stated anywhere.
+- `src/help/support.js`: the only support channels: Email Support (support@shopscale.com.ng, primary) and WhatsApp 09122609070. There is no phone-call support (no `tel:` links). No hours or response time is stated anywhere.
 
 ## Rules for adding or changing an article
 1. Document only what the app really does today. No Coming Soon features. Use the real button and status names.
@@ -15,7 +15,7 @@ Public pages (no sign-in): `/how-it-works`, `/help`, `/help/search?q=`, `/help/<
 4. Screenshots: add `shot('id', 'caption')` and capture the file (see `HELP_SCREENSHOTS.md`). Never use mock or stock images.
 
 ## Tests
-`NPM_TOOLS=/path/to/node_modules node scripts/help-harness/build.mjs && node scripts/help-harness/out.cjs` renders every category and article and the How It Works page, and checks titles, breadcrumbs, table-of-contents anchors, previous/next and related links, search (results and empty), the phone and WhatsApp links and that no placeholder text exists.
+`NPM_TOOLS=/path/to/node_modules node scripts/help-harness/build.mjs && node scripts/help-harness/out.cjs` (and `contact-build.mjs` then `contact-out.cjs` for the Contact page and footer) renders every category and article and the How It Works page, and checks titles, breadcrumbs, table-of-contents anchors, previous/next and related links, search (results and empty), the phone and WhatsApp links and that no placeholder text exists.
 
 ## Notes
 - Helpful / not helpful feedback is stored in the visitor's browser only (`shopscale.help.feedback`); there is no backend endpoint, and the page says so.

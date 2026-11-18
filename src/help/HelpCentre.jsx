@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Outlet, useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, BookOpen, Calendar, ChevronDown, ChevronRight, Clock, Menu as MenuIcon, MapPin, MessageCircle, Package, Phone, Rocket, Search, Settings, ShoppingBasket, ShoppingCart, Store, ThumbsDown, ThumbsUp, Truck, UtensilsCrossed, Users, Wallet, Wrench, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Calendar, ChevronDown, ChevronRight, Clock, Menu as MenuIcon, MapPin, MessageCircle, Package, Mail, Rocket, Search, Settings, ShoppingBasket, ShoppingCart, Store, ThumbsDown, ThumbsUp, Truck, UtensilsCrossed, Users, Wallet, Wrench, X } from 'lucide-react'
 import { useSeo } from '../marketing/Seo.jsx'
 import { ARTICLES, CATEGORIES, POPULAR, byPath, catById, excerpt, neighbours, related, search } from './data.js'
+import DemoVideo from './DemoVideo.jsx'
 import { Blocks } from './blocks.jsx'
-import { SUPPORT_PHONE, SUPPORT_TEL, SUPPORT_WHATSAPP } from './support.js'
+import { SUPPORT_EMAIL, SUPPORT_MAILTO, SUPPORT_WHATSAPP } from './support.js'
 import './help.css'
 
 const ICONS = { rocket: Rocket, package: Package, store: Store, orders: ShoppingBasket, cart: ShoppingCart, truck: Truck, kitchen: UtensilsCrossed, calendar: Calendar, users: Users, map: MapPin, wallet: Wallet, settings: Settings, wrench: Wrench }
 export const CatIcon = ({ name, size = 22 }) => { const I = ICONS[name] || BookOpen; return <I size={size} aria-hidden="true" /> }
 
-/** The call and WhatsApp buttons. These are the only support channels. */
+/** Email first, then WhatsApp. These are the only support channels. */
 export function SupportCard({ compact = false }) {
   return (
     <section className={`hc-support ${compact ? 'compact' : ''}`} aria-labelledby={compact ? undefined : 'hc-support-title'}>
       <div>
         <h2 id="hc-support-title">Still need help? We're here to assist.</h2>
-        <p>If you need additional information or assistance using ShopScale, contact our support team by phone or send us a message on WhatsApp.</p>
+        <p>If you need additional information or assistance using ShopScale, email our support team at {SUPPORT_EMAIL}. You can also reach us on WhatsApp.</p>
       </div>
       <div className="hc-support-actions">
-        <a className="btn primary" href={SUPPORT_TEL}><Phone size={18} aria-hidden="true" /> Call: {SUPPORT_PHONE}</a>
-        <a className="btn wa" href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" /> WhatsApp: Chat with ShopScale Support</a>
+        <a className="btn primary" href={SUPPORT_MAILTO}><Mail size={18} aria-hidden="true" /> Email Support: {SUPPORT_EMAIL}</a>
+        <a className="btn alt" href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} aria-hidden="true" /> WhatsApp</a>
       </div>
     </section>
   )
@@ -34,7 +35,7 @@ function SupportFab() {
       {open && (
         <div className="hc-fab-pop" role="dialog" aria-label="Contact ShopScale Support">
           <strong>ShopScale Support</strong>
-          <a href={SUPPORT_TEL}><Phone size={16} aria-hidden="true" /> Call {SUPPORT_PHONE}</a>
+          <a href={SUPPORT_MAILTO}><Mail size={16} aria-hidden="true" /> Email {SUPPORT_EMAIL}</a>
           <a href={SUPPORT_WHATSAPP} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" /> Chat on WhatsApp</a>
         </div>
       )}
@@ -148,6 +149,7 @@ export function HelpHome() {
         <SearchBox autoFocus={false} />
         <p className="hc-hero-hint">Popular: {popular.slice(0, 4).map((a, i) => <span key={a.path}>{i > 0 && ', '}<Link to={a.path}>{a.title}</Link></span>)}</p>
       </section>
+      <DemoVideo title="Watch: ShopScale in one minute" />
       <section aria-labelledby="hc-cats"><h2 id="hc-cats" className="hc-sec-title">Browse by topic</h2>
         <div className="hc-cards">
           {CATEGORIES.map((c) => (
@@ -233,7 +235,7 @@ function Feedback({ path }) {
   return (
     <section className="hc-feedback" aria-label="Was this article helpful?">
       {v ? (
-        <p role="status">{v === 'up' ? 'Thanks. We are glad this helped.' : 'Sorry this did not help. Call or message ShopScale Support below and we will sort it out.'} <span className="muted">Your answer is saved on this device.</span></p>
+        <p role="status">{v === 'up' ? 'Thanks. We are glad this helped.' : 'Sorry this did not help. Email ShopScale Support below and we will sort it out.'} <span className="muted">Your answer is saved on this device.</span></p>
       ) : (
         <>
           <strong>Was this article helpful?</strong>
