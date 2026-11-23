@@ -10,13 +10,13 @@ export default {
       h('How it fits together'),
       list('You keep products and stock in ShopScale. The store shows your active products.', 'Customers add items to a cart and check out with their name, phone and delivery choice.', 'They pay online through **your own Paystack account**, or choose to pay when they pick up or receive the order if you allow it.', 'You get a notification, see the order under **More, Online orders** and process it.', 'When you complete the order, ShopScale records the sale and reduces your stock.'),
       h('What you need'),
-      list('A plan that includes the online store (Essential or above).', 'At least one product with stock.', 'To take card or transfer payments online: a Paystack account of your own. See [Connecting Paystack](/help/storefront/paystack).'),
+      list('A plan that includes the online store (Growth or above).', 'At least one product with stock.', 'To take card or transfer payments online: a Paystack account of your own. See [Connecting Paystack](/help/storefront/paystack).'),
       warn('Your money goes straight to your own Paystack account. ShopScale never holds it.'),
     ], { related: ['storefront/activate-store', 'orders/understand-orders'], keywords: 'online store website shop' }),
 
     article('activate-store', 'Activating your online store', 'Open your store to customers in a few taps.', [
       p('Your store exists from the day you set up, but customers only see it after you open it.'),
-      steps('Open **More** and choose **Online store**.', 'If you see "The online store is not included in your current plan", choose **See plans** and upgrade to Essential or above.', 'Turn on **Open my store to customers**. Your store link is shown under it.', 'Fill in your store details (see [Customising your store](/help/storefront/customise-store)).', 'Choose how customers get their orders (see [Delivery and pickup](/help/storefront/delivery)).', 'Tap **Save store settings**.'),
+      steps('Open **More** and choose **Online store**.', 'If you see "The online store is not included in your current plan", choose **See plans** and upgrade to Growth or above.', 'Turn on **Open my store to customers**. Your store link is shown under it.', 'Fill in your store details (see [Customising your store](/help/storefront/customise-store)).', 'Choose how customers get their orders (see [Delivery and pickup](/help/storefront/delivery)).', 'Tap **Save store settings**.'),
       shot('store-settings', 'The Online store screen with "Open my store to customers" switched on.'),
       h('What happens next'),
       p('The heading changes from "Closed" to "Open for orders", and anyone with your link can browse. Add products next: [Adding and publishing products](/help/storefront/add-products).'),
@@ -160,7 +160,7 @@ export default {
     ], { related: ['settings/plans'] }),
 
     article('troubleshoot-visibility', 'Troubleshooting storefront visibility', 'Why customers cannot see your store or a product.', [
-      list('"This store is not open right now": turn on **Open my store to customers** and save.', '"The online store is not included in your current plan": upgrade to Essential or above.', 'A product is missing: it may be archived, have no stock, or be an ingredient or made-to-order menu item.', 'Your photo is not showing: open the product and upload it again.', 'The store link does not work: check there are no spaces or missing characters in the address.'),
+      list('"This store is not open right now": turn on **Open my store to customers** and save.', '"The online store is not included in your current plan": upgrade to Growth or above.', 'A product is missing: it may be archived, have no stock, or be an ingredient or made-to-order menu item.', 'Your photo is not showing: open the product and upload it again.', 'The store link does not work: check there are no spaces or missing characters in the address.'),
       p('See also [Storefront is not showing products](/help/troubleshooting/storefront-not-showing).'),
     ], { related: ['troubleshooting/storefront-not-showing', 'storefront/activate-store'] }),
 

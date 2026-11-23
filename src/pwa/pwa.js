@@ -79,3 +79,16 @@ export function initPwa() {
 }
 
 export function usePwa() { return useSyncExternalStore(subscribe, snapshot, snapshot) }
+
+/**
+ * The marketing website (shopscale.com.ng) is not the app and must not be installable. The app is installed from app.shopscale.com.ng.
+ * Called only in "public" mode: takes the manifest link out of the page and removes any worker or cache an earlier build left on this origin.
+ */
+export function retirePwa() {
+  if (typeof document === 'undefined') return
+  document.querySelectorAll('link[rel="manifest"]').forEach((l) => l.remove())
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {})
+  }
+  if (typeof caches !== 'undefined') caches.keys().then((ks) => ks.filter((k) => k.startsWith('shopscale-')).forEach((k) => caches.delete(k))).catch(() => {})
+}

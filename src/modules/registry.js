@@ -14,18 +14,22 @@ import { lazy } from 'react'
  *   }
  * App.jsx and More.jsx read this registry, so adding a module never requires editing them.
  */
+import { isHiddenRoute } from '../config/scope.js'
+
 const found = import.meta.glob('./*/index.js', { eager: true })
 
 export const modules = Object.values(found).map((m) => m.default).filter(Boolean)
 
+/** Routes of modules that are outside the V1 scope are not registered at all, so they fall through to the not-found page. */
 export const moduleRoutes = modules.flatMap((m) =>
-  (m.routes || []).map((r) => ({ path: r.path, Component: lazy(r.component) })),
+  (m.routes || []).filter((r) => !isHiddenRoute(r.path)).map((r) => ({ path: r.path, Component: lazy(r.component) })),
 )
 
 export function moduleNav(placement = 'more') {
   return modules
     .flatMap((m) => m.nav || [])
     .filter((n) => (n.placement || 'more') === placement)
+    .filter((n) => !isHiddenRoute(n.to))
     .sort((a, b) => (a.order ?? 100) - (b.order ?? 100))
 }
 

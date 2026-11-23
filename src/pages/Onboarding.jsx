@@ -4,15 +4,22 @@ import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Field, useDebounced } from '../components.jsx'
-import { Store, UtensilsCrossed, Cake, CalendarClock } from 'lucide-react'
+import { Store, UtensilsCrossed, Cake, CalendarClock, Truck } from 'lucide-react'
+import { V1_SCOPE } from '../config/scope.js'
 import VerifyNotice from './VerifyNotice.jsx'
 
-export const TYPES = [
+const ALL_TYPES = [
   { id: 'RETAIL', label: 'Shop or retail business', hint: 'Fashion, cosmetics, electronics, groceries, general goods', icon: Store, ready: true },
   { id: 'RESTAURANT', label: 'Restaurant or food business', hint: 'Menu, kitchen orders, pickup and delivery', icon: UtensilsCrossed, ready: true },
   { id: 'BAKERY', label: 'Bakery', hint: 'Bread, cakes, custom cake orders with deposits, simple production', icon: Cake, ready: true },
   { id: 'CATERING', label: 'Catering or small chops', hint: 'Events, quotations, deposits, preparation and profit', icon: CalendarClock, ready: true },
 ]
+/** V1: trading businesses only. The server accepts the same two types (app.business.enabled-types). */
+const V1_TYPES = [
+  { id: 'RETAIL', label: 'Shop or retail business', hint: 'Fashion, cosmetics, electronics, groceries, general goods', icon: Store, ready: true },
+  { id: 'WHOLESALE', label: 'Wholesale or distribution', hint: 'You sell in bulk to shops and other businesses', icon: Truck, ready: true },
+]
+export const TYPES = V1_SCOPE ? V1_TYPES : ALL_TYPES
 const SUBTYPES_BY_TYPE = {
   RESTAURANT: ['Restaurant', 'Cafe', 'Takeaway or fast food', 'Bar and lounge', 'Other food business'],
   BAKERY: ['Bakery', 'Cake shop', 'Pastries and snacks', 'Bread and confectionery'],
@@ -75,7 +82,7 @@ export default function Onboarding() {
 
         {step === 1 && (
           <div className="stack">
-            <div><h1>Hi {user?.fullName?.split(' ')[0]}, what do you sell?</h1><p className="muted">This sets up the right tools for you.</p></div>
+            <div><h1>Hi {user?.fullName?.split(' ')[0]}, what do you sell?</h1><p className="muted">This sets up your business. You can change details later.</p></div>
             <div className="stack-sm">
               {TYPES.map(({ id, label, hint, icon: Icon, ready }) => (
                 <button key={id} type="button" className={`choice ${type === id ? 'on' : ''}`} disabled={!ready}
@@ -115,7 +122,7 @@ export default function Onboarding() {
 
         {step === 3 && (
           <div className="stack">
-            <div><h1>Pick your store address</h1><p className="muted">Customers will find you here once online selling opens.</p></div>
+            <div><h1>Pick your store address</h1><p className="muted">This is your online store link. You can change it later in Online Store settings.</p></div>
             <Field label="Store address" htmlFor="slug"
               hint={storeUrl(form.slug || 'your-name').replace(/^https?:\/\//, '')}
               error={slugState.available === false ? slugState.reason : ''}>

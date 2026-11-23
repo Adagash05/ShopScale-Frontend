@@ -6,6 +6,7 @@ import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Confirm, Empty, ErrorBox, Field, ListSkeleton, Modal, useLoad, useToast } from '../components.jsx'
 import { dateOnly, dateTime } from '../lib/format.js'
+import { V1_SCOPE } from '../config/scope.js'
 import { groupPermissions, roleGrantable } from '../lib/permissions.js'
 
 const toRef = (role) => (role.system ? { role: role.role, roleId: null } : { role: 'CUSTOM', roleId: role.id })
@@ -23,7 +24,8 @@ function Preview({ keys, catalogue }) {
 }
 
 function RoleSelect({ roles, mine, value, onChange, id }) {
-  const options = roles.filter((r) => r.role !== 'OWNER' && roleGrantable([...mine], r))
+  // V1: the owner invites cashiers (staff who record sales). Existing members keep whatever role they already have.
+  const options = roles.filter((r) => r.role !== 'OWNER' && roleGrantable([...mine], r) && (!V1_SCOPE || r.role === 'SALES_STAFF' || value === r.key))
   return (
     <select id={id} className="select" value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="" disabled>Choose a role</option>
@@ -178,7 +180,7 @@ export default function Team() {
         {can('TEAM_INVITE') && ready && <button className="btn primary" onClick={() => setModal({ type: 'invite' })}><Plus size={18} /> Add</button>}
       </div>
       <div className="tabs" role="tablist" aria-label="Team">
-        {[['members', 'People'], ['invitations', 'Invitations'], ['roles', 'Roles']].map(([id, label]) => (
+        {[['members', 'People'], ['invitations', 'Invitations'], ...(V1_SCOPE ? [] : [['roles', 'Roles']])].map(([id, label]) => (
           <button key={id} role="tab" className="tab" aria-selected={tab === id} onClick={() => setTab(id)}>{label}</button>))}
       </div>
       <ErrorBox error={members.error || invites.error || roles.error || catalogue.error} onRetry={refresh} />

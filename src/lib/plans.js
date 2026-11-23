@@ -26,7 +26,19 @@ export const FEATURE_LABELS = {
   CUSTOM_DOMAINS: 'Custom storefront domain',
   ADVANCED_STAFF_PERMISSIONS: 'Advanced staff permissions',
   PRIORITY_SUPPORT: 'Priority support',
+  ASK_SHOPSCALE: 'Ask ShopScale (business questions answered from your records)',
 }
+
+/** Plan features that only unlock modules hidden in the V1 product. They are not advertised while V1 is on; the plan data itself is unchanged. */
+export const V1_HIDDEN_FEATURES = ['PURCHASING', 'WHOLESALE_PRICING', 'CASH_RECONCILIATION', 'BRANCH_TRANSFERS', 'ADVANCED_INVENTORY', 'CONSOLIDATED_REPORTING',
+  'ADVANCED_FINANCE', 'ENHANCED_DASHBOARD', 'ADVANCED_REPORTS', 'LOCATION_REPORTING', 'CUSTOM_DOMAINS', 'ADVANCED_STAFF_PERMISSIONS']
+/**
+ * Advertised on the pricing page but not delivered as described, so not advertised until it is (plan data is unchanged):
+ * STAFF_PERMISSIONS (not enforced by the server; custom roles are hidden in V1) and PRIORITY_SUPPORT (support tickets are not prioritised by plan).
+ * ACTIVITY_HISTORY is a separate decision for the owner: the server does not restrict it to Business, so every plan has it today.
+ */
+export const NOT_YET_DELIVERED = ['STAFF_PERMISSIONS', 'PRIORITY_SUPPORT']
+export const advertised = (feature, scope = true) => !NOT_YET_DELIVERED.includes(feature) && !(scope && V1_HIDDEN_FEATURES.includes(feature))
 
 export function annualSavings(plan) {
   return Math.max(0, Number(plan.monthlyPrice) * 12 - Number(plan.annualPrice))

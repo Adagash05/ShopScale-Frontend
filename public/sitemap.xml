@@ -3,8 +3,6 @@
   <url><loc>https://shopscale.com.ng/</loc></url>
   <url><loc>https://shopscale.com.ng/features</loc></url>
   <url><loc>https://shopscale.com.ng/retail</loc></url>
-  <url><loc>https://shopscale.com.ng/restaurant</loc></url>
-  <url><loc>https://shopscale.com.ng/catering</loc></url>
   <url><loc>https://shopscale.com.ng/pricing</loc></url>
   <url><loc>https://shopscale.com.ng/about</loc></url>
   <url><loc>https://shopscale.com.ng/contact</loc></url>
@@ -20,10 +18,7 @@
   <url><loc>https://shopscale.com.ng/help/orders</loc></url>
   <url><loc>https://shopscale.com.ng/help/sales</loc></url>
   <url><loc>https://shopscale.com.ng/help/purchasing</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches</loc></url>
   <url><loc>https://shopscale.com.ng/help/finance</loc></url>
   <url><loc>https://shopscale.com.ng/help/settings</loc></url>
   <url><loc>https://shopscale.com.ng/help/troubleshooting</loc></url>
@@ -103,36 +98,11 @@
   <url><loc>https://shopscale.com.ng/help/purchasing/supplier-balances</loc></url>
   <url><loc>https://shopscale.com.ng/help/purchasing/purchasing-records</loc></url>
   <url><loc>https://shopscale.com.ng/help/purchasing/received-stock</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/set-up</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/menus</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/menu-items</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/modifiers</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/tables</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/orders</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/kitchen</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/recipes</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/ingredient-use</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/wastage</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/payments</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/reports</loc></url>
-  <url><loc>https://shopscale.com.ng/help/restaurant/bakery</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/set-up</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/packages</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/events</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/bookings</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/payments</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/preparation</loc></url>
-  <url><loc>https://shopscale.com.ng/help/catering/profit</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees/add-team</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees/roles</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees/permissions</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees/manage-access</loc></url>
   <url><loc>https://shopscale.com.ng/help/employees/cashiers</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches/create-branch</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches/manage-branches</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches/branch-stock</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches/transfer-stock</loc></url>
-  <url><loc>https://shopscale.com.ng/help/branches/consolidated</loc></url>
   <url><loc>https://shopscale.com.ng/help/finance/overview</loc></url>
   <url><loc>https://shopscale.com.ng/help/finance/expenses</loc></url>
   <url><loc>https://shopscale.com.ng/help/finance/cash-accounts</loc></url>

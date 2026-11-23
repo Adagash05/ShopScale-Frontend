@@ -65,7 +65,7 @@ export default function Expenses() {
   const to = sp.get('to') || ''
   const ready = range !== 'custom' || (from && to)
   const list = useLoad(() => (ready ? api.get('/expenses', { ...rangeQuery(range, from, to), size: 100 }) : Promise.resolve(null)), [range, from, to])
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(sp.get('add') === '1')
   const [removing, setRemoving] = useState(null)
   const [busy, setBusy] = useState(false)
   const rows = list.data?.page?.content

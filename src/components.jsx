@@ -89,16 +89,23 @@ export const useToast = () => useContext(ToastCtx)
 
 export function ToastProvider({ children }) {
   const [items, setItems] = useState([])
-  const push = useCallback((message, kind = 'ok') => {
+  // push(message, kind?, { action: { label, onClick } }?) An action keeps the toast on screen a little longer so it can be used.
+  const push = useCallback((message, kind = 'ok', opts) => {
     const id = Math.random().toString(36).slice(2)
-    setItems((s) => [...s, { id, message, kind }])
-    setTimeout(() => setItems((s) => s.filter((t) => t.id !== id)), 3500)
+    const action = opts?.action
+    setItems((s) => [...s.slice(-2), { id, message, kind, action }])
+    setTimeout(() => setItems((s) => s.filter((t) => t.id !== id)), action ? 7000 : kind === 'error' ? 5000 : 3500)
   }, [])
+  const close = (id) => setItems((s) => s.filter((t) => t.id !== id))
   return (
     <ToastCtx.Provider value={push}>
       {children}
       <div className="toasts" aria-live="polite">
-        {items.map((t) => (<div key={t.id} className={`toast ${t.kind === 'error' ? 'error' : ''}`}>{t.message}</div>))}
+        {items.map((t) => (
+          <div key={t.id} className={`toast ${t.kind === 'error' ? 'error' : ''}`} role={t.kind === 'error' ? 'alert' : 'status'}>
+            <span>{t.message}</span>
+            {t.action && <button type="button" className="toast-action" onClick={() => { t.action.onClick(); close(t.id) }}>{t.action.label}</button>}
+          </div>))}
       </div>
     </ToastCtx.Provider>
   )
@@ -132,7 +139,7 @@ export function useDebounced(value, ms = 250) {
 
 export function RangePicker({ value, from, to, onChange }) {
   const RANGES = [
-    ['today', 'Today'], ['yesterday', 'Yesterday'], ['last7', 'Last 7 days'], ['last30', 'Last 30 days'],
+    ['today', 'Today'], ['yesterday', 'Yesterday'], ['thisWeek', 'This week'], ['last7', 'Last 7 days'], ['last30', 'Last 30 days'],
     ['thisMonth', 'This month'], ['lastMonth', 'Last month'], ['custom', 'Choose dates'],
   ]
   return (

@@ -10,6 +10,7 @@ import Layout from './pages/Layout.jsx'
 import MarketingLayout from './marketing/MarketingLayout.jsx'
 import { Skeleton } from './components.jsx'
 import { moduleRoutes } from './modules/registry.js'
+import { V1_SCOPE } from './config/scope.js'
 
 const Login = lazy(() => import('./pages/Login.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
@@ -28,6 +29,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding.jsx'))
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Sell = lazy(() => import('./pages/Sell.jsx'))
 const Products = lazy(() => import('./pages/Products.jsx'))
+const ProductImport = lazy(() => import('./pages/ProductImport.jsx'))
 const ProductForm = lazy(() => import('./pages/ProductForm.jsx'))
 const Customers = lazy(() => import('./pages/Customers.jsx'))
 const CustomerDetail = lazy(() => import('./pages/CustomerDetail.jsx'))
@@ -133,8 +135,8 @@ const marketingRoutes = (
   <Route element={<MarketingLayout />}>
     <Route path="features" element={<M.Features />} />
     <Route path="retail" element={<M.Retail />} />
-    <Route path="restaurant" element={<M.Restaurant />} />
-    <Route path="catering" element={<M.Catering />} />
+    {!V1_SCOPE && <Route path="restaurant" element={<M.Restaurant />} />}
+    {!V1_SCOPE && <Route path="catering" element={<M.Catering />} />}
     <Route path="pricing" element={<Pricing />} />
     <Route path="about" element={<M.About />} />
     <Route path="contact" element={<M.Contact />} />
@@ -229,6 +231,7 @@ const appRoutes = (
       <Route path="sell" element={<Sell />} />
       <Route path="products" element={<Products />} />
       <Route path="products/new" element={<ProductForm />} />
+      <Route path="products/import" element={<ProductImport />} />
       <Route path="products/:id" element={<ProductForm />} />
       <Route path="customers" element={<Customers />} />
       <Route path="customers/:id" element={<CustomerDetail />} />

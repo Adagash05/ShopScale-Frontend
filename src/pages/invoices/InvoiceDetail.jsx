@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/AuthContext.jsx'
 import { track } from '../../analytics/analytics.js'
 import { Confirm, ErrorBox, Field, ListSkeleton, Modal, useLoad, useToast } from '../../components.jsx'
 import { dateOnly, dateTime, money } from '../../lib/format.js'
+import RemindCustomer from './RemindCustomer.jsx'
 import { STATUS_BADGE, STATUS_LABEL, canShareFile, shareFile, toWaNumber, waLink, waMessage } from '../../lib/invoiceShare.js'
 
 const METHODS = [['CASH', 'Cash'], ['TRANSFER', 'Bank transfer'], ['CARD', 'Card']]
@@ -46,6 +47,7 @@ export default function InvoiceDetail() {
   const [paying, setPaying] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [reminding, setReminding] = useState(false)
   const [waState, setWaState] = useState(null)   // null | 'opened' | 'shared'
 
   if (q.loading) return <ListSkeleton />
@@ -167,11 +169,13 @@ export default function InvoiceDetail() {
       )}
 
       <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
+        {Number(inv.balance) > 0 && ['SENT', 'PARTIALLY_PAID', 'OVERDUE'].includes(inv.status) && <button className="btn" onClick={() => setReminding(true)}><MessageCircle size={18} /> Remind customer</button>}
         {inv.canRecordPayments && can('CUSTOMER_INVOICES_PAYMENT_RECORD') && <button className="btn primary" onClick={() => setPaying(true)}><Wallet size={18} /> Record payment</button>}
         {!cancelled && can('CUSTOMER_INVOICES_MANAGE') && inv.payments.length === 0 && inv.status !== 'PAID' && <button className="btn danger" onClick={() => setCancelling(true)}><Ban size={18} /> Cancel invoice</button>}
       </div>
 
       {inv.note && <div className="section pad"><h2>Note</h2><p>{inv.note}</p></div>}
+      {reminding && <RemindCustomer customerName={inv.customerName} phone={inv.customerPhone} balance={inv.balance} invoiceNumber={inv.number} dueDate={inv.dueDate} onClose={() => setReminding(false)} />}
       {paying && <PaymentModal invoice={inv} onClose={() => setPaying(false)} onSaved={apply} />}
       {cancelling && <Confirm title="Cancel this invoice?" message="The invoice stops being valid and its share link stops working. You cannot undo this." confirmLabel="Cancel invoice" danger busy={busy} onConfirm={cancel} onClose={() => setCancelling(false)} />}
     </div>

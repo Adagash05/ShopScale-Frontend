@@ -6,7 +6,8 @@ import { ErrorBox, Skeleton, useLoad } from '../components.jsx'
 import { track } from '../analytics/analytics.js'
 import { money } from '../lib/format.js'
 import { useSeo } from '../marketing/Seo.jsx'
-import { FEATURE_LABELS, allFeatureKeys, annualSavings, limitText, newFeatures } from '../lib/plans.js'
+import { FEATURE_LABELS, advertised, allFeatureKeys, annualSavings, limitText, newFeatures } from '../lib/plans.js'
+import { V1_SCOPE } from '../config/scope.js'
 
 export function PlanCards({ plans, annual, renderAction }) {
   return (
@@ -23,14 +24,14 @@ export function PlanCards({ plans, annual, renderAction }) {
             <ul>
               <li>{p.maxUsers} {p.maxUsers === 1 ? 'user' : 'users'}</li>
               <li>{p.maxItems == null ? 'Unlimited' : `Up to ${p.maxItems}`} active products</li>
-              <li>{p.maxLocations} {p.maxLocations === 1 ? 'location' : 'locations'}</li>
+              {!V1_SCOPE && <li>{p.maxLocations} {p.maxLocations === 1 ? 'location' : 'locations'}</li>}
               <li>{p.maxCustomers == null ? 'Unlimited' : `Up to ${p.maxCustomers}`} customers</li>
               <li>{p.maxExpenses == null ? 'Unlimited' : `Up to ${p.maxExpenses}`} expense records</li>
               <li>{p.maxSuppliers == null ? 'Unlimited' : `Up to ${p.maxSuppliers}`} suppliers</li>
               {Number(p.monthlyPrice) === 0 && <li>Unlimited sales and printable receipts</li>}
               {i > 0 && Number(plans[i - 1].monthlyPrice) > 0 && <li>Everything in {plans[i - 1].name}, plus:</li>}
               {i > 0 && Number(plans[i - 1].monthlyPrice) === 0 && <li>Everything in Free, with higher limits, plus:</li>}
-              {gained.filter((f) => FEATURE_LABELS[f]).slice(0, 6).map((f) => <li key={f}>{FEATURE_LABELS[f]}</li>)}
+              {gained.filter((f) => FEATURE_LABELS[f] && advertised(f, V1_SCOPE)).slice(0, 6).map((f) => <li key={f}>{FEATURE_LABELS[f]}</li>)}
               {i === 0 && Number(p.monthlyPrice) === 0 && <li>Sales, stock, customers and expenses</li>}
             </ul>
             {renderAction?.(p)}
@@ -50,11 +51,11 @@ export function CompareTable({ plans }) {
         <tbody>
           <tr><th scope="row">Users</th>{plans.map((p) => <td key={p.code}>{p.maxUsers}</td>)}</tr>
           <tr><th scope="row">Products</th>{plans.map((p) => <td key={p.code}>{limitText(p.maxItems)}</td>)}</tr>
-          <tr><th scope="row">Locations</th>{plans.map((p) => <td key={p.code}>{p.maxLocations}</td>)}</tr>
+          {!V1_SCOPE && <tr><th scope="row">Locations</th>{plans.map((p) => <td key={p.code}>{p.maxLocations}</td>)}</tr>}
           <tr><th scope="row">Customers</th>{plans.map((p) => <td key={p.code}>{limitText(p.maxCustomers)}</td>)}</tr>
           <tr><th scope="row">Expense records</th>{plans.map((p) => <td key={p.code}>{limitText(p.maxExpenses)}</td>)}</tr>
           <tr><th scope="row">Suppliers</th>{plans.map((p) => <td key={p.code}>{limitText(p.maxSuppliers)}</td>)}</tr>
-          {keys.filter((k) => FEATURE_LABELS[k]).map((k) => (
+          {keys.filter((k) => FEATURE_LABELS[k] && advertised(k, V1_SCOPE)).map((k) => (
             <tr key={k}><th scope="row">{FEATURE_LABELS[k]}</th>
               {plans.map((p) => <td key={p.code}>{p.features.includes(k)
                 ? <Check size={18} color="var(--ok)" aria-label="Included" /> : <Minus size={18} color="var(--muted)" aria-label="Not included" />}</td>)}</tr>

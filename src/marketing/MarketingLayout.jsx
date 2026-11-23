@@ -3,9 +3,10 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { Menu, X } from 'lucide-react'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from '../help/support.js'
+import { V1_SCOPE } from '../config/scope.js'
 
 const NAV = [
-  ['/features', 'Features'], ['/retail', 'Shops'], ['/restaurant', 'Restaurants'], ['/catering', 'Catering'],
+  ['/features', 'Features'], ['/retail', 'Shops'], ...(V1_SCOPE ? [] : [['/restaurant', 'Restaurants'], ['/catering', 'Catering']]),
   ['/pricing', 'Pricing'], ['/how-it-works', 'How it works'], ['/help', 'Help'],
 ]
 
@@ -36,7 +37,7 @@ export default function MarketingLayout({ children }) {
             <p style={{ marginTop: 10, maxWidth: '36ch' }}>Run your business. Control your stock. Manage your orders. Understand your money.</p>
           </div>
           <div><h3>Product</h3><ul><li><Link to="/features">Features</Link></li><li><Link to="/pricing">Pricing</Link></li><li><Link to="/how-it-works">How it works</Link></li><li><Link to="/faq">FAQ</Link></li><li><Link to="/partners">Partner programme</Link></li></ul></div>
-          <div><h3>For</h3><ul><li><Link to="/retail">Shops and retail</Link></li><li><Link to="/restaurant">Restaurants</Link></li><li><Link to="/catering">Catering</Link></li></ul></div>
+          <div><h3>For</h3><ul><li><Link to="/retail">Shops and retail</Link></li>{!V1_SCOPE && <li><Link to="/restaurant">Restaurants</Link></li>}{!V1_SCOPE && <li><Link to="/catering">Catering</Link></li>}</ul></div>
           <div><h3>Company</h3><ul><li><Link to="/help">Help Centre</Link></li><li><Link to="/about">About</Link></li><li><Link to="/contact">Contact</Link></li><li><a href={SUPPORT_MAILTO}>{SUPPORT_EMAIL}</a></li><li><Link to="/privacy">Privacy</Link></li><li><Link to="/terms">Terms</Link></li><li><Link to="/refunds">Refunds</Link></li></ul></div>
         </div>
         <div className="mk-wrap" style={{ marginTop: 28 }}>© {new Date().getFullYear()} ShopScale. All rights reserved.</div>

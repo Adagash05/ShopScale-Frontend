@@ -5,6 +5,7 @@ import { useSeo } from './Seo.jsx'
 import { DashboardPreview, SellPreview } from './Previews.jsx'
 import { PlanCards } from '../pages/Pricing.jsx'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, SUPPORT_WHATSAPP, SUPPORT_WHATSAPP_NUMBER } from '../help/support.js'
+import { V1_SCOPE } from '../config/scope.js'
 import './contact.css'
 import { ShoppingCart, Boxes, Users, Wallet, LayoutDashboard, UsersRound, Store, UtensilsCrossed, CalendarClock, ShieldCheck, Check } from 'lucide-react'
 
@@ -33,7 +34,7 @@ const FAQ = [
   ['Does it work on a phone?', 'Yes. ShopScale is designed for phones first, including affordable Android phones, and also works on tablets and computers.'],
   ['Can my staff use it?', 'Yes. You can invite people and give each one a role, for example a cashier who can record sales but cannot see your profit. You can remove anyone’s access at any time.'],
   ['Can I sell online with ShopScale?', 'Yes. Paid plans include an online store with your products, cart and checkout. Customers can pay online with your own Paystack account, or pay when they pick up or receive their order.'],
-  ['Is there support for restaurants and catering?', 'Yes. Restaurants, bakeries and caterers can start today, with a menu, kitchen screen, production and event tools. Shops and wholesalers can too.'],
+  ['Who is ShopScale for?', 'Shops, wholesalers, distributors and other businesses that buy and sell products. It keeps your sales, stock, money and online store in one place.'],
   ['Who can see my business data?', 'Only the people you add to your business, with the access you give them.'],
 ]
 
@@ -84,8 +85,8 @@ export function HomePage() {
         <h2>Made for the way you work</h2>
         <div className="mk-grid c3">
           <Link to="/retail" className="mk-card"><span className="ico"><Store size={22} aria-hidden="true" /></span><h3>Shops and retail</h3><p>Fashion, cosmetics, electronics, groceries and general stores. Available now.</p></Link>
-          <Link to="/restaurant" className="mk-card"><span className="ico teal"><UtensilsCrossed size={22} aria-hidden="true" /></span><h3>Restaurants, takeaways and bakeries</h3><p>Menu, tables, kitchen screen, recipes, wastage and bakery production.</p></Link>
-          <Link to="/catering" className="mk-card"><span className="ico"><CalendarClock size={22} aria-hidden="true" /></span><h3>Catering and small chops</h3><p>Enquiries, quotations, deposits, event preparation and profit.</p></Link>
+          {!V1_SCOPE && <Link to="/restaurant" className="mk-card"><span className="ico teal"><UtensilsCrossed size={22} aria-hidden="true" /></span><h3>Restaurants, takeaways and bakeries</h3><p>Menu, tables, kitchen screen, recipes, wastage and bakery production.</p></Link>}
+          {!V1_SCOPE && <Link to="/catering" className="mk-card"><span className="ico"><CalendarClock size={22} aria-hidden="true" /></span><h3>Catering and small chops</h3><p>Enquiries, quotations, deposits, event preparation and profit.</p></Link>}
         </div>
       </div></section>
 
@@ -129,11 +130,11 @@ export function FeaturesPage() {
     ['Dashboard and reports', 'Sales by day, best sellers, payment methods, sales by category, stock health and an activity feed.'],
     ['Online store and orders', 'A store link for your customers, a cart and checkout, and a screen to confirm, prepare and complete each order. Not on the Free plan.'],
     ['Online payments with Paystack', 'Customers pay online and the money goes straight to your own Paystack account.'],
-    ['Wholesale pricing', 'Price tiers, bulk price breaks and agreed customer prices, applied automatically at the till.'],
+    ...(V1_SCOPE ? [] : [['Wholesale pricing', 'Price tiers, bulk price breaks and agreed customer prices, applied automatically at the till.']]),
     ['Works on a weak connection', 'Install ShopScale on your phone. Sales you make offline are saved on the device and sent when you are back online.'],
-    ['Restaurant and kitchen', 'Menu with sizes and paid extras, tables, a kitchen screen, recipes that deduct ingredients, wastage and reports. Bakeries also record production.'],
-    ['Catering and events', 'Packages priced per guest, quotations, deposits and part payments, preparation checklist, ingredient planning and profit per event.'],
-    ['Team and permissions', 'Invite staff, give them a role, create custom roles, and remove access instantly.'],
+    ...(V1_SCOPE ? [] : [['Restaurant and kitchen', 'Menu with sizes and paid extras, tables, a kitchen screen, recipes that deduct ingredients, wastage and reports. Bakeries also record production.']]),
+    ...(V1_SCOPE ? [] : [['Catering and events', 'Packages priced per guest, quotations, deposits and part payments, preparation checklist, ingredient planning and profit per event.']]),
+    ['Team and permissions', 'Invite cashiers who record sales without seeing your profit, and remove access instantly.'],
   ]
   return (
     <>

@@ -1,5 +1,7 @@
 // Small dependency-free SVG charts. They stay light on cheap phones and render the same on every device.
+import { useEffect, useRef, useState } from 'react'
 import { money } from './lib/format.js'
+import { labelIndexes, niceScale, nearestIndex } from './lib/chartMath.js'
 
 export const COLORS = {
   blue: '#2563eb', teal: '#0d9488', navy: '#6366f1', amber: '#f59e0b', slate: '#94a3b8', red: '#dc2626', sky: '#38bdf8',
@@ -121,4 +123,73 @@ export function StackBar({ parts, ariaLabel }) {
 
 export function ChartEmpty({ children }) {
   return <div className="chart-empty">{children}</div>
+}
+
+/**
+ * Sales trend: a clean area/line chart with an optional dashed line for the previous period, a few date labels, three value
+ * ticks and a tooltip that follows a finger or mouse. It measures its own width so text stays a readable size on a phone.
+ * points: [{ label, value, previous?, title? }]; previous is null/undefined when there is nothing honest to compare with.
+ */
+export function AreaChart({ points, height = 240, ariaLabel, format = money, previousName = 'Previous period' }) {
+  const ref = useRef(null)
+  const [w, setW] = useState(600)
+  const [hover, setHover] = useState(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return undefined
+    const set = () => setW(Math.max(260, Math.floor(el.getBoundingClientRect().width)))
+    set()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(set)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const n = points.length
+  const hasPrev = points.some((p) => p.previous != null)
+  const maxV = Math.max(0, ...points.map((p) => Number(p.value) || 0), ...(hasPrev ? points.map((p) => Number(p.previous) || 0) : [0]))
+  const scale = niceScale(maxV)
+  const pad = { l: w < 420 ? 40 : 52, r: 12, t: 12, b: 28 }
+  const iw = w - pad.l - pad.r, ih = height - pad.t - pad.b
+  const x = (i) => pad.l + (n <= 1 ? iw / 2 : (i / (n - 1)) * iw)
+  const y = (v) => pad.t + ih - (Number(v) / scale.max) * ih
+  const line = (key) => points.map((p, i) => (p[key] == null ? null : `${x(i)},${y(p[key])}`)).filter(Boolean).join(' ')
+  const area = n > 1 ? `${pad.l},${pad.t + ih} ${line('value')} ${x(n - 1)},${pad.t + ih}` : ''
+  const move = (e) => {
+    const r = ref.current.getBoundingClientRect()
+    setHover(nearestIndex(e.clientX - r.left, pad.l, iw, n))
+  }
+  const hp = hover != null ? points[hover] : null
+  return (
+    <div className="area-chart" ref={ref} style={{ position: 'relative' }} onPointerMove={move} onPointerDown={move} onPointerLeave={() => setHover(null)}>
+      <svg width={w} height={height} role="img" aria-label={ariaLabel} style={{ display: 'block', touchAction: 'pan-y' }}>
+        <defs><linearGradient id="area-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={COLORS.blue} stopOpacity="0.22" /><stop offset="1" stopColor={COLORS.blue} stopOpacity="0.02" /></linearGradient></defs>
+        {scale.ticks.map((t) => (
+          <g key={t}>
+            <line x1={pad.l} x2={w - pad.r} y1={y(t)} y2={y(t)} style={{ stroke: 'var(--line)' }} strokeDasharray={t === 0 ? undefined : '3 4'} />
+            <text x={pad.l - 6} y={y(t) + 4} textAnchor="end" style={{ fontSize: 11, fill: 'var(--muted)' }}>{short(t)}</text>
+          </g>
+        ))}
+        {labelIndexes(n, w < 420 ? 4 : 6).map((i) => (
+          <text key={i} x={x(i)} y={height - 8} textAnchor={i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'} style={{ fontSize: 11, fill: 'var(--muted)' }}>{points[i].label}</text>
+        ))}
+        {n > 1 && <polygon points={area} fill="url(#area-fill)" />}
+        {hasPrev && n > 1 && <polyline points={line('previous')} fill="none" style={{ stroke: COLORS.slate }} strokeWidth="1.75" strokeDasharray="5 4" />}
+        {n > 1 ? <polyline points={line('value')} fill="none" stroke={COLORS.blue} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" /> : null}
+        {n === 1 && <circle cx={x(0)} cy={y(points[0].value)} r="4" fill={COLORS.blue} />}
+        {hover != null && (
+          <g>
+            <line x1={x(hover)} x2={x(hover)} y1={pad.t} y2={pad.t + ih} style={{ stroke: 'var(--muted)' }} strokeWidth="1" />
+            <circle cx={x(hover)} cy={y(hp.value)} r="4.5" fill="#fff" stroke={COLORS.blue} strokeWidth="2.5" />
+          </g>
+        )}
+      </svg>
+      {hp && (
+        <div className="area-tip" role="status" style={{ left: Math.min(Math.max(x(hover) - 70, 4), w - 150) }}>
+          <div className="t">{hp.title || hp.label}</div>
+          <div><i style={{ background: COLORS.blue }} />Sales <strong>{format(hp.value)}</strong></div>
+          {hp.previous != null && <div><i style={{ background: COLORS.slate }} />{previousName} <strong>{format(hp.previous)}</strong></div>}
+        </div>
+      )}
+    </div>
+  )
 }

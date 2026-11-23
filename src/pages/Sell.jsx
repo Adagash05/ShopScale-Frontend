@@ -1,6 +1,6 @@
 import { track } from "../analytics/analytics.js";
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Trash2, UserPlus, Printer } from "lucide-react";
 import { api } from "../lib/api";
 import { useAuth } from "../auth/AuthContext.jsx";
@@ -258,6 +258,7 @@ function Receipt({ sale, business, onClose }) {
 export default function Sell() {
   const { business, can, user } = useAuth();
   const toast = useToast();
+  const nav = useNavigate();
   const sub = useLoad(() => api.get("/subscriptions/current"), []);
   const [q, setQ] = useState("");
   const dq = useDebounced(q);
@@ -421,7 +422,15 @@ export default function Sell() {
       ),
     );
 
+  // A second tap before the first has finished is ignored, and the request id makes a retry safe on the server too.
+  const inFlight = useRef(false);
   async function confirm() {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    try { await submitSale(); } finally { inFlight.current = false; }
+  }
+
+  async function submitSale() {
     const problem = validateSale({
       lines: stockLines,
       total: totals.total,
@@ -496,6 +505,10 @@ export default function Sell() {
     try {
       const sale = await api.post("/sales", body);
       setReceipt(sale);
+      // Only after the server has confirmed and returned the sale.
+      toast(`Sale #${sale.saleNumber} recorded successfully.`, "ok", {
+        action: { label: "Sales history", onClick: () => nav("/more/sales") },
+      });
       track("sale_complete", { item_count: lines.length, channel: "pos" }); // after the server confirmed it; no amounts
       setLines([]);
       setDiscount("");

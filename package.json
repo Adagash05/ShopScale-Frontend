@@ -19,6 +19,7 @@
     "demo:seed": "node scripts/demo/seed-demo.mjs",
     "help:shots": "node scripts/capture-help-screenshots.mjs",
     "help:shots:verify": "node scripts/verify-help-screenshots.mjs --dist",
+    "help:shots:report": "node scripts/help-visual-report.mjs",
     "demo:video": "node scripts/record-demo-video.mjs"
   },
   "dependencies": {

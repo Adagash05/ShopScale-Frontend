@@ -11,6 +11,8 @@ export const ACCOUNTS = {
   restaurant: { key: 'restaurant', email: 'royal.owner@demo.shopscale.test',   fullName: 'Ngozi Eze',       phone: '08000000002', businessName: 'Royal Kitchen Restaurant', type: 'RESTAURANT', subtype: 'Restaurant',    slug: 'royal-kitchen-demo' },
   bakery:     { key: 'bakery',     email: 'crust.owner@demo.shopscale.test',   fullName: 'Folake Adeyemi',  phone: '08000000003', businessName: 'Golden Crust Bakery',   type: 'BAKERY',     subtype: 'Bakery',        slug: 'golden-crust-demo' },
   catering:   { key: 'catering',   email: 'harvest.owner@demo.shopscale.test', fullName: 'Chidi Okafor',    phone: '08000000004', businessName: 'Fresh Harvest Foods',   type: 'CATERING',   subtype: 'Event catering', slug: 'fresh-harvest-demo' },
+  // Registered but with NO business yet, so the capture script can show the first-time setup screens (onboarding).
+  newuser:    { key: 'newuser',    email: 'new.owner@demo.shopscale.test',     fullName: 'Tunde Bakare',    phone: '08000000005', noBusiness: true },
 }
 
 /** Refuses anything that is not a local backend, so the demo data can never reach a real database by accident. */

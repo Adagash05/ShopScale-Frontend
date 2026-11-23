@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, Trash2 } from 'lucide-react'
 import { api } from '../../lib/api'
 import { track } from '../../analytics/analytics.js'
 import { ErrorBox, Field, useDebounced, useLoad, useToast } from '../../components.jsx'
 import { money } from '../../lib/format.js'
-import { previewTotals } from '../../lib/invoiceShare.js'
+import { describeError, previewTotals } from '../../lib/invoiceShare.js'
 import { CustomerForm } from '../Customers.jsx'
 
-const blank = () => ({ description: '', quantity: '1', unitPrice: '', discount: '', taxRate: '' })
+const blank = () => ({ variantId: null, description: '', quantity: '1', unitPrice: '', discount: '', taxRate: '' })
+const newRequestId = () => { try { return crypto.randomUUID() } catch { return `${Date.now()}-${Math.random().toString(16).slice(2)}` } }
 
 /** New invoice: by hand, from a sale (?sale=ID) or from an order (?order=ID). The server works out every amount. */
 export default function InvoiceForm() {
@@ -33,6 +34,11 @@ export default function InvoiceForm() {
   const [instructions, setInstructions] = useState('')
   const [addingCustomer, setAddingCustomer] = useState(false)
   const [busy, setBusy] = useState(false)
+  const requestId = useRef(newRequestId())   // same id on a retry or double tap, so the server makes one invoice
+  const inFlight = useRef(false)
+  const [pq, setPq] = useState('')
+  const dpq = useDebounced(pq)
+  const prods = useLoad(() => (dpq.length >= 2 ? api.get('/products/sellable', { q: dpq, size: 6 }) : Promise.resolve([])), [dpq])
   const [err, setErr] = useState('')
 
   useEffect(() => {
@@ -46,8 +52,9 @@ export default function InvoiceForm() {
   const setLine = (i, patch) => setLines((ls) => ls.map((l, k) => (k === i ? { ...l, ...patch } : l)))
 
   async function save() {
+    if (inFlight.current) return
     setErr('')
-    const body = { dueDate: dueDate || null, paymentTerms: terms || null, note: note || null, paymentInstructions: instructions || null }
+    const body = { clientRequestId: requestId.current, dueDate: dueDate || null, paymentTerms: terms || null, note: note || null, paymentInstructions: instructions || null }
     if (saleId) body.sourceSaleId = saleId
     else if (orderId) body.sourceDocumentId = orderId
     else {
@@ -58,16 +65,17 @@ export default function InvoiceForm() {
       Object.assign(body, {
         customerId: cust?.id || null, customerName: cust ? null : name.trim(), customerPhone: cust ? null : phone || null,
         invoiceDiscount: invDiscount === '' ? 0 : Number(invDiscount),
-        items: items.map((l) => ({ description: l.description.trim(), quantity: Number(l.quantity), unitPrice: Number(l.unitPrice), discount: l.discount === '' ? 0 : Number(l.discount), taxRate: l.taxRate === '' ? 0 : Number(l.taxRate) })),
+        items: items.map((l) => ({ variantId: l.variantId, description: l.description.trim(), quantity: Number(l.quantity), unitPrice: l.variantId ? null : Number(l.unitPrice), discount: l.discount === '' ? 0 : Number(l.discount), taxRate: l.taxRate === '' ? 0 : Number(l.taxRate) })),
       })
     }
+    inFlight.current = true
     setBusy(true)
     try {
       const inv = await api.post('/invoices', body)
       track('invoice_create', { source: saleId ? 'sale' : orderId ? 'order' : 'manual' })
       toast(`Invoice ${inv.number} created`)
       nav(`/more/invoices/${inv.id}`, { replace: true })
-    } catch (e) { setErr(e.message) } finally { setBusy(false) }
+    } catch (e) { setErr(describeError(e)) } finally { inFlight.current = false; setBusy(false) }
   }
 
   return (
@@ -100,12 +108,18 @@ export default function InvoiceForm() {
       {!fromSource && (
         <div className="section pad stack">
           <h2>Items</h2>
+          <Field label="Add a product from your catalogue" htmlFor="ipq" hint="The price comes from your product list. Or fill in an item by hand below."><input id="ipq" className="input" placeholder="Search products" value={pq} onChange={(e) => setPq(e.target.value)} /></Field>
+          {prods.data?.map((it) => (
+            <button key={it.variantId} type="button" className="list-item" onClick={() => { setLines((ls) => [...ls.filter((l) => l.description.trim() || l.unitPrice), { ...blank(), variantId: it.variantId, description: it.label ? `${it.productName} (${it.label})` : it.productName, unitPrice: String(it.price) }]); setPq('') }}>
+              <div className="grow"><div className="title">{it.label ? `${it.productName} (${it.label})` : it.productName}</div><div className="meta">{money(it.price)}</div></div><Plus size={16} />
+            </button>
+          ))}
           {lines.map((l, i) => (
             <div key={i} className="stack" style={{ borderBottom: '1px solid var(--line)', paddingBottom: 12 }}>
               <Field label={`Item ${i + 1}`} htmlFor={`d${i}`}><input id={`d${i}`} className="input" placeholder="What are you charging for?" value={l.description} onChange={(e) => setLine(i, { description: e.target.value })} /></Field>
               <div className="form-grid two">
                 <Field label="Quantity" htmlFor={`q${i}`}><input id={`q${i}`} className="input" inputMode="decimal" value={l.quantity} onChange={(e) => setLine(i, { quantity: e.target.value })} /></Field>
-                <Field label="Unit price (₦)" htmlFor={`p${i}`}><input id={`p${i}`} className="input" inputMode="decimal" value={l.unitPrice} onChange={(e) => setLine(i, { unitPrice: e.target.value })} /></Field>
+                <Field label="Unit price (₦)" htmlFor={`p${i}`}><input id={`p${i}`} className="input" inputMode="decimal" readOnly={!!l.variantId} value={l.unitPrice} onChange={(e) => setLine(i, { unitPrice: e.target.value })} /></Field>
                 <Field label="Discount (₦)" htmlFor={`x${i}`}><input id={`x${i}`} className="input" inputMode="decimal" value={l.discount} onChange={(e) => setLine(i, { discount: e.target.value })} /></Field>
                 <Field label="Tax (%)" htmlFor={`t${i}`} hint="For example 7.5 for VAT"><input id={`t${i}`} className="input" inputMode="decimal" value={l.taxRate} onChange={(e) => setLine(i, { taxRate: e.target.value })} /></Field>
               </div>

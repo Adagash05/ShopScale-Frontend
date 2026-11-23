@@ -4,12 +4,14 @@ import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { useLoad, useToast } from '../components.jsx'
 import { moduleNav, allowed } from '../modules/registry.js'
+import { V1_SCOPE } from '../config/scope.js'
+import { v1Items } from './Layout.jsx'
 
 export default function More() {
   const { user, business, roleName, logout, can, canAny, switchBusiness, hasFeature, hasWorkflow } = useAuth()
   const toast = useToast()
   const businesses = useLoad(() => api.get('/auth/businesses'), [])
-  const items = [
+  const legacyItems = [
     canAny('SALES_VIEW', 'SALES_HISTORY_VIEW') && { to: '/more/sales', icon: Receipt, label: 'Sales', hint: 'See recorded sales' },
     can('EXPENSES_VIEW') && { to: '/expenses', icon: Wallet, label: 'Expenses', hint: 'Money your business spent' },
     canAny('STOCK_VIEW', 'STOCK_MOVEMENTS_VIEW') && { to: '/more/stock', icon: Boxes, label: 'Stock', hint: 'Running low and stock history' },
@@ -22,7 +24,13 @@ export default function More() {
   ].filter(Boolean)
   const extra = moduleNav('more').filter((n) => allowed(n, { can, hasFeature, hasWorkflow }))
     .map((n) => ({ to: n.to, icon: n.icon, label: n.label, hint: n.hint }))
-  items.splice(items.length - 1, 0, ...extra)
+  legacyItems.splice(legacyItems.length - 1, 0, ...extra)
+  // V1: the sections that did not fit in the bottom bar, then the few account-level items.
+  const HINTS = { people: 'Who owes you and who you owe', store: 'Your store link, products and orders', reports: 'How the business is doing', settings: 'Business details, team, plan and billing', money: 'Expenses, debts and cash', products: 'Products and stock' }
+  const v1 = v1Items({ can, hasFeature }).slice(4).map((i) => ({ to: i.to, icon: i.icon, label: i.label, hint: HINTS[i.id] || '' }))
+  const items = V1_SCOPE
+    ? [...v1, { to: '/partners/dashboard', icon: UsersRound, label: 'Partner programme', hint: 'Earn by recommending ShopScale' }, { to: '/more/help', icon: LifeBuoy, label: 'Help', hint: 'Guides for getting things done' }]
+    : legacyItems
   const others = (businesses.data || []).filter((b) => b.id !== business?.id)
 
   async function swap(id) {

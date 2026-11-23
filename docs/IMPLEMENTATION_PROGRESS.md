@@ -80,3 +80,6 @@ Light is the default theme (nothing stored => light; "System" only when chosen).
 
 ## ShopScale Partners (affiliate programme), Nov 13 2026
 Implemented end to end: applications and approval, referral links with click tracking and last-referral attribution, a commission ledger (earned only from verified payments, held, reserved, paid, reversed), refund/chargeback reversal, bank details (encrypted), withdrawals with an admin workflow and manual-transfer records, admin settings, reports, CSV export and partner resources, a public landing page with a real-price calculator, and notification emails. Migration `V23__partners.sql`. Full description, rules, endpoints, setup checklist, limits and verification status: `docs/PARTNERS.md`.
+
+## Invoicing, reminders and plan audit (Nov 2026)
+Invoices un-hidden; product picker and duplicate protection; unpaid and overdue invoice figures; Remind customer; ninth Help category. See `docs/INVOICING_REMINDERS_AND_PLAN_AUDIT.md`. Backend uncompiled and untested: run `mvn test`.

@@ -78,12 +78,12 @@ export default {
       p('Your 14-day trial starts when you create your business and needs no card. When it ends, your data is kept safe and nothing is deleted; your account moves to the Free plan unless you choose a plan.'),
       h('Where to manage your plan'),
       p('Open **More, Plan and billing**. You can see your current plan, when the period ends and your payment details, and you can choose or change a plan. See [Managing subscription plans](/help/settings/plans).'),
-      warn('The online store needs Essential or above. A custom domain for your store needs the Business plan. If your plan does not include a tool, the screen says so and links to the plans.'),
+      warn('The online store needs the Growth plan or above. A custom domain for your store needs the Business plan. If your plan does not include a tool, the screen says so and links to the plans.'),
     ], { related: ['settings/plans', 'settings/billing'] }),
 
     article('first-steps', 'Your first steps after registration', 'Add products, record a sale and open your store in about 15 minutes.', [
       p('Do these in order. Each step builds on the one before.'),
-      steps('**Add your products.** Open Products and tap **Add product**. You only need a name, a price and how many you have. See [Creating products](/help/products/create-product).', '**Check your stock.** Open **More, Stock** to see counts and what is running low.', '**Record a sale.** Tap **Sell**, tap a product, check the total and confirm. See [Making a sale](/help/sales/make-a-sale).', '**Record an expense.** Open Expenses and add rent, transport or other costs so your profit is correct.', '**Add your team.** Invite staff from **More, Team** and give each a role.', '**Open your online store** (Essential plan or above). See [Activating your online store](/help/storefront/activate-store).'),
+      steps('**Add your products.** Open Products and tap **Add product**. You only need a name, a price and how many you have. See [Creating products](/help/products/create-product).', '**Check your stock.** Open **More, Stock** to see counts and what is running low.', '**Record a sale.** Tap **Sell**, tap a product, check the total and confirm. See [Making a sale](/help/sales/make-a-sale).', '**Record an expense.** Open Expenses and add rent, transport or other costs so your profit is correct.', '**Add your team.** Invite staff from **More, Team** and give each a role.', '**Open your online store** (Growth plan or above). See [Activating your online store](/help/storefront/activate-store).'),
       tip('Add a few products first and sell one. Seeing stock go down by itself is the quickest way to understand the app.'),
       p('Need a hand? [Contact ShopScale Support](/help) using the email and WhatsApp buttons at the bottom of any page.'),
     ], { related: ['products/create-product', 'sales/make-a-sale', 'storefront/activate-store'], keywords: 'start beginner onboarding' }),

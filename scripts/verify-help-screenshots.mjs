@@ -18,6 +18,9 @@ for (const [label, dir] of dirs) {
     const b = fs.readFileSync(f)
     const png = b.length > 24 && b.readUInt32BE(0) === 0x89504e47 && b.toString('ascii', 12, 16) === 'IHDR'
     const w = png ? b.readUInt32BE(16) : 0, h = png ? b.readUInt32BE(20) : 0
+    const jf = path.join(dir, s.id + '.json')
+    if (fs.existsSync(jf)) { try { const j = JSON.parse(fs.readFileSync(jf, 'utf8')); if (!(j.vw > 0 && j.vh > 0 && j.box && j.box.w > 0 && j.box.h > 0)) throw new Error('bad shape'); if (png && Math.abs(w / h - j.vw / j.vh) > 0.02) throw new Error('does not match the image size') } catch (e) { console.log(`BAD OUTLINE DATA  ${label}/${s.id}.json (${e.message})`); bad++ } }
+    else if (s.highlight && label === 'public/help/shots') console.log(`note: ${s.id} has no outline data (.json); it will show without an outline`)
     if (!png) { console.log(`NOT A PNG  ${label}/${s.id}.png`); bad++ } else if (w < 600 || h < 400) { console.log(`TOO SMALL  ${label}/${s.id}.png (${w}x${h})`); bad++ } else if (b.length < 12000) { console.log(`LOOKS BLANK  ${label}/${s.id}.png (${b.length} bytes)`); bad++ } else ok++
   }
   console.log(`${label}: ${ok} of ${SHOTS.length} screenshots are present and look valid`)

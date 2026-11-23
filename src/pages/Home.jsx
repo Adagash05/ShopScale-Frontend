@@ -1,75 +1,54 @@
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronRight, ShoppingBag, Banknote, Package, User, Store, Circle } from 'lucide-react'
+import { useState } from 'react'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { ShoppingBag, Banknote, Package, Receipt, Wallet } from 'lucide-react'
 import { api } from '../lib/api'
 import { useAuth } from '../auth/AuthContext.jsx'
 import { Empty, ErrorBox, RangePicker, Skeleton, useLoad } from '../components.jsx'
-import { BarChart, COLORS, ChartEmpty, Donut, HBars, Legend, StackBar } from '../charts.jsx'
-import { daysLeft, dateOnly, dateTime, money, rangeQuery } from '../lib/format.js'
-import { describeActivity, timeAgo } from '../lib/permissions.js'
-import Insights from './Insights.jsx'
+import { AreaChart, COLORS, ChartEmpty, Donut, HBars } from '../charts.jsx'
+import { changeInfo } from '../lib/chartMath.js'
+import { trendPoints } from '../lib/trend.js'
+import { dateOnly, dateTime, money, rangeQuery } from '../lib/format.js'
+import { timeAgo } from '../lib/permissions.js'
+import { Kpi, SubscriptionBanner } from './homeParts.jsx'
 
 const METHOD = { CASH: 'Cash', TRANSFER: 'Bank transfer', CARD: 'Card' }
 const METHOD_COLOR = { CASH: COLORS.teal, TRANSFER: COLORS.blue, CARD: COLORS.navy }
-const ICONS = { sale: ShoppingBag, money: Banknote, box: Package, user: User, store: Store, dot: Circle }
-
-function SubscriptionBanner({ sub }) {
-  if (!sub) return null
-  if (sub.status === 'TRIALING') {
-    const d = daysLeft(sub.periodEnd)
-    return <div className={`banner ${d <= 3 ? 'warn' : ''}`}>Free trial: {d} {d === 1 ? 'day' : 'days'} left. <Link to="/more/plan">See plans</Link></div>
-  }
-  if (sub.status === 'GRACE_PERIOD') return <div className="banner warn">Your subscription has ended. You have a few days to renew. <Link to="/more/plan">See plans</Link></div>
-  if (sub.status === 'EXPIRED' || sub.status === 'SUSPENDED') {
-    return <div className="banner danger">Your account is read-only. Your data is safe. <Link to="/more/plan">Renew to record new sales</Link></div>
-  }
-  return null
-}
-
-function Kpi({ label, value, hint, to, tone = '' }) {
-  const body = <><div className="label">{label}</div><div className="value num">{value}</div>{hint && <div className="hint">{hint}</div>}</>
-  return to ? <Link to={to} className={`kpi accent ${tone}`}>{body}</Link> : <div className={`kpi accent ${tone}`}>{body}</div>
-}
-
-function Activity() {
-  const feed = useLoad(() => api.get('/activity', { size: 12 }), [])
+const TXN_ICON = { SALE: ShoppingBag, REPAYMENT: Banknote, EXPENSE: Receipt, STOCK_RECEIPT: Package }
+const TXN_TONE = { SALE: '', REPAYMENT: 'money', EXPENSE: 'expense', STOCK_RECEIPT: '' }
+const pct = (n) => (n == null ? '' : `${Number(n).toLocaleString('en-NG', { maximumFractionDigits: 1 })}%`)
+function Card({ title, sub, action, children, wide }) {
   return (
-    <section className="section">
-      <div className="section-title"><h2>What is happening</h2></div>
-      <ErrorBox error={feed.error} onRetry={feed.reload} />
-      {feed.loading && <div className="pad stack-sm"><Skeleton height={14} /><Skeleton height={14} width="70%" /></div>}
-      {feed.data && feed.data.length === 0 && <Empty title="Nothing yet">Sales, stock changes and new customers will appear here as they happen.</Empty>}
-      {feed.data && feed.data.length > 0 && (
-        <div className="feed">
-          {feed.data.map((a) => {
-            const [label, tone, icon] = describeActivity(a)
-            const Icon = ICONS[icon] || Circle
-            return (
-              <div className="feed-item" key={a.id}>
-                <span className={`feed-icon ${tone === 'blue' ? '' : tone}`}><Icon size={18} aria-hidden="true" /></span>
-                <div><div className="title">{label}</div><div className="meta small muted">{a.userName || 'System'}{a.detail ? ` · ${a.detail}` : ''}</div></div>
-                <span className="muted small">{timeAgo(a.createdAt)}</span>
-              </div>
-            )
-          })}
-        </div>
-      )}
+    <section className={`dash-card${wide ? ' wide' : ''}`}>
+      <header><div><h2>{title}</h2>{sub && <p className="sub">{sub}</p>}</div>{action}</header>
+      {children}
     </section>
+  )
+}
+
+function Loading() {
+  return (
+    <div className="stack">
+      <div className="kpis six">{[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="kpi"><Skeleton height={12} width="50%" /><Skeleton height={24} style={{ marginTop: 8 }} /></div>)}</div>
+      <div className="dash-card"><Skeleton height={220} /></div>
+    </div>
   )
 }
 
 export default function Home() {
   const { business, can } = useAuth()
-  const nav = useNavigate()
   const [sp, setSp] = useSearchParams()
+  const [view, setView] = useState('day')
   const range = sp.get('range') || 'today'
   const from = sp.get('from') || ''
   const to = sp.get('to') || ''
   const allowed = can('DASHBOARD_VIEW')
   const ready = allowed && (range !== 'custom' || (from && to))
-  const dash = useLoad(() => (ready ? api.get('/dashboard', rangeQuery(range, from, to)) : Promise.resolve(null)), [range, from, to, allowed])
+  const dash = useLoad(() => (ready ? api.get('/dashboard/overview', rangeQuery(range, from, to)) : Promise.resolve(null)), [range, from, to, allowed])
   const sub = useLoad(() => (can('SUBSCRIPTION_VIEW') ? api.get('/subscriptions/current') : Promise.resolve(null)), [])
-  const d = dash.data
+  const o = dash.data
+  const d = o?.current
   const carry = new URLSearchParams({ range, ...(range === 'custom' ? { from, to } : {}) }).toString()
+  const canSales = can('SALES_VIEW') || can('SALES_HISTORY_VIEW')
 
   if (!allowed) return <Navigate to={can('SALES_CREATE') ? '/sell' : '/more'} replace />
 
@@ -79,20 +58,12 @@ export default function Home() {
     setSp(next, { replace: true })
   }
 
-  const series = d?.financial
-    ? [{ key: 'sales', label: 'Sales', color: COLORS.blue }, { key: 'expenses', label: 'Expenses', color: COLORS.amber }]
-    : [{ key: 'sales', label: 'Sales', color: COLORS.blue }]
-  const days = (d?.daily || []).map((p) => ({
-    label: new Date(p.date + 'T00:00:00').toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }),
-    title: `${dateOnly(p.date)}: sales ${money(p.sales)}${p.expenses != null ? `, expenses ${money(p.expenses)}` : ''}`,
-    values: { sales: p.sales, expenses: p.expenses },
-    onClick: can('SALES_VIEW') || can('SALES_HISTORY_VIEW') ? () => nav(`/more/sales?range=custom&from=${p.date}&to=${p.date}`) : undefined,
-  }))
-  const hasDaily = d && d.daily.some((p) => Number(p.sales) > 0 || Number(p.expenses) > 0)
-  const profitTrend = d?.financial ? d.daily.filter((p) => p.grossProfit != null) : []
-  const showProfitTrend = profitTrend.length > 1 && profitTrend.some((p) => Number(p.grossProfit) !== 0)
-  const sh = d?.stockHealth
-  const shTotal = sh ? sh.outOfStock + sh.low + sh.healthy : 0
+  const cmp = o?.comparison
+  const delta = (c, badUp) => { const i = cmp?.available && c ? changeInfo(c.changePercent) : null; return i ? { ...i, badUp } : null }
+  const points = trendPoints(o?.trend, view)
+  const hasSales = points.some((p) => p.value > 0)
+  const views = [['day', 'Daily'], ['week', 'Weekly'], ['month', 'Monthly']].filter(([k]) => k === 'day' || (o?.trend?.[k === 'week' ? 'weekly' : 'monthly'] || []).length > 1)
+  const fin = o?.financial
 
   return (
     <div className="stack">
@@ -103,99 +74,109 @@ export default function Home() {
       <SubscriptionBanner sub={sub.data} />
       <RangePicker value={range} from={from} to={to} onChange={pick} />
       <ErrorBox error={dash.error} onRetry={dash.reload} />
-      {dash.loading && <div className="kpis">{[0, 1, 2, 3].map((i) => <div key={i} className="kpi"><Skeleton height={12} width="50%" /><Skeleton height={24} style={{ marginTop: 8 }} /></div>)}</div>}
+      {dash.loading && !o && <Loading />}
 
-      {d && (
+      {o && (
         <>
-          <Insights range={range} from={from} to={to} />
+          <div className="kpis six">
+            <Kpi label="Total sales" value={money(d.salesTotal)} hint={`${d.salesCount} ${d.salesCount === 1 ? 'sale' : 'sales'}`} delta={delta(cmp?.sales)} to={`/more/sales?${carry}`}
+              tip="The value of completed sales in this period, after refunds. Credit sales count when they are made." />
+            {fin && <Kpi label="Money received" value={money(d.moneyReceived)} tone="teal" delta={delta(cmp?.moneyReceived)} to={`/more/sales?${carry}`}
+              tip="Cash, transfer and card payments actually recorded in this period, including customers paying off what they owed. Credit not yet paid is not included." />}
+            {fin && <Kpi label="Gross profit" value={money(d.estimatedGrossProfit)} tone="navy" delta={delta(cmp?.grossProfit)}
+              hint={o.costDataComplete ? 'Sales minus product cost' : 'Some items have no cost price, so this is incomplete'}
+              tip="Sales minus what the products cost you. It depends on the cost prices you entered." />}
+            {fin && <Kpi label="Business expenses" value={money(d.expensesTotal)} tone="warn" delta={delta(cmp?.expenses, true)} to={`/expenses?${carry}`}
+              tip="Running costs you recorded in this period, such as rent, transport and wages." />}
+            {fin && <Kpi label="Customers owing you" value={money(d.customersOweYou)} hint={`${o.debts?.customersOwing ?? 0} ${o.debts?.customersOwing === 1 ? 'customer' : 'customers'} · today`} to="/customers?owing=1"
+              tip="Total unpaid credit across all your customers as of today, whatever period is selected." />}
+            <Kpi label="Total products" value={String(o.stock.totalProducts)} hint="Active products" to="/products" />
+          </div>
+          {fin && <p className="note-line">Estimated profit after expenses: <strong>{money(d.estimatedOperatingProfit)}</strong> (an estimate: it leaves out costs you have not recorded).{cmp && !cmp.available ? ' Not enough earlier data to compare with the previous period.' : ''}</p>}
+          {!fin && cmp && !cmp.available && <p className="note-line">Not enough earlier data to compare with the previous period.</p>}
 
-          <div className="headline" aria-label="Sales so far">
-            <span>Sales today <b>{money(d.headline.today)}</b></span>
-            <span>Last 7 days <b>{money(d.headline.last7Days)}</b></span>
-            <span>This month <b>{money(d.headline.thisMonth)}</b></span>
+          <Card title="Sales trend" sub={view === 'day' && cmp?.available ? `Dotted line: ${dateOnly(cmp.from)} to ${dateOnly(cmp.to)}` : 'Touch or hover to see the amount'}
+            action={views.length > 1 && <div className="seg" role="group" aria-label="Trend view">{views.map(([k, l]) => <button key={k} aria-pressed={view === k} onClick={() => setView(k)}>{l}</button>)}</div>}>
+            {hasSales ? <AreaChart points={points} ariaLabel="Sales over time" /> : <ChartEmpty>No sales in this period yet. Record a sale and it will show here.</ChartEmpty>}
+          </Card>
+
+          <div className="dash-grid two">
+            <Card title="Best-selling products" sub="Ranked by sales value" action={<Link to="/products" className="small">All products</Link>}>
+              {o.bestProducts.length === 0 ? <ChartEmpty>Nothing sold in this period.</ChartEmpty> : (
+                <ol className="rank">{o.bestProducts.slice(0, 6).map((p, i) => (
+                  <li key={p.name}>
+                    <span className="n">{i + 1}</span>
+                    {p.imageUrl ? <img className="thumb" src={p.imageUrl} alt="" loading="lazy" /> : <span className="thumb" aria-hidden="true">{p.name.slice(0, 1).toUpperCase()}</span>}
+                    <div style={{ minWidth: 0 }}><Link className="name" to={`/products?q=${encodeURIComponent(p.name)}`}>{p.name}</Link><div className="meta">{Number(p.units)} sold{p.shareOfSales != null ? ` · ${pct(p.shareOfSales)} of sales` : ''}</div>
+                      {p.shareOfSales != null && <div className="share-bar"><i style={{ width: `${Math.min(100, Number(p.shareOfSales))}%` }} /></div>}</div>
+                    <span className="amt">{money(p.revenue)}</span>
+                  </li>))}</ol>)}
+            </Card>
+            <Card title="Best customers" sub={o.customersServed ? `${o.customersServed} named ${o.customersServed === 1 ? 'customer' : 'customers'} bought` : 'Named customers only'} action={<Link to="/customers" className="small">All customers</Link>}>
+              {o.bestCustomers.length === 0 ? <ChartEmpty>No sales to named customers in this period. Add a customer when you sell to see them here.</ChartEmpty> : (
+                <ol className="rank people">{o.bestCustomers.slice(0, 6).map((c, i) => (
+                  <li key={c.id}>
+                    <span className="n">{i + 1}</span>
+                    <div style={{ minWidth: 0 }}><Link className="name" to={`/customers/${c.id}`}>{c.name}</Link>
+                      <div className="meta">{c.transactions} {c.transactions === 1 ? 'purchase' : 'purchases'}{c.paid != null ? ` · paid ${money(c.paid)}` : ''}{c.outstanding != null && Number(c.outstanding) > 0 ? ` · owes ${money(c.outstanding)}` : ''}</div></div>
+                    <span className="amt">{money(c.purchases)}</span>
+                  </li>))}</ol>)}
+            </Card>
           </div>
 
-          <div className="kpis">
-            <Kpi label="Sales" value={money(d.salesTotal)} hint={`${d.salesCount} ${d.salesCount === 1 ? 'sale' : 'sales'}`} to={`/more/sales?${carry}`} />
-            {d.financial && <Kpi label="Money received" value={money(d.moneyReceived)} hint="Payments and repayments" tone="teal" to={`/more/sales?${carry}`} />}
-            {d.financial && <Kpi label="Expenses" value={money(d.expensesTotal)} hint="Recorded costs" tone="warn" to={`/expenses?${carry}`} />}
-            {d.financial && <Kpi label="Estimated profit" value={money(d.estimatedOperatingProfit)} hint={`Gross ${money(d.estimatedGrossProfit)}`} tone="navy" />}
-            {!d.financial && <Kpi label="Stock running low" value={d.lowStockCount} hint="Items to restock" tone="warn" to="/more/stock" />}
-          </div>
-
-          <section className="chart-card">
-            <div className="head">
-              <div><h2>{d.financial ? 'Sales and expenses' : 'Sales'}</h2><p className="sub">By day · tap a bar to see that day's sales</p></div>
-              <Legend items={series} />
+          {fin && (
+            <div className="dash-grid two">
+              <Card title="How customers paid" sub="Money actually received from sales">
+                {o.payments.methods.length === 0 ? <ChartEmpty>No payments in this period.</ChartEmpty> : (
+                  <>
+                    <Donut ariaLabel="Payments by method" centerLabel="Received" centerValue={money(o.payments.received).replace('.00', '')}
+                      segments={o.payments.methods.map((m) => ({ label: `${METHOD[m.method] || m.method} · ${pct(m.percent)}`, value: m.amount, color: METHOD_COLOR[m.method] }))} />
+                  </>)}
+                {Number(o.payments.notYetPaid) > 0 && <p className="note-line" style={{ marginTop: 10 }}><strong>{money(o.payments.notYetPaid)}</strong> was sold on credit in this period and is not yet paid. It is not counted as money received.</p>}
+              </Card>
+              <Card title="Business expenses" sub={`${money(o.expenses.total)} in this period`} action={<Link to={`/expenses?${carry}`} className="small">All expenses</Link>}>
+                {o.expenses.categories.length === 0 ? <ChartEmpty>No expenses recorded in this period.</ChartEmpty> : (
+                  <>
+                    <HBars items={o.expenses.categories.map((c) => ({ label: c.name, value: c.amount, note: pct(c.percent) }))} color={COLORS.amber} />
+                    <ul className="txn" style={{ marginTop: 8 }}>{o.expenses.recent.slice(0, 3).map((e) => (
+                      <li key={e.id}><span className="ico expense"><Receipt size={16} aria-hidden="true" /></span>
+                        <div style={{ minWidth: 0 }}><div className="name">{e.description || e.category}</div><div className="meta muted small">{e.category} · {dateOnly(e.date)}</div></div><span className="amt">{money(e.amount)}</span></li>))}</ul>
+                  </>)}
+              </Card>
             </div>
-            {hasDaily
-              ? <BarChart data={days} series={series} ariaLabel="Sales by day" />
-              : <ChartEmpty>No sales or expenses in this period yet. Record a sale and it will show here.</ChartEmpty>}
-          </section>
-
-          {showProfitTrend && (
-            <section className="chart-card">
-              <div className="head"><div><h2>Gross profit by day</h2><p className="sub">Sales minus what the products cost you</p></div></div>
-              <BarChart data={profitTrend.map((p) => ({ label: new Date(p.date + 'T00:00:00').toLocaleDateString('en-NG', { day: 'numeric', month: 'short' }), title: `${dateOnly(p.date)}: ${money(p.grossProfit)}`, values: { profit: Math.max(Number(p.grossProfit), 0) } }))}
-                series={[{ key: 'profit', label: 'Gross profit', color: COLORS.teal }]} height={160} ariaLabel="Gross profit by day" />
-            </section>
           )}
 
-          <div className="two-col">
-            {d.financial && (
-              <section className="chart-card">
-                <div className="head"><h2>How customers paid</h2></div>
-                {d.paymentBreakdown.length === 0 ? <ChartEmpty>No payments in this period.</ChartEmpty>
-                  : <Donut ariaLabel="Payments by method" centerLabel="Received" centerValue={money(d.moneyReceivedFromSales).replace('.00', '')}
-                      segments={d.paymentBreakdown.map((m) => ({ label: METHOD[m.method] || m.method, value: m.amount, color: METHOD_COLOR[m.method] }))} />}
-              </section>
+          <div className="dash-grid two">
+            <Card title="Products running low" action={<Link to="/more/stock" className="small">See stock</Link>}>
+              <div className="stat-row"><div><b>{o.stock.lowStock}</b><span>running low</span></div><div><b>{o.stock.outOfStock}</b><span>out of stock</span></div><div><b>{o.stock.totalProducts}</b><span>active products</span></div></div>
+              {o.stock.attention.length === 0 ? <p className="note-line">Nothing needs restocking right now.</p> : (
+                <ul className="txn">{o.stock.attention.map((s) => (
+                  <li key={s.variantId}><span className="ico expense"><Package size={16} aria-hidden="true" /></span><div style={{ minWidth: 0 }}><div className="name">{s.name}</div></div><span className="amt">{Number(s.quantity)} left</span></li>))}</ul>)}
+              {o.stock.recentReceipts.length > 0 && <p className="note-line" style={{ marginTop: 10 }}>Last stock received: {o.stock.recentReceipts[0].supplier || 'No supplier'} · {timeAgo(o.stock.recentReceipts[0].at)}</p>}
+            </Card>
+            {fin && (
+              <Card title="Money owed">
+                <Link className="kv" to="/customers?owing=1"><span className="k">Customers owing you<br /><span className="muted small">{o.debts.customersOwing} {o.debts.customersOwing === 1 ? 'customer' : 'customers'}{o.debts.oldestUnpaidCreditDays != null ? ` · oldest unpaid credit ${o.debts.oldestUnpaidCreditDays} ${o.debts.oldestUnpaidCreditDays === 1 ? 'day' : 'days'} old` : ''}</span></span><span className="v num">{money(o.debts.customersOweYou)}</span></Link>
+                {Number(o.debts.invoicesOpen) > 0 && <Link className="kv" to="/more/invoices"><span className="k">Unpaid invoices<br /><span className="muted small">{o.debts.invoicesOpen} {o.debts.invoicesOpen === 1 ? 'invoice' : 'invoices'}{o.debts.invoicesOverdueCount > 0 ? ` · ${o.debts.invoicesOverdueCount} overdue (${money(o.debts.invoicesOverdue)})` : ''}</span></span><span className="v num">{money(o.debts.invoicesOutstanding)}</span></Link>}
+                <Link className="kv" to="/suppliers"><span className="k">Money you owe suppliers<br /><span className="muted small">{o.debts.suppliersOwed} {o.debts.suppliersOwed === 1 ? 'supplier' : 'suppliers'}</span></span><span className="v num">{money(o.debts.youOweSuppliers)}</span></Link>
+                <p className="note-line" style={{ marginTop: 10 }}>Balances are as of today.</p>
+              </Card>
             )}
-            <section className="chart-card">
-              <div className="head"><h2>Sales by category</h2></div>
-              {d.salesByCategory.length === 0 ? <ChartEmpty>No category sales in this period.</ChartEmpty>
-                : <HBars items={d.salesByCategory.slice(0, 6).map((c) => ({ label: c.name, value: c.revenue }))} color={COLORS.teal} />}
-            </section>
-            <section className="chart-card">
-              <div className="head"><h2>Best sellers</h2><span className="sub">By items sold</span></div>
-              {d.topProducts.length === 0 ? <ChartEmpty>Nothing sold in this period.</ChartEmpty>
-                : <HBars items={d.topProducts.map((t) => ({ label: t.name, value: t.quantity, note: `${t.quantity} sold`, onClick: () => nav(`/products?q=${encodeURIComponent(t.name)}`) }))} color={COLORS.blue} />}
-            </section>
-            <section className="chart-card">
-              <div className="head"><h2>Stock health</h2><Link to="/more/stock" className="small">See stock</Link></div>
-              {shTotal === 0 ? <ChartEmpty>Add products to see how your stock is doing.</ChartEmpty> : (
-                <>
-                  <StackBar ariaLabel="Stock health" parts={[{ label: 'Healthy', value: sh.healthy, color: COLORS.teal }, { label: 'Running low', value: sh.low, color: COLORS.amber }, { label: 'Out of stock', value: sh.outOfStock, color: COLORS.red }]} />
-                  <Legend items={[{ label: `${sh.healthy} healthy`, color: COLORS.teal }, { label: `${sh.low} running low`, color: COLORS.amber }, { label: `${sh.outOfStock} out of stock`, color: COLORS.red }]} />
-                </>
-              )}
-              {d.slowMoving.length > 0 && <div className="stack-sm"><strong className="small">In stock but not selling</strong>
-                {d.slowMoving.map((s) => <div className="kv" style={{ padding: '4px 0', border: 0 }} key={s.name}><span className="k">{s.name}</span><span className="v num">{s.quantity} left</span></div>)}</div>}
-            </section>
           </div>
 
-          {d.financial && (
-            <section className="section">
-              <Link className="kv" to="/customers?owing=1"><span className="k">Customers who owe you</span><span className="v num">{money(d.customersOweYou)}</span></Link>
-              <Link className="kv" to="/more/stock"><span className="k">Stock running low</span><span className="v">{d.lowStockCount} {d.lowStockCount === 1 ? 'item' : 'items'}</span></Link>
-              <div className="kv"><span className="k">Value of your stock (at cost)</span><span className="v num">{money(d.stockValue)}</span></div>
-              <details className="pad small muted"><summary style={{ cursor: 'pointer' }}>How are these worked out?</summary>
-                <p style={{ marginTop: 8 }}>Estimated profit = sales {money(d.salesTotal)} − what products cost you {money(d.costOfProductsSold)} − expenses {money(d.expensesTotal)}. It depends on the cost prices you entered. Refunded sales are left out. Credit sales count when made; the money appears in "Money received" when the customer pays.</p></details>
-            </section>
-          )}
-
-          <div className="two-col">
-            <Activity />
-            <section className="section">
-              <div className="section-title row between"><h2>Latest sales</h2>{(can('SALES_VIEW') || can('SALES_HISTORY_VIEW')) && <Link to={`/more/sales?${carry}`} className="small">See all</Link>}</div>
-              {d.recentSales.length === 0 ? <Empty title="No sales in this period" action={can('SALES_CREATE') && <Link className="btn primary" to="/sell">Record a sale</Link>} />
-                : <div className="list">{d.recentSales.map((s) => (
-                  <Link key={s.id} to={`/more/sales?${carry}`} className="list-item">
-                    <div className="grow"><div className="title">Sale #{s.saleNumber}{s.customerName ? ` · ${s.customerName}` : ''}</div><div className="meta">{dateTime(s.createdAt)}</div></div>
-                    <div className="right"><div className="num title">{money(s.total)}</div>{s.status === 'REFUNDED' && <span className="badge danger">Refunded</span>}{Number(s.amountOwed) > 0 && s.status !== 'REFUNDED' && <span className="badge warn">Owes {money(s.amountOwed)}</span>}</div>
-                    <ChevronRight size={18} className="chev" />
-                  </Link>))}</div>}
-            </section>
-          </div>
+          <Card title="Recent transactions" action={canSales && <Link to={`/more/sales?${carry}`} className="small">View all sales</Link>}>
+            {o.recent.length === 0 ? <Empty title="Nothing yet" action={can('SALES_CREATE') && <Link className="btn primary" to="/sell">Record a sale</Link>}>Sales, payments, expenses and stock received will appear here.</Empty> : (
+              <ul className="txn">{o.recent.map((t, i) => {
+                const Icon = TXN_ICON[t.type] || Wallet
+                const inner = (
+                  <>
+                    <span className={`ico ${TXN_TONE[t.type] || ''}`}><Icon size={16} aria-hidden="true" /></span>
+                    <div style={{ minWidth: 0 }}><div className="name">{t.title}</div><div className="meta muted small">{t.detail}{t.detail ? ' · ' : ''}{dateTime(t.at)}{t.status ? ` · ${t.status}` : ''}</div></div>
+                    <span className="amt">{t.amount != null ? `${t.type === 'EXPENSE' ? '−' : ''}${money(t.amount)}` : ''}</span>
+                  </>)
+                return <li key={`${t.type}-${i}`}>{t.link ? <Link to={t.link} style={{ display: 'contents', color: 'inherit' }}>{inner}</Link> : inner}</li>
+              })}</ul>)}
+          </Card>
         </>
       )}
     </div>

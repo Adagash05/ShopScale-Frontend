@@ -44,7 +44,7 @@ export default function Products() {
     <div className="stack">
       <div className="page-head">
         <div><h1>Products</h1><p className="sub">What you sell and how many you have</p></div>
-        {can('PRODUCTS_CREATE') && <Link to="/products/new" className="btn primary"><Plus size={18} /> Add product</Link>}
+        {can('PRODUCTS_CREATE') && <div className="row"><Link to="/products/import" className="btn">Import</Link><Link to="/products/new" className="btn primary"><Plus size={18} /> Add product</Link></div>}
       </div>
       <div style={{ position: 'relative' }}>
         <Search size={18} style={{ position: 'absolute', left: 12, top: 14, color: 'var(--muted)' }} aria-hidden="true" />

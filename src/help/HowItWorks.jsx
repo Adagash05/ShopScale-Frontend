@@ -4,6 +4,8 @@ import { useSeo } from '../marketing/Seo.jsx'
 import Illustration from './Illustrations.jsx'
 import { SupportCard } from './HelpCentre.jsx'
 import DemoVideo from './DemoVideo.jsx'
+import { Shot } from './blocks.jsx'
+import { SHOTS } from './shots.js'
 import './help.css'
 
 const Section = ({ id, title, sub, alt, children }) => (
@@ -14,6 +16,13 @@ const Section = ({ id, title, sub, alt, children }) => (
       {children}
     </div>
   </section>
+)
+
+/** Real screenshots of the running app (demo data). Each one renders only if its file exists; none is drawn or stock. */
+const Gallery = ({ ids }) => (
+  <div className="hiw-shots">
+    {ids.map((id) => <Shot key={id} id={id} caption={SHOTS.find((x) => x.id === id)?.caption} />)}
+  </div>
 )
 
 const Cards = ({ items }) => (
@@ -46,7 +55,7 @@ export const HIW_FAQ = [
 ]
 
 export default function HowItWorks() {
-  useSeo({ title: 'How ShopScale works', description: 'See how a business sets up ShopScale, sells in the shop and online, receives and processes orders, manages staff and branches, and tracks money. Step by step, in plain language.', path: '/how-it-works' })
+  useSeo({ title: 'How ShopScale works', description: 'See how a business sets up ShopScale, sells in the shop and online, receives and processes orders, manages staff, and tracks money. Step by step, in plain language.', path: '/how-it-works' })
   return (
     <>
       <section className="hiw-hero" aria-labelledby="hiw-title">
@@ -78,11 +87,12 @@ export default function HowItWorks() {
       <Section id="getting-started" title="Getting started" sub="Set up takes a few minutes.">
         <Steps items={[
           { title: 'Create your account', text: 'Sign up with your email and start the 14-day free trial.' },
-          { title: 'Choose your business type', text: 'Pick the type that fits you, such as a shop, restaurant, bakery or caterer. ShopScale shows the tools for that type.' },
+          { title: 'Choose your business type', text: 'Pick the type that fits you, such as a shop or a wholesale business. ShopScale shows the tools for that type.' },
           { title: 'Add your business details', text: 'Your business name and contact details appear on receipts and your store.' },
           { title: 'Add your first products and start selling', text: 'The first-steps guide takes you through the order that works best.' },
         ]} />
         <p><Link to="/help/getting-started/first-steps">Read: Your first steps in ShopScale</Link></p>
+        <Gallery ids={['dashboard']} />
       </Section>
 
       <Section id="products" alt title="Products and inventory" sub="Everything you sell, and how much of it you have.">
@@ -91,6 +101,7 @@ export default function HowItWorks() {
           { title: 'Keep stock correct', text: 'Stock goes down when sales are recorded. When you count and find a difference, record a stock adjustment.', to: '/help/products/stock-adjustments' },
           { title: 'Reorder in time', text: 'Set a low-stock level and ShopScale flags products that need restocking.', to: '/help/products/low-stock' },
         ]} />
+        <Gallery ids={['products-list']} />
       </Section>
 
       <Section id="pos" title="Selling in person with the point of sale" sub="For counters, market stalls and walk-in customers.">
@@ -101,6 +112,7 @@ export default function HowItWorks() {
           { title: 'Receipt and records', text: 'The sale is saved, stock goes down and your reports update.' },
         ]} />
         <p><Link to="/help/sales/make-a-sale">Read: Make a sale</Link></p>
+        <Gallery ids={['sell-screen', 'sell-receipt']} />
       </Section>
 
       <Section id="storefront" alt title="Creating and running an online storefront" sub="Your own store link, with your products, ready for customers.">
@@ -111,6 +123,7 @@ export default function HowItWorks() {
           { title: 'Share your link', text: 'Send the store link to customers on WhatsApp, social media or print it.' },
         ]} />
         <p><Link to="/help/storefront/activate-store">Read: Open your online store</Link> · <Link to="/help/storefront/overview">How the online store works</Link></p>
+        <Gallery ids={['store-settings']} />
       </Section>
 
       <Section id="customers" title="How customers discover and order" sub="What your customer experiences.">
@@ -121,6 +134,7 @@ export default function HowItWorks() {
           { title: 'They pay', text: 'Online payments are confirmed by Paystack. Pay-on-handover orders are settled when the customer receives the order.' },
         ]} />
         <p><Link to="/help/storefront/checkout">Read: What happens at checkout</Link></p>
+        <Gallery ids={['store-public', 'store-cart']} />
       </Section>
 
       <Section id="receiving" alt title="How you receive and process online orders" sub="An order is not the same as a payment.">
@@ -128,6 +142,7 @@ export default function HowItWorks() {
         <p className="sub" style={{ marginTop: 12 }}>
           Do not prepare an order that is still <strong>Pending payment</strong>. It has been created but the payment is not confirmed. <Link to="/help/orders/process-orders">Read: Process an order from start to finish</Link>.
         </p>
+        <Gallery ids={['online-orders']} />
       </Section>
 
       <Section id="payments" title="Payments and fulfilment" sub="Getting paid, then getting the order to the customer.">
@@ -138,42 +153,32 @@ export default function HowItWorks() {
         ]} />
       </Section>
 
-      <Section id="people" alt title="Employees and branches" sub="Run ShopScale with your team and more than one location.">
+      <Section id="people" alt title="Your team" sub="Run ShopScale with your staff.">
         <Cards items={[
           { title: 'Add your team', text: 'Invite staff and give each person only the access they need.', to: '/help/employees/add-team' },
           { title: 'Roles and permissions', text: 'Choose what each role can see and do.', to: '/help/employees/permissions' },
-          { title: 'Branches', text: 'Add locations, keep stock for each one and move stock between them.', to: '/help/branches/create-branch' },
         ]} />
+        <Gallery ids={['team']} />
       </Section>
 
-      <Section id="kitchen" title="Restaurants, kitchens and catering" sub="For businesses that prepare food.">
-        <Cards items={[
-          { title: 'Menu and orders', text: 'Build your menu, take dine-in, takeaway and delivery orders and track them.', to: '/help/restaurant/orders' },
-          { title: 'Kitchen screen', text: 'The kitchen sees what is waiting, being made and ready to serve.', to: '/help/restaurant/kitchen' },
-          { title: 'Bakeries', text: 'Bakeries use the same tools with a simpler set-up.', to: '/help/restaurant/bakery' },
-          { title: 'Catering events', text: 'Create packages, record events and bookings, and track payments and profit.', to: '/help/catering/events' },
-        ]} />
-      </Section>
-
-      <Section id="money" alt title="Monitoring your money and operations" sub="See how the business is doing without a spreadsheet.">
+      <Section id="money" title="Monitoring your money and operations" sub="See how the business is doing without a spreadsheet.">
         <Cards items={[
           { title: 'Dashboard', text: 'Sales, money received, expenses and estimated profit at a glance.', to: '/help/getting-started/dashboard' },
           { title: 'Expenses and cash', text: 'Record what you spend and keep track of your cash and bank accounts.', to: '/help/finance/expenses' },
           { title: 'Customers who owe you', text: 'See who owes you and how much.', to: '/help/finance/debtors' },
           { title: 'Reports', text: 'Sales and stock reports for the period you choose.', to: '/help/finance/financial-reports' },
         ]} />
+        <Gallery ids={['money']} />
       </Section>
 
-      <Section id="types" title="Supported business types" sub="ShopScale adapts to how you work.">
+      <Section id="types" alt title="Supported business types" sub="ShopScale adapts to how you work.">
         <Cards items={[
           { title: 'Shop and retail', text: 'Fashion, supermarkets, pharmacies, general stores and more. Sell in person and online.', to: '/retail', link: 'See retail' },
-          { title: 'Restaurant', text: 'Menus, tables, orders and a kitchen screen.', to: '/restaurant', link: 'See restaurants' },
-          { title: 'Bakery', text: 'A simple set-up for baked goods, ingredients and production.', to: '/help/restaurant/bakery' },
-          { title: 'Catering', text: 'Events, packages, bookings and payments.', to: '/catering', link: 'See catering' },
+          { title: 'Wholesale', text: 'Sell in bulk to other traders, track who owes you and who you owe.', to: '/help/getting-started/dashboard' },
         ]} />
       </Section>
 
-      <Section id="faq" alt title="Frequently asked questions">
+      <Section id="faq" title="Frequently asked questions">
         <div className="hiw-faq">
           {HIW_FAQ.map(([q, a]) => (<details key={q}><summary>{q}</summary><p>{a}</p></details>))}
         </div>

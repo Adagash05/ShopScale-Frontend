@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { V1_SCOPE } from '../../config/scope.js'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import { ErrorBox, Field, Skeleton, useLoad, useToast } from '../../components.jsx'
@@ -78,6 +79,7 @@ export default function StoreSettings() {
         ) : <p className="muted">Ask the owner to connect Paystack.</p>}
       </section>
 
+      {!V1_SCOPE && (
       <section className="section pad stack">
         <h2>Custom domain</h2>
         {!s.data.customDomainAvailable ? <p className="muted">Custom domains are included in the Business plan. <Link to="/more/plan">See plans</Link></p> : (
@@ -92,6 +94,7 @@ export default function StoreSettings() {
           </>
         )}
       </section>
+      )}
     </div>
   )
 }

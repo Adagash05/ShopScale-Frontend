@@ -31,6 +31,7 @@ export function daysLeft(iso, now = new Date()) {
 export const RANGES = [
   { id: 'today', label: 'Today' },
   { id: 'yesterday', label: 'Yesterday' },
+  { id: 'thisWeek', label: 'This week' },
   { id: 'last7', label: 'Last 7 days' },
   { id: 'last30', label: 'Last 30 days' },
   { id: 'thisMonth', label: 'This month' },

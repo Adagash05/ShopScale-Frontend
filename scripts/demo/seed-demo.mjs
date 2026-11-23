@@ -206,7 +206,8 @@ async function seedRetail(api, acc) {
     await e('Internet', 12000, 2, 'Monthly data plan', 'CARD')
   })
 
-  await step('branch and stock transfer', async () => {
+  // Branches and transfers are outside the V1 product: the server refuses them while V1_SCOPE is on. Set DEMO_INCLUDE_HIDDEN=1 only against a backend started with V1_SCOPE=false.
+  if (INCLUDE_HIDDEN) await step('branch and stock transfer', async () => {
     const have = await api.get('/api/branches')
     let second = have.find((b) => b.name === 'Aminu Stores, Ikeja Branch')
     if (!second) second = await api.post('/api/branches', { name: 'Aminu Stores, Ikeja Branch', address: '12 Allen Avenue, Ikeja', phone: '08000000011' })
@@ -385,17 +386,30 @@ async function seedCatering(api) {
 }
 
 // ---------------------------------------------------------------- run
-const PLAN = [
+const INCLUDE_HIDDEN = process.env.DEMO_INCLUDE_HIDDEN === '1'
+const PLAN_ALL = [
   ['retail', 'Aminu Stores (retail): 21 products, customers, suppliers, purchases, sales on credit, expenses, a second branch and transfer, team invitations, online store with orders', seedRetail],
   ['restaurant', 'Royal Kitchen Restaurant: menu, ingredients, tables, menu options, dine-in/takeaway/delivery orders on the kitchen board', seedRestaurant],
   ['bakery', 'Golden Crust Bakery: bread, cakes, pastries, recipe and production run, sales, online store with orders', seedBakery],
   ['catering', 'Fresh Harvest Foods: packages, services, customers and events from enquiry to in preparation', seedCatering],
 ]
+// V1 sign-up allows shops and wholesalers only, so the restaurant, bakery and catering demos are skipped unless the hidden modules are on.
+const PLAN = PLAN_ALL.filter(([k]) => INCLUDE_HIDDEN || k === 'retail')
 const DESCRIPTIONS = {
   retail: ['Quality groceries and household goods in Ikeja, Lagos. (Demo business)', '14 Allen Avenue, Ikeja, Lagos'],
   restaurant: ['Nigerian dishes, grills and drinks. (Demo business)', '2 Admiralty Way, Lekki, Lagos'],
   bakery: ['Fresh bread, cakes and pastries. (Demo business)', '8 Bodija Market Road, Ibadan'],
   catering: ['Weddings, corporate lunches and events. (Demo business)', '21 Adeola Odeku Street, Victoria Island, Lagos'],
+}
+
+/** The first-time-user account: registered, but deliberately without a business, so onboarding can be captured. */
+async function ensureNewUser() {
+  const acc = ACCOUNTS.newuser
+  try { await http('POST', '/api/auth/login', null, { email: acc.email, password: DEMO_PASSWORD }); log('  already exists ' + acc.email) } catch (e) {
+    if (e.status !== 401) throw e
+    await http('POST', '/api/auth/register', null, { email: acc.email, password: DEMO_PASSWORD, fullName: acc.fullName, phone: acc.phone })
+    log('  created demo account ' + acc.email + ' (no business yet, on purpose)')
+  }
 }
 
 try { assertLocalBackend() } catch (e) { console.error(e.message); process.exit(2) }
@@ -406,6 +420,10 @@ for (const [key, what, fn] of chosen) {
   log(`\n== ${what}\n   sign in: ${acc.email}`)
   if (DRY) continue
   try { const api = await session(acc); await fn(api, acc) } catch (e) { failures.push(`${key}: ${e.message}`); log('  FAIL ' + e.message) }
+}
+if (!only.length || only.includes('newuser')) {
+  log(`\n== First-time user (onboarding screens)\n   sign in: ${ACCOUNTS.newuser.email}`)
+  if (!DRY) { try { await ensureNewUser() } catch (e) { failures.push('newuser: ' + e.message); log('  FAIL ' + e.message) } }
 }
 log(failures.length ? `\nFinished with ${failures.length} problem(s). Fix the cause and run the seed again; it only adds what is missing:\n - ${failures.join('\n - ')}` : '\nDemo data is ready.')
 process.exit(failures.length ? 1 : 0)

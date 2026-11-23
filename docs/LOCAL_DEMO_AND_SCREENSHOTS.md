@@ -72,17 +72,18 @@ Now **sign in to http://localhost:5173/login as Aminu Stores and look around**: 
 
 ## 6. Capture the screenshots
 ```powershell
-npm run help:shots                       # all 40 screenshots
+npm run help:shots                       # all screenshots (desktop 960x720 and phone 420x860, both at 2x)
 npm run help:shots -- --only=dashboard,product-form    # a few
 npm run help:shots -- --headed           # watch the browser
 npm run help:shots -- --list             # show the plan only
 # If PowerShell drops the "--", call the script directly instead: node scripts\capture-help-screenshots.mjs --only=dashboard
 ```
-Pictures are saved to `public\help\shots\`. Anything that could not be captured is listed with the reason, and no file is written for it. Fix the cause (or the click steps for that shot in `src/help/shots.js`) and re-run with `--only=<id>`.
+Pictures are saved to `public\help\shots\` as `<id>.png`, with `<id>.json` holding the outline position the Help Centre draws over the picture. The seed also creates a first-time user (`new.owner@demo.shopscale.test`, no business) for the onboarding screens. Three shots change demo data when captured (`product-saved` adds a product, `sell-receipt` records a sale, `store-order-placed` places an order). Anything that could not be captured is listed with the reason, and no file is written for it. Fix the cause (or the click steps for that shot in `src/help/shots.js`) and re-run with `--only=<id>`.
 
 ## 7. Verify, and look at every picture
 ```powershell
 node scripts/verify-help-screenshots.mjs
+node scripts/help-visual-report.mjs      # every article's picture slots: ok or MISSING
 explorer public\help\shots
 ```
 The check confirms each file exists, is a real PNG, is large enough and is not blank. **It cannot tell whether the picture is right**, so open each one and check: the right screen, demo data only, nothing cut off or showing an error. Delete any that are wrong and re-capture them.
@@ -93,7 +94,7 @@ npm run build
 npm run help:shots:verify        # also checks dist\help\shots
 npm run preview
 ```
-Open the preview address and visit `/help/storefront/overview` (the six-step walkthrough: open store, customer browses, cart, checkout, order arrives, order processed), `/help/products/create-product`, and `/how-it-works`. Pictures should show under the numbered steps, resize on a narrow window, and open full-size when clicked.
+Open the preview address and visit `/help/storefront/overview` (the six-step walkthrough: open store, customer browses, cart, checkout, order arrives, order processed), `/help/products/create-product`, and `/how-it-works`. Each numbered step should show its own picture (large, readable, outlined, with a caption), phone screens beside the text on a wide window and under it on a narrow one, resize on a narrow window, and open full-size when clicked.
 
 ## 9. Record the one-minute demo video (optional but requested)
 ```powershell

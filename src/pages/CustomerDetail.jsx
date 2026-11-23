@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext.jsx'
 import { Empty, ErrorBox, Field, Modal, Skeleton, useLoad, useToast } from '../components.jsx'
 import { dateTime, money } from '../lib/format.js'
 import { CustomerForm } from './Customers.jsx'
+import RemindCustomer from './invoices/RemindCustomer.jsx'
 
 const METHOD = { CASH: 'Cash', TRANSFER: 'Bank transfer', CARD: 'Card' }
 
@@ -42,6 +43,7 @@ export default function CustomerDetail() {
   const d = useLoad(() => api.get(`/customers/${id}`), [id])
   const [paying, setPaying] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [reminding, setReminding] = useState(false)
   if (d.error) return <div className="stack"><Link to="/customers" className="btn sm">Back</Link><ErrorBox error={d.error} onRetry={d.reload} /></div>
   if (!d.data) return <div className="stack"><Skeleton height={28} width="40%" /><Skeleton height={120} /></div>
   const { customer: c, payments, recentSales } = d.data
@@ -56,6 +58,7 @@ export default function CustomerDetail() {
       <section className="section">
         <div className="hero-figure"><div className="label">{owes ? 'Amount remaining to pay you' : 'Nothing owed'}</div><div className="value num" style={{ color: owes ? 'var(--danger)' : 'var(--ok)' }}>{money(c.balance)}</div></div>
         {owes && can('REPAYMENTS_RECORD') && <div className="pad" style={{ paddingTop: 0 }}><button className="btn primary block" onClick={() => setPaying(true)}>Record a payment</button></div>}
+        {owes && <div className="pad" style={{ paddingTop: 0 }}><button className="btn block" onClick={() => setReminding(true)}>Remind customer</button></div>}
         {(c.address || c.notes) && <div className="pad small muted" style={{ borderTop: '1px solid var(--line)' }}>{c.address && <p>{c.address}</p>}{c.notes && <p>{c.notes}</p>}</div>}
       </section>
       <section className="section">
@@ -68,6 +71,7 @@ export default function CustomerDetail() {
         {recentSales.length === 0 ? <Empty title="No purchases yet" /> : recentSales.map((s) => (
           <div className="kv" key={s.id}><span className="k">Sale #{s.saleNumber} · {dateTime(s.createdAt)} {s.status === 'REFUNDED' && <span className="badge danger">Refunded</span>}</span><span className="v num">{money(s.total)}</span></div>))}
       </section>
+      {reminding && <RemindCustomer customerName={c.name} phone={c.phone} balance={c.balance} onClose={() => setReminding(false)} />}
       {paying && <PayModal customer={c} onClose={() => setPaying(false)} onDone={d.setData} />}
       {editing && <CustomerForm title="Edit customer" initial={c} onClose={() => setEditing(false)} onSaved={d.reload} />}
     </div>

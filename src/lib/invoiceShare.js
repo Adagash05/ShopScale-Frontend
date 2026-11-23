@@ -60,3 +60,17 @@ export function previewTotals(lines, invoiceDiscount = 0) {
 
 export const STATUS_LABEL = { DRAFT: 'Draft', SENT: 'Sent', PARTIALLY_PAID: 'Partly paid', PAID: 'Paid', OVERDUE: 'Overdue', CANCELLED: 'Cancelled' }
 export const STATUS_BADGE = { DRAFT: 'gray', SENT: '', PARTIALLY_PAID: 'warn', PAID: 'ok', OVERDUE: 'danger', CANCELLED: 'gray' }
+
+const FIELD_WORDS = { description: 'description', quantity: 'quantity', unitPrice: 'unit price', discount: 'discount', taxRate: 'tax rate', dueDate: 'due date',
+  customerName: 'customer name', customerPhone: 'phone', invoiceDiscount: 'invoice discount', paymentTerms: 'payment terms', note: 'note', paymentInstructions: 'payment instructions' }
+
+/** The server's "Please check the highlighted fields" is useless on its own here, so say which field and why: "Item 2: unit price must be greater than or equal to 0". */
+export function describeError(e) {
+  const fe = e && e.fieldErrors
+  if (!fe || !Object.keys(fe).length) return (e && e.message) || 'Something went wrong.'
+  return Object.entries(fe).slice(0, 4).map(([path, why]) => {
+    const m = /^items\[(\d+)\]\.(\w+)$/.exec(path)
+    if (m) return `Item ${Number(m[1]) + 1}: ${FIELD_WORDS[m[2]] || m[2]} ${why}`
+    return `${FIELD_WORDS[path] || path}: ${why}`
+  }).join('. ')
+}
