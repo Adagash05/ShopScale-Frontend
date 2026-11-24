@@ -28,7 +28,7 @@ export default {
     article('manage-access', 'Managing employee access', 'Change a role or remove access any time.', [
       list('**Change role** moves someone to a different set of permissions.', '**Remove access** stops them signing in to your business ("Access removed").', '**Restore access** brings them back ("Access restored").'),
       p('Removing access keeps everything they recorded. History is never deleted.'),
-      p('The **Activity history** under More shows who did what, if your role allows.'),
+      p('The **Activity history** under More shows who did what, if your role allows. It is included in the Growth and Business plans.'),
     ], { related: ['employees/roles'] }),
 
     article('cashiers', 'Understanding cashier operations', 'Sales staff record sales; shifts let you reconcile the till.', [

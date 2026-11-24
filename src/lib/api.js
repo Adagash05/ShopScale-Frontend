@@ -31,10 +31,12 @@ function legacyRefresh() {
 }
 
 export class ApiError extends Error {
-  constructor(status, message, fieldErrors) {
+  constructor(status, message, fieldErrors, code, details) {
     super(message)
     this.status = status
     this.fieldErrors = fieldErrors || null
+    this.code = code || null       // e.g. PLAN_LIMIT_REACHED, FEATURE_NOT_IN_PLAN, REMINDER_LIMIT_REACHED
+    this.details = details || null
   }
 }
 
@@ -59,7 +61,8 @@ async function parse(res) {
       : res.status >= 500
       ? 'Something went wrong on our side. Please try again.'
       : 'Something went wrong. Please try again.'
-    throw new ApiError(res.status, data?.message || fallback, data?.fieldErrors)
+    if (res.status === 402 && data?.code && typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('shopscale:upgrade', { detail: { message: data.message, code: data.code, details: data.details } }))
+    throw new ApiError(res.status, data?.message || fallback, data?.fieldErrors, data?.code, data?.details)
   }
   return data
 }

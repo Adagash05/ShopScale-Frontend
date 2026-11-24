@@ -27,6 +27,9 @@ export const FEATURE_LABELS = {
   ADVANCED_STAFF_PERMISSIONS: 'Advanced staff permissions',
   PRIORITY_SUPPORT: 'Priority support',
   ASK_SHOPSCALE: 'Ask ShopScale (business questions answered from your records)',
+  BEST_SELLING_PRODUCTS: 'Best-selling product reports',
+  BEST_SELLING_CUSTOMERS: 'Best-selling customer reports',
+  WHATSAPP_REMINDERS: 'WhatsApp invoice reminders',
 }
 
 /** Plan features that only unlock modules hidden in the V1 product. They are not advertised while V1 is on; the plan data itself is unchanged. */
@@ -35,7 +38,7 @@ export const V1_HIDDEN_FEATURES = ['PURCHASING', 'WHOLESALE_PRICING', 'CASH_RECO
 /**
  * Advertised on the pricing page but not delivered as described, so not advertised until it is (plan data is unchanged):
  * STAFF_PERMISSIONS (not enforced by the server; custom roles are hidden in V1) and PRIORITY_SUPPORT (support tickets are not prioritised by plan).
- * ACTIVITY_HISTORY is a separate decision for the owner: the server does not restrict it to Business, so every plan has it today.
+ * ACTIVITY_HISTORY is now enforced by the server for Growth and Business only (the owner's decision), so it is advertised.
  */
 export const NOT_YET_DELIVERED = ['STAFF_PERMISSIONS', 'PRIORITY_SUPPORT']
 export const advertised = (feature, scope = true) => !NOT_YET_DELIVERED.includes(feature) && !(scope && V1_HIDDEN_FEATURES.includes(feature))

@@ -9,6 +9,7 @@ import { useAuth } from './auth/AuthContext.jsx'
 import Layout from './pages/Layout.jsx'
 import MarketingLayout from './marketing/MarketingLayout.jsx'
 import { Skeleton } from './components.jsx'
+import UpgradeBanner from './widgets/UpgradeBanner.jsx'
 import { moduleRoutes } from './modules/registry.js'
 import { V1_SCOPE } from './config/scope.js'
 
@@ -275,6 +276,7 @@ export default function App() {
   return (
     <Suspense fallback={<Splash />}>
       <ReferralCapture />
+      <UpgradeBanner />
       <Routes>
         {homeRoute}
         {MODE !== 'app' && marketingRoutes}

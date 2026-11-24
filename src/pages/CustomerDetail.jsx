@@ -71,7 +71,7 @@ export default function CustomerDetail() {
         {recentSales.length === 0 ? <Empty title="No purchases yet" /> : recentSales.map((s) => (
           <div className="kv" key={s.id}><span className="k">Sale #{s.saleNumber} · {dateTime(s.createdAt)} {s.status === 'REFUNDED' && <span className="badge danger">Refunded</span>}</span><span className="v num">{money(s.total)}</span></div>))}
       </section>
-      {reminding && <RemindCustomer customerName={c.name} phone={c.phone} balance={c.balance} onClose={() => setReminding(false)} />}
+      {reminding && <RemindCustomer customerId={c.id} customerName={c.name} phone={c.phone} balance={c.balance} onClose={() => setReminding(false)} />}
       {paying && <PayModal customer={c} onClose={() => setPaying(false)} onDone={d.setData} />}
       {editing && <CustomerForm title="Edit customer" initial={c} onClose={() => setEditing(false)} onSaved={d.reload} />}
     </div>

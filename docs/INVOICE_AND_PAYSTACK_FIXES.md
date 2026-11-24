@@ -46,3 +46,6 @@ None added. V27/V28 from the previous delivery are unchanged.
 
 ## 6. Resolved?
 Neither issue can be called verified resolved. The diagnosability and duplicate-submit defects are fixed in code (uncompiled); the root causes still need your log output.
+
+## Addendum: dashboard error (my regression, fixed)
+In the invoicing release I changed the dashboard's "customers paying what they owed" line to `customerPayments.sumBetween(...).add(...)`. That query is a plain SQL `sum()`, which is **null** when there are no repayments in the period, so the call threw a NullPointerException and the dashboard returned an error for any business with no customer repayments in the selected period. Fixed in `DashboardService.java` (the sum is null-safe again). The new invoice queries were also rewritten as plain single-value aggregates with null handled in `InvoiceReporting`, and `InvoiceReportingTest` now covers the null case. Not run (no Maven here); syntax-checked with `javac` only.

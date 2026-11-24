@@ -13,11 +13,11 @@ vi.mock('../lib/api', () => ({ api: { get: vi.fn(), post: vi.fn(), del: vi.fn(),
 
 const PLANS = [
   { code: 'FREE', name: 'Free', monthlyPrice: '0.00', annualPrice: '0.00', features: [], maxUsers: 1, maxLocations: 1, maxItems: 15 },
-  { code: 'GROWTH', name: 'Growth', monthlyPrice: '11999.00', annualPrice: '119990.00', features: [], maxUsers: 5, maxLocations: 2, maxItems: 500, recommended: true },
+  { code: 'GROWTH', name: 'Growth', monthlyPrice: '14999.00', annualPrice: '149990.00', features: [], maxUsers: 5, maxLocations: 2, maxItems: 200, recommended: true },
 ]
 const CURRENT = { planCode: 'GROWTH', planName: 'Growth', status: 'ACTIVE', billingCycle: 'MONTHLY', periodEnd: '2026-12-15T10:00:00Z', writable: true, features: [] }
-const BILLING = { autoRenew: true, autoRenewAvailable: true, nextRenewalAt: '2026-12-15T10:00:00Z', nextRenewalAmount: '11999.00', cycle: 'MONTHLY', paymentMethod: { brand: 'visa', last4: '4081', expMonth: '12', expYear: '2030' }, lastRenewal: null, lastPayment: { paidAt: '2026-11-15T10:00:00Z', amount: '11999.00' } }
-const PAYMENTS = (status = 'SUCCESS') => [{ id: '1', planCode: 'GROWTH', cycle: 'MONTHLY', kind: 'NEW', amount: '11999.00', status, reference: 'SSB-abc', paidAt: '2026-11-15T10:00:00Z', periodEnd: '2026-12-15T10:00:00Z', createdAt: '2026-11-15T10:00:00Z', source: 'CHECKOUT' }]
+const BILLING = { autoRenew: true, autoRenewAvailable: true, nextRenewalAt: '2026-12-15T10:00:00Z', nextRenewalAmount: '14999.00', cycle: 'MONTHLY', paymentMethod: { brand: 'visa', last4: '4081', expMonth: '12', expYear: '2030' }, lastRenewal: null, lastPayment: { paidAt: '2026-11-15T10:00:00Z', amount: '14999.00' } }
+const PAYMENTS = (status = 'SUCCESS') => [{ id: '1', planCode: 'GROWTH', cycle: 'MONTHLY', kind: 'NEW', amount: '14999.00', status, reference: 'SSB-abc', paidAt: '2026-11-15T10:00:00Z', periodEnd: '2026-12-15T10:00:00Z', createdAt: '2026-11-15T10:00:00Z', source: 'CHECKOUT' }]
 
 function setup({ billing = BILLING, current = CURRENT, payments = PAYMENTS(), verify, url = '/more/plan' } = {}) {
   api.public.get.mockResolvedValue(PLANS)
@@ -26,7 +26,7 @@ function setup({ billing = BILLING, current = CURRENT, payments = PAYMENTS(), ve
     if (path === '/subscriptions/payments') return payments
     if (path === '/subscriptions/billing-status') return { configured: true }
     if (path === '/subscriptions/billing') return billing
-    if (path === '/subscriptions/quote') return { planCode: 'GROWTH', planName: 'Growth', cycle: 'MONTHLY', listPrice: '11999.00', credit: '0', amount: '11999.00', kind: 'NEW' }
+    if (path === '/subscriptions/quote') return { planCode: 'GROWTH', planName: 'Growth', cycle: 'MONTHLY', listPrice: '14999.00', credit: '0', amount: '14999.00', kind: 'NEW' }
     throw new Error('unexpected GET ' + path)
   })
   api.post.mockImplementation(async (path, body) => {

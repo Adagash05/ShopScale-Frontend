@@ -12,7 +12,7 @@ vi.mock('../auth/AuthContext.jsx', () => ({ useAuth: () => ({ acceptInvite }) })
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 const plans = [
   { code: 'ESSENTIAL', name: 'Essential', monthlyPrice: 4999, annualPrice: 49990, maxUsers: 2, maxLocations: 1, maxItems: 100, maxCustomers: 100, maxExpenses: 100, maxSuppliers: 20, recommended: false, features: ['POS'] },
-  { code: 'GROWTH', name: 'Growth', monthlyPrice: 11999, annualPrice: 119990, maxUsers: 5, maxLocations: 2, maxItems: 500, maxCustomers: null, maxExpenses: null, maxSuppliers: 50, recommended: true, features: ['POS', 'ADVANCED_FINANCE'] },
+  { code: 'GROWTH', name: 'Growth', monthlyPrice: 14999, annualPrice: 149990, maxUsers: 5, maxLocations: 2, maxItems: 200, maxCustomers: null, maxExpenses: null, maxSuppliers: 50, recommended: true, features: ['POS', 'ADVANCED_FINANCE'] },
   { code: 'BUSINESS', name: 'Business', monthlyPrice: 24999, annualPrice: 249990, maxUsers: 10, maxLocations: 5, maxItems: null, maxCustomers: null, maxExpenses: null, maxSuppliers: null, recommended: false, features: ['POS', 'ADVANCED_FINANCE', 'CUSTOM_DOMAINS'] },
 ]
 

@@ -10,7 +10,7 @@ const fmt = (type, v) => (v == null ? '—' : type === 'money' ? money(v) : type
 function Upgrade() {
   return (
     <div className="dash-card stack-sm">
-      <h2>Ask ShopScale is on the Essential plan and above</h2>
+      <h2>Ask ShopScale is on the Growth and Business plans</h2>
       <p className="muted">Pick a question such as "Which products sold the most?" or "Which customers owe me money?" and get a plain answer from your own sales, payments and expenses. It is not a chatbot: it answers a fixed set of questions using your records.</p>
       <div><Link to="/more/plan" className="btn primary">See plans</Link></div>
     </div>

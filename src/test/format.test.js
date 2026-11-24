@@ -22,7 +22,7 @@ describe('format', () => {
 
 describe('plans', () => {
   const essential = { code: 'ESSENTIAL', monthlyPrice: 4999, annualPrice: 49990, maxItems: 100, features: ['POS'] }
-  const growth = { code: 'GROWTH', monthlyPrice: 11999, annualPrice: 119990, maxItems: 500, features: ['POS', 'ADVANCED_FINANCE'] }
+  const growth = { code: 'GROWTH', monthlyPrice: 14999, annualPrice: 149990, maxItems: 500, features: ['POS', 'ADVANCED_FINANCE'] }
   it('shows two months free as the annual saving', () => {
     expect(annualSavings(essential)).toBe(9998)
     expect(annualSavings(growth)).toBe(23998)

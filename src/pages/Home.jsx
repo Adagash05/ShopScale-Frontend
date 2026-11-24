@@ -34,6 +34,11 @@ function Loading() {
   )
 }
 
+/** Plan-locked card body. The server does not send this data on plans without it; this only says why it is empty. */
+function LockedNote({ children }) {
+  return <div className="chart-empty" role="status"><p style={{ margin: 0 }}>{children}</p><p style={{ margin: '8px 0 0' }}><Link to="/more/plan" className="small"><strong>See plans</strong></Link></p></div>
+}
+
 export default function Home() {
   const { business, can } = useAuth()
   const [sp, setSp] = useSearchParams()
@@ -102,7 +107,7 @@ export default function Home() {
 
           <div className="dash-grid two">
             <Card title="Best-selling products" sub="Ranked by sales value" action={<Link to="/products" className="small">All products</Link>}>
-              {o.bestProducts.length === 0 ? <ChartEmpty>Nothing sold in this period.</ChartEmpty> : (
+              {o.bestProductsAvailable === false ? <LockedNote>Best-selling product reports are included in the Growth and Business plans.</LockedNote> : o.bestProducts.length === 0 ? <ChartEmpty>Nothing sold in this period.</ChartEmpty> : (
                 <ol className="rank">{o.bestProducts.slice(0, 6).map((p, i) => (
                   <li key={p.name}>
                     <span className="n">{i + 1}</span>
@@ -113,7 +118,7 @@ export default function Home() {
                   </li>))}</ol>)}
             </Card>
             <Card title="Best customers" sub={o.customersServed ? `${o.customersServed} named ${o.customersServed === 1 ? 'customer' : 'customers'} bought` : 'Named customers only'} action={<Link to="/customers" className="small">All customers</Link>}>
-              {o.bestCustomers.length === 0 ? <ChartEmpty>No sales to named customers in this period. Add a customer when you sell to see them here.</ChartEmpty> : (
+              {o.bestCustomersAvailable === false ? <LockedNote>Best-selling customer reports are included in the Growth and Business plans.</LockedNote> : o.bestCustomers.length === 0 ? <ChartEmpty>No sales to named customers in this period. Add a customer when you sell to see them here.</ChartEmpty> : (
                 <ol className="rank people">{o.bestCustomers.slice(0, 6).map((c, i) => (
                   <li key={c.id}>
                     <span className="n">{i + 1}</span>

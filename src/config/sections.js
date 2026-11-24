@@ -38,7 +38,7 @@ export const SECTIONS = [
     { to: '/more/team', label: 'Team', needs: 'TEAM_VIEW' },
     { to: '/more/plan', label: 'Plan and billing', needs: 'SUBSCRIPTION_VIEW' },
     { to: '/more/export', label: 'Export data', needs: 'DATA_EXPORT', feature: 'DATA_EXPORT' },
-    { to: '/more/activity', label: 'Activity history', needs: 'ACTIVITY_VIEW' },
+    { to: '/more/activity', label: 'Activity history', needs: 'ACTIVITY_VIEW', feature: 'ACTIVITY_HISTORY' },
     { to: '/more/notifications', label: 'Notifications' },
     { to: '/more/help', label: 'Help' },
   ] },

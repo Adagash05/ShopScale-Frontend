@@ -175,7 +175,7 @@ export default function InvoiceDetail() {
       </div>
 
       {inv.note && <div className="section pad"><h2>Note</h2><p>{inv.note}</p></div>}
-      {reminding && <RemindCustomer customerName={inv.customerName} phone={inv.customerPhone} balance={inv.balance} invoiceNumber={inv.number} dueDate={inv.dueDate} onClose={() => setReminding(false)} />}
+      {reminding && <RemindCustomer invoiceId={inv.id} customerName={inv.customerName} phone={inv.customerPhone} balance={inv.balance} invoiceNumber={inv.number} dueDate={inv.dueDate} onClose={() => setReminding(false)} />}
       {paying && <PaymentModal invoice={inv} onClose={() => setPaying(false)} onSaved={apply} />}
       {cancelling && <Confirm title="Cancel this invoice?" message="The invoice stops being valid and its share link stops working. You cannot undo this." confirmLabel="Cancel invoice" danger busy={busy} onConfirm={cancel} onClose={() => setCancelling(false)} />}
     </div>

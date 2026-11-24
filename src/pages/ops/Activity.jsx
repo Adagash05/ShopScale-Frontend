@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { api } from '../../lib/api'
 import { Empty, ErrorBox, ListSkeleton, useLoad } from '../../components.jsx'
 import { dateTime } from '../../lib/format.js'
+import UpgradeNote from '../../widgets/UpgradeNote.jsx'
 
 const words = (s) => (s || '').toLowerCase().replace(/_/g, ' ')
 
@@ -13,6 +14,7 @@ export default function Activity() {
   const h = useLoad(() => api.get('/activity/history', { page, size: 30, entity: entity || undefined, userId: userId || undefined }), [page, entity, userId])
   const members = Array.isArray(team.data) ? team.data : team.data?.members || []
   const pages = h.data ? Math.max(1, Math.ceil(h.data.total / h.data.size)) : 1
+  if (h.error?.status === 402) return <div className="stack"><div className="page-head"><div><h1>Activity history</h1></div></div><UpgradeNote title="Activity history is on Growth and Business">{h.error.message}</UpgradeNote></div>
   return (
     <div className="stack">
       <div className="page-head"><div><h1>Activity history</h1><p className="sub">Who did what, and when</p></div></div>

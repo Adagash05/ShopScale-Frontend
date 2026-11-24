@@ -71,7 +71,7 @@ export const ARTICLES = [
     'Gross profit is sales minus what the products cost you. Estimated profit also takes off your recorded expenses.',
     'Buying stock is not an expense. Its cost shows up in profit when you sell the items.' ], guide: '/help/finance/overview' },
   { id: 'money-3', cat: 'money', title: 'Can I download my records?', body: [
-    'Settings, then Export data, gives CSV files. It is included from the Essential plan.' ], guide: '/help/finance/export-records' },
+    'Settings, then Export data, gives CSV files. It is included in the Growth and Business plans.' ], guide: '/help/finance/export-records' },
 
   { id: 'store-1', cat: 'store', title: 'How do I open my online store?', body: [
     'Open Online Store, then Store settings, and turn on "Open my store to customers". Your store link is shown there.',
