@@ -67,6 +67,9 @@ const M = {
   Home: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.HomePage }))),
   Features: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.FeaturesPage }))),
   Retail: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.RetailPage }))),
+  Industries: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.IndustriesPage }))),
+  Wholesale: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.WholesalePage }))),
+  Online: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.OnlineSellingPage }))),
   Restaurant: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.RestaurantPage }))),
   Catering: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.CateringPage }))),
   About: lazy(() => import('./marketing/Pages.jsx').then((m) => ({ default: m.AboutPage }))),
@@ -136,6 +139,9 @@ const marketingRoutes = (
   <Route element={<MarketingLayout />}>
     <Route path="features" element={<M.Features />} />
     <Route path="retail" element={<M.Retail />} />
+    <Route path="industries" element={<M.Industries />} />
+    <Route path="wholesale" element={<M.Wholesale />} />
+    <Route path="online-selling" element={<M.Online />} />
     {!V1_SCOPE && <Route path="restaurant" element={<M.Restaurant />} />}
     {!V1_SCOPE && <Route path="catering" element={<M.Catering />} />}
     <Route path="pricing" element={<Pricing />} />

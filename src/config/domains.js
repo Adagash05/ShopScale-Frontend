@@ -15,7 +15,7 @@ export const APP_PREFIXES = [
 ]
 
 /** Marketing pages served on the public domain ('/' is the homepage). */
-export const PUBLIC_PREFIXES = ['features', 'retail', 'restaurant', 'catering', 'pricing', 'about', 'contact', 'faq', 'how-it-works', 'help', 'privacy', 'terms', 'refunds']
+export const PUBLIC_PREFIXES = ['features', 'retail', 'industries', 'wholesale', 'online-selling', 'restaurant', 'catering', 'pricing', 'about', 'contact', 'faq', 'how-it-works', 'help', 'privacy', 'terms', 'refunds']
 
 /** Public customer storefront: /s/:slug and /s/:slug/order/:token. Stays on the public domain. */
 export const STORE_PREFIX = 's'

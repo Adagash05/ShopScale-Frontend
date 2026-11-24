@@ -9,6 +9,7 @@ import { useSeo } from '../marketing/Seo.jsx'
 import { FEATURE_LABELS, advertised, allFeatureKeys, annualSavings, limitText, newFeatures } from '../lib/plans.js'
 import { expenseLimitText, reminderLimitText, supplierLimitText } from '../lib/entitlements.js'
 import { V1_SCOPE } from '../config/scope.js'
+import { CtaBand, Faq, Section, SectionHead } from '../marketing/ui.jsx'
 
 export function PlanCards({ plans, annual, renderAction }) {
   return (
@@ -71,36 +72,42 @@ export function CompareTable({ plans }) {
   )
 }
 
+const PRICING_FAQ = [
+  ['Do I need a card to start?', 'No. Your 14-day trial starts when you create your business, with full Business plan access. No card is asked for.'],
+  ['What happens when my trial ends?', 'Your data is kept safe and nothing is deleted. Your business moves to the Free plan so you can keep selling. Features and limits beyond Free need a paid plan.'],
+  ['Will I be charged automatically?', 'Paid plans renew automatically each month or year through Paystack until you cancel. You can cancel from Plan and billing in the app and keep access until the end of the period you paid for.'],
+  ['What if I go over a limit after changing plan?', 'Nothing is deleted. You keep everything you have, and you can add more once you are back within the plan allowance or upgrade.'],
+  ['Which plans include Ask ShopScale, CSV export and online orders?', 'Growth and Business. WhatsApp invoice reminders start on Essential.'],
+]
+
 export default function Pricing() {
   const [annual, setAnnual] = useState(false)
   const plans = useLoad(() => api.public.get('/subscriptions/plans'), [])
   useEffect(() => { track('view_pricing', { source: 'public' }) }, [])
   useSeo({ title: 'Pricing', description: 'Simple ShopScale pricing: a free plan forever, plus Essential, Growth and Business plans, monthly or yearly with two months free.', path: '/pricing' })
   return (
-    <section className="mk-section"><div className="mk-wrap"><div className="stack">
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2rem' }}>Simple pricing for your business</h1>
-        <p className="muted">Start free and stay free, or try every feature for 14 days. No card needed. Every plan includes sales recording and stock management. Paid plans renew automatically each month or year until you cancel; cancel any time and keep access until the period you paid for ends.</p>
-      </div>
-      <div className="seg" style={{ maxWidth: 340, margin: '0 auto', width: '100%' }} role="group" aria-label="Billing period">
-        <button className={`chip ${!annual ? 'on' : ''}`} aria-pressed={!annual} onClick={() => setAnnual(false)}>Monthly</button>
-        <button className={`chip ${annual ? 'on' : ''}`} aria-pressed={annual} onClick={() => setAnnual(true)}>Yearly · 2 months free</button>
-      </div>
-      <ErrorBox error={plans.error} onRetry={plans.reload} />
-      {plans.loading && <Skeleton height={320} />}
+    <>
+      <section className="mkx-page-hero"><div className="mkx-wrap">
+        <h1>Simple pricing for your business</h1>
+        <p className="mkx-lead">Start free and stay free, or try every feature for 14 days. No card needed. Every plan includes sales recording and stock management.</p>
+        <div className="mkx-toggle" role="group" aria-label="Billing period">
+          <button type="button" className={!annual ? 'on' : ''} aria-pressed={!annual} onClick={() => setAnnual(false)}>Monthly</button>
+          <button type="button" className={annual ? 'on' : ''} aria-pressed={annual} onClick={() => setAnnual(true)}>Yearly · 2 months free</button>
+        </div>
+      </div></section>
+      <Section>
+        <div className="mkx-pricing">
+          <ErrorBox error={plans.error} onRetry={plans.reload} />
+          {plans.loading && <Skeleton height={320} />}
+          {plans.data && <PlanCards plans={plans.data} annual={annual} renderAction={(p) => <Link to="/register" className="btn primary block">{Number(p.monthlyPrice) === 0 ? 'Start free' : 'Start 14-day free trial'}</Link>} />}
+        </div>
+        <p className="mkx-fine" style={{ textAlign: 'center', marginTop: 18 }}>Paid plans renew automatically until you cancel. Cancel any time and keep access until the period you paid for ends.</p>
+      </Section>
       {plans.data && (
-        <>
-          <PlanCards plans={plans.data} annual={annual} renderAction={(p) => <Link to="/register" className="btn primary block">{Number(p.monthlyPrice) === 0 ? 'Start free' : 'Start 14-day free trial'}</Link>} />
-          <h2>Compare plans</h2>
-          <CompareTable plans={plans.data} />
-        </>
+        <Section tone="tint" labelledBy="cmp-h"><SectionHead id="cmp-h" center title="Compare plans" /><div className="mkx-pricing"><CompareTable plans={plans.data} /></div></Section>
       )}
-      <h2>Questions</h2>
-      <div className="section">
-        <details className="pad"><summary><strong>Do I need a card to start?</strong></summary><p className="muted">No. Your 14-day trial starts when you create your business, with full Business plan access.</p></details>
-        <details className="pad"><summary><strong>What happens when my trial ends?</strong></summary><p className="muted">Your data is kept safe and nothing is deleted. Your business moves to the free plan, so you can keep selling; features and limits beyond Free need a paid plan.</p></details>
-        <details className="pad"><summary><strong>Will you charge me automatically?</strong></summary><p className="muted">Never without your clear permission.</p></details>
-      </div>
-    </div></div></section>
+      <Section labelledBy="pq-h"><SectionHead id="pq-h" center title="Pricing questions" /><Faq items={PRICING_FAQ} /></Section>
+      <CtaBand />
+    </>
   )
 }

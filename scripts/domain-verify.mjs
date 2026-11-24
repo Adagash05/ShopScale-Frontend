@@ -48,7 +48,7 @@ test('public host sends app paths to the app host and keeps query + hash', () =>
   assert.equal(crossOrigin('public', '/login', cfg), 'https://app.shopscale.com.ng/login')
   assert.equal(crossOrigin('public', '/more/sales?x=1#top', cfg), 'https://app.shopscale.com.ng/more/sales?x=1#top')
   assert.equal(crossOrigin('public', '/reset-password?token=abc', cfg), 'https://app.shopscale.com.ng/reset-password?token=abc')
-  for (const p of ['/', '/features', '/retail', '/restaurant', '/catering', '/pricing', '/about', '/contact', '/faq', '/privacy', '/terms', '/refunds', '/s/my-shop', '/s/my-shop/order/tok', '/nope'])
+  for (const p of ['/', '/features', '/retail', '/industries', '/wholesale', '/online-selling', '/restaurant', '/catering', '/pricing', '/about', '/contact', '/faq', '/privacy', '/terms', '/refunds', '/s/my-shop', '/s/my-shop/order/tok', '/nope'])
     assert.equal(crossOrigin('public', p, cfg), null, p)
 })
 

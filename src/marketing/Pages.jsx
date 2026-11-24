@@ -2,8 +2,7 @@ import { SmartLink as Link } from '../lib/SmartLink.jsx'
 import { api } from '../lib/api'
 import { useLoad, ErrorBox, Skeleton } from '../components.jsx'
 import { useSeo } from './Seo.jsx'
-import { DashboardPreview, SellPreview } from './Previews.jsx'
-import { PlanCards } from '../pages/Pricing.jsx'
+import { Faq } from './ui.jsx'
 import { SUPPORT_EMAIL, SUPPORT_MAILTO, SUPPORT_WHATSAPP, SUPPORT_WHATSAPP_NUMBER } from '../help/support.js'
 import { V1_SCOPE } from '../config/scope.js'
 import './contact.css'
@@ -27,155 +26,12 @@ function FinalCta({ title = 'Start running your business from one place', text =
   )
 }
 
-const FAQ = [
-  ['Do I need a card to start the free trial?', 'No. Your 14-day trial starts when you create your business and includes full Business plan access.'],
-  ['What happens when the trial ends?', 'Your data stays safe. You can still sign in and look at everything, but you need a plan to record new sales and changes. Nothing is deleted.'],
-  ['Will ShopScale charge me automatically?', 'Never without your clear permission.'],
-  ['Does it work on a phone?', 'Yes. ShopScale is designed for phones first, including affordable Android phones, and also works on tablets and computers.'],
-  ['Can my staff use it?', 'Yes. You can invite people and give each one a role, for example a cashier who can record sales but cannot see your profit. You can remove anyone’s access at any time.'],
-  ['Can I sell online with ShopScale?', 'Yes. Paid plans include an online store with your products, cart and checkout. Customers can pay online with your own Paystack account, or pay when they pick up or receive their order.'],
-  ['Who is ShopScale for?', 'Shops, wholesalers, distributors and other businesses that buy and sell products. It keeps your sales, stock, money and online store in one place.'],
-  ['Who can see my business data?', 'Only the people you add to your business, with the access you give them.'],
-]
-
-export function FaqList({ items = FAQ }) {
-  return <div className="section">{items.map(([q, a]) => <details className="pad" key={q} style={{ borderBottom: '1px solid var(--line)' }}><summary style={{ cursor: 'pointer', fontWeight: 600 }}>{q}</summary><p className="muted" style={{ marginTop: 8 }}>{a}</p></details>)}</div>
+export function FaqList({ items }) {
+  return <Faq items={items} />
 }
 
-export function HomePage() {
-  useSeo({ title: 'ShopScale · Your entire business. One simple platform.', description: 'Record sales, control stock, track expenses and customers who owe you, and see your profit. ShopScale is built for Nigerian businesses. Start a 14-day free trial.', path: '/' })
-  const plans = useLoad(() => api.public.get('/subscriptions/plans'), [])
-  const benefits = [
-    [ShoppingCart, 'Record sales in seconds', 'Tap a product, check the total, confirm. Stock and payments update by themselves.'],
-    [Boxes, 'Know what is in stock', 'See what is running low before it runs out. Sizes and colours are built in.'],
-    [Users, 'Know who owes you', 'Record part payments and credit sales, and collect repayments without a notebook.'],
-    [Wallet, 'See your real profit', 'Add expenses and see estimated profit, not just sales.'],
-    [LayoutDashboard, 'A dashboard that tells you things', 'Sales by day, best sellers, how customers paid and stock health.'],
-    [UsersRound, 'Add your team safely', 'Give cashiers, stock keepers and accountants only the access they need.'],
-  ]
-  return (
-    <>
-      <section className="mk-hero"><div className="mk-wrap mk-hero-grid">
-        <div>
-          <span className="badge teal">Free for 14 days · No card needed</span>
-          <h1 style={{ marginTop: 14 }}>Your entire business. One simple platform.</h1>
-          <p className="lead">Manage sales, inventory, expenses, customers and orders without juggling notebooks, spreadsheets and disconnected apps. If you can use WhatsApp, you can use ShopScale.</p>
-          <Cta />
-        </div>
-        <SellPreview />
-      </div></section>
-
-      <section className="mk-section"><div className="mk-wrap">
-        <h2>Everything you need to run your shop day to day</h2>
-        <p className="intro">Built for business owners who are not accountants or computer experts.</p>
-        <div className="mk-grid c3">{benefits.map(([Icon, t, d], i) => (
-          <div className="mk-card" key={t}><span className={`ico ${i % 2 ? 'teal' : ''}`}><Icon size={22} aria-hidden="true" /></span><h3>{t}</h3><p>{d}</p></div>))}</div>
-      </div></section>
-
-      <section className="mk-section alt"><div className="mk-wrap mk-hero-grid">
-        <div><h2>See how your business is really doing</h2>
-          <p className="intro">Your dashboard uses your own records: what you sold, what you spent, how customers paid, and which products are selling or sitting.</p>
-          <ul className="prose" style={{ marginTop: 16, listStyle: 'none', padding: 0 }}>
-            {['Sales today, this week and this month', 'Estimated profit with a clear explanation of how it is worked out', 'Best sellers and products that are not selling', 'Customers who owe you and stock running low'].map((t) => <li key={t} className="row"><Check size={18} color="var(--teal)" aria-hidden="true" /><span>{t}</span></li>)}
-          </ul></div>
-        <DashboardPreview />
-      </div></section>
-
-      <section className="mk-section"><div className="mk-wrap">
-        <h2>Made for the way you work</h2>
-        <div className="mk-grid c3">
-          <Link to="/retail" className="mk-card"><span className="ico"><Store size={22} aria-hidden="true" /></span><h3>Shops and retail</h3><p>Fashion, cosmetics, electronics, groceries and general stores. Available now.</p></Link>
-          {!V1_SCOPE && <Link to="/restaurant" className="mk-card"><span className="ico teal"><UtensilsCrossed size={22} aria-hidden="true" /></span><h3>Restaurants, takeaways and bakeries</h3><p>Menu, tables, kitchen screen, recipes, wastage and bakery production.</p></Link>}
-          {!V1_SCOPE && <Link to="/catering" className="mk-card"><span className="ico"><CalendarClock size={22} aria-hidden="true" /></span><h3>Catering and small chops</h3><p>Enquiries, quotations, deposits, event preparation and profit.</p></Link>}
-        </div>
-      </div></section>
-
-      <section className="mk-section alt"><div className="mk-wrap">
-        <h2>Simple pricing</h2><p className="intro">Try everything free for 14 days, then choose the plan that fits.</p>
-        <div style={{ marginTop: 24 }}>
-          <ErrorBox error={plans.error} onRetry={plans.reload} />
-          {plans.loading && <Skeleton height={260} />}
-          {plans.data && <PlanCards plans={plans.data} annual={false} renderAction={() => <Link to="/register" className="btn primary block">Start free trial</Link>} />}
-          <p style={{ marginTop: 16 }}><Link to="/pricing">Compare plans and see yearly prices</Link></p>
-        </div>
-      </div></section>
-
-      <section className="mk-section"><div className="mk-wrap mk-grid c2" style={{ marginTop: 0 }}>
-        <div><span className="ico" style={{ display: 'inline-grid', width: 40, height: 40, borderRadius: 10, background: 'var(--blue-light)', color: 'var(--blue-deep)', placeItems: 'center' }}><ShieldCheck size={22} aria-hidden="true" /></span>
-          <h2 style={{ marginTop: 12 }}>Your records stay yours</h2></div>
-        <ul className="prose">
-          <li>Your data is never deleted if a trial or subscription ends. You can always sign in and look.</li>
-          <li>Each business is kept separate. People only see what their role allows.</li>
-          <li>Passwords are stored securely, and you can remove any staff member’s access instantly.</li>
-          <li>We never charge you without your clear permission.</li>
-        </ul>
-      </div></section>
-
-      <section className="mk-section alt"><div className="mk-wrap"><h2>Questions</h2><div style={{ marginTop: 20 }}><FaqList items={FAQ.slice(0, 5)} /></div>
-        <p style={{ marginTop: 14 }}><Link to="/faq">More questions</Link></p></div></section>
-      <FinalCta />
-    </>
-  )
-}
-
-export function FeaturesPage() {
-  useSeo({ title: 'Features', description: 'Sales and POS, stock management, customer credit, expenses, profit, dashboard and team access, all in one simple app for your business.', path: '/features' })
-  const available = [
-    ['Sales and POS', 'Search or tap products, apply a discount, take cash, transfer or card, sell on credit, print a receipt, and refund a sale.'],
-    ['Stock management', 'Products with sizes and colours, adding stock, damaged items, stock counts, a full history and running-low warnings.'],
-    ['Buying from suppliers', 'Receive stock, keep your costs up to date automatically and see what you owe each supplier.'],
-    ['A dashboard that tells you what to do', 'Products about to run out, items that are not selling, customers who owe you for too long and weak margins, each with how it was worked out.'],
-    ['Customers', 'Keep customer details, see what each one has bought, record part payments and see who owes you.'],
-    ['Expenses and profit', 'Record costs by type and see estimated profit with a plain explanation.'],
-    ['Dashboard and reports', 'Sales by day, best sellers, payment methods, sales by category, stock health and an activity feed.'],
-    ['Online store and orders', 'A store link for your customers, a cart and checkout, and a screen to confirm, prepare and complete each order. Not on the Free plan.'],
-    ['Online payments with Paystack', 'Customers pay online and the money goes straight to your own Paystack account.'],
-    ...(V1_SCOPE ? [] : [['Wholesale pricing', 'Price tiers, bulk price breaks and agreed customer prices, applied automatically at the till.']]),
-    ['Works on a weak connection', 'Install ShopScale on your phone. Sales you make offline are saved on the device and sent when you are back online.'],
-    ...(V1_SCOPE ? [] : [['Restaurant and kitchen', 'Menu with sizes and paid extras, tables, a kitchen screen, recipes that deduct ingredients, wastage and reports. Bakeries also record production.']]),
-    ...(V1_SCOPE ? [] : [['Catering and events', 'Packages priced per guest, quotations, deposits and part payments, preparation checklist, ingredient planning and profit per event.']]),
-    ['Team and permissions', 'Invite cashiers who record sales without seeing your profit, and remove access instantly.'],
-  ]
-  return (
-    <>
-      <section className="mk-section"><div className="mk-wrap"><h1 style={{ fontSize: '2rem' }}>Everything in one simple app</h1>
-        <p className="intro">What you can do in ShopScale today.</p>
-        <div className="mk-grid c3">{available.map(([t, d]) => <div className="mk-card" key={t}><h3>{t}</h3><p>{d}</p></div>)}</div></div></section>
-      <FinalCta />
-    </>
-  )
-}
-
-function IndustryPage({ seo, title, lead, points, extra }) {
-  useSeo(seo)
-  return (
-    <>
-      <section className="mk-hero"><div className="mk-wrap"><h1 style={{ maxWidth: '20ch' }}>{title}</h1><p className="lead">{lead}</p>
-        <Cta /></div></section>
-      <section className="mk-section"><div className="mk-wrap"><h2>What you can do today</h2>
-        <div className="mk-grid c2">{points.map(([t, d]) => <div className="mk-card" key={t}><h3>{t}</h3><p>{d}</p></div>)}</div>{extra}</div></section>
-      <FinalCta />
-    </>
-  )
-}
-
-export function RetailPage() {
-  return <IndustryPage seo={{ title: 'ShopScale for shops and retail', description: 'Control your stock and record sales fast. Sizes, colours, credit sales, expenses and profit for fashion, cosmetics, electronics and general stores.', path: '/retail' }}
-    title="Control your stock. Know your sales." lead="For fashion, cosmetics, electronics, grocery and general stores. Record a sale in a few taps, see what is left on the shelf and know who still owes you."
-    points={[['Fast sales', 'Search or tap a product, choose how the customer is paying and confirm. Print a receipt if they want one.'], ['Sizes and colours', 'One product, many options, each with its own price and stock count.'], ['Stock you can trust', 'Every sale, restock, damaged item and count is recorded in a history you can read.'], ['Credit and part payments', 'Sell on credit, take part payments and see who owes you.'], ['Real profit', 'Enter what products cost you and what you spend to see estimated profit.'], ['Staff access', 'Let a cashier sell without seeing your profit or changing prices.']]} />
-}
-
-export function RestaurantPage() {
-  return <IndustryPage seo={{ title: 'ShopScale for restaurants and takeaways', description: 'Menu, kitchen orders, pickup and delivery for restaurants, cafes and takeaways. Available in ShopScale.', path: '/restaurant' }}
-    title="Restaurants and takeaways" lead="Run your menu, tables and kitchen from one app. Orders reach the kitchen screen, ingredients come off stock, and bakeries can record what they baked."
-    points={[['Menu with options', 'Sizes, paid add-ons and extras that calculate the right price, plus a sold-out switch.'], ['Tables and kitchen screen', 'Dine-in, takeaway and other orders appear for the kitchen with items, notes and waiting time.'], ['Recipes and wastage', 'Optional recipes take ingredients off stock. Record spoilage and waste with a reason.'], ['Bakery production', 'Record what you baked. Ingredients go down and finished stock goes up. Custom cake orders take deposits.']]} />
-}
-
-export function CateringPage() {
-  return <IndustryPage seo={{ title: 'ShopScale for catering and small chops', description: 'Advance orders, event dates, deposits and balances for catering and small-chops businesses. Available in ShopScale.', path: '/catering' }}
-    title="Catering and small chops" lead="Take an enquiry, send a quotation, confirm with a deposit, prepare, and see what each event earned."
-    points={[['Packages and quotations', 'Price by guest count with services and discounts.'], ['Deposits and balances', 'Part payments, a full payment history and what is still owed.'], ['No double bookings', 'Warns you about another event on the same date or venue.'], ['Preparation and profit', 'Checklist, ingredient planning, stock taken once, costs and profit per event.']]} />
-}
+export { HomePage } from './Home.jsx'
+export { FeaturesPage, RetailPage, WholesalePage, OnlineSellingPage, RestaurantPage, CateringPage, IndustriesPage, FaqPage } from './Public.jsx'
 
 export function AboutPage() {
   useSeo({ title: 'About ShopScale', description: 'ShopScale is a business operations app built to help Nigerian businesses run from one simple platform.', path: '/about' })
@@ -210,11 +66,6 @@ export function ContactPage() {
       <p className="ct-help">Looking for step-by-step guides? Visit the <Link to="/help">Help Centre</Link> or see <Link to="/how-it-works">how ShopScale works</Link>.</p>
     </div></section>
   )
-}
-
-export function FaqPage() {
-  useSeo({ title: 'Frequently asked questions', description: 'Answers about the ShopScale free trial, pricing, staff access, data safety and what is available today.', path: '/faq' })
-  return <section className="mk-section"><div className="mk-wrap"><h1 style={{ fontSize: '2rem', marginBottom: 20 }}>Frequently asked questions</h1><FaqList /></div></section>
 }
 
 const UPDATED = '4 November 2026'
